@@ -1,5 +1,5 @@
-# messenger
-채팅 메신저
+# messenger-tempo
+Spring 기반 채팅 메신저 API
 
 
 ## 구현할 기능 리스트
@@ -36,6 +36,6 @@
     - Push API (웹 애플리케이션)
 
 
-## 사용 기술
+## 사용 기술, 언어
 - Spring Boot 2.7.8
 - JDK 11
