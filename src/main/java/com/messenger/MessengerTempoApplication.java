@@ -14,4 +14,8 @@ public class MessengerTempoApplication {
 		System.out.println("Spring version = "+getVersion);
 	}
 
+	public void test() {
+
+	}
+
 }
