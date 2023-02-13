@@ -29,7 +29,6 @@ public class JdbcMemberRepository implements MemberRepository {
         String sql = "INSERT INTO member(id, pw, display_name) values(?, ?, ?)";
         Connection conn = null;
         PreparedStatement pstmt = null;
-        ResultSet rs = null;
         try {
             conn = getConnection();
             conn.setAutoCommit(false);  // 트랜잭션 시작
@@ -54,7 +53,7 @@ public class JdbcMemberRepository implements MemberRepository {
             }
             return false;
         } finally {
-            close(conn, pstmt, rs);
+            close(conn, pstmt, null);
         }
     }
 
@@ -162,7 +161,6 @@ public class JdbcMemberRepository implements MemberRepository {
         String sql = "UPDATE member SET pw = ? WHERE id = ?";
         Connection conn = null;
         PreparedStatement pstmt = null;
-        ResultSet rs = null;
         try {
             conn = getConnection();
             conn.setAutoCommit(false);  // 트랜잭션 시작
@@ -183,7 +181,7 @@ public class JdbcMemberRepository implements MemberRepository {
             }
             return false;
         } finally {
-            close(conn, pstmt, rs);
+            close(conn, pstmt, null);
         }
     }
 
@@ -198,7 +196,6 @@ public class JdbcMemberRepository implements MemberRepository {
         String sql = "UPDATE member SET display_name = ? WHERE id = ?";
         Connection conn = null;
         PreparedStatement pstmt = null;
-        ResultSet rs = null;
         try {
             conn = getConnection();
             conn.setAutoCommit(false);  // 트랜잭션 시작
@@ -219,7 +216,7 @@ public class JdbcMemberRepository implements MemberRepository {
             }
             return false;
         } finally {
-            close(conn, pstmt, rs);
+            close(conn, pstmt, null);
         }
     }
 
@@ -228,7 +225,6 @@ public class JdbcMemberRepository implements MemberRepository {
         String sql = "UPDATE member SET content = ? WHERE id = ?";
         Connection conn = null;
         PreparedStatement pstmt = null;
-        ResultSet rs = null;
         try {
             conn = getConnection();
             conn.setAutoCommit(false);  // 트랜잭션 시작
@@ -249,7 +245,7 @@ public class JdbcMemberRepository implements MemberRepository {
             }
             return false;
         } finally {
-            close(conn, pstmt, rs);
+            close(conn, pstmt, null);
         }
     }
 
