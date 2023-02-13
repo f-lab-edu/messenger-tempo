@@ -27,7 +27,6 @@ public class JdbcMemberRepository implements MemberRepository {
         String sql = "INSERT INTO member(id, pw, display_name) values(?, ?, ?)";
         Connection conn = null;
         PreparedStatement pstmt = null;
-        ResultSet rs = null;
         try {
             conn = getConnection();
             conn.setAutoCommit(false);  // 트랜잭션 시작
@@ -35,10 +34,7 @@ public class JdbcMemberRepository implements MemberRepository {
             pstmt.setString(1, member.getId());
             pstmt.setString(2, member.getPassword());
             pstmt.setString(3, member.getName());
-            int ret = pstmt.executeUpdate();
-            if (ret != 1) {
-                throw new SQLException("executeUpdate return: "+ret);
-            }
+            pstmt.executeUpdate();
             conn.commit();  // 트랜잭션 커밋
             return true;
         } catch (Exception e) {
@@ -51,7 +47,7 @@ public class JdbcMemberRepository implements MemberRepository {
             }
             return false;
         } finally {
-            close(conn, pstmt, rs);
+            close(conn, pstmt, null);
         }
     }
 
@@ -163,17 +159,13 @@ public class JdbcMemberRepository implements MemberRepository {
         String sql = "UPDATE member SET pw = ? WHERE id = ?";
         Connection conn = null;
         PreparedStatement pstmt = null;
-        ResultSet rs = null;
         try {
             conn = getConnection();
             conn.setAutoCommit(false);  // 트랜잭션 시작
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, password);
             pstmt.setString(2, id);
-            int ret = pstmt.executeUpdate();
-            if (ret != 1) {  // 이전과 동일한 경우도 예외 발생하게 처리
-                throw new SQLException("executeUpdate return: "+ret);
-            }
+            pstmt.executeUpdate();
             conn.commit();  // 트랜잭션 커밋
             return true;
         } catch (Exception e) {
@@ -186,7 +178,7 @@ public class JdbcMemberRepository implements MemberRepository {
             }
             return false;
         } finally {
-            close(conn, pstmt, rs);
+            close(conn, pstmt, null);
         }
     }
 
@@ -205,17 +197,13 @@ public class JdbcMemberRepository implements MemberRepository {
         String sql = "UPDATE member SET display_name = ? WHERE id = ?";
         Connection conn = null;
         PreparedStatement pstmt = null;
-        ResultSet rs = null;
         try {
             conn = getConnection();
             conn.setAutoCommit(false);  // 트랜잭션 시작
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, name);
             pstmt.setString(2, id);
-            int ret = pstmt.executeUpdate();
-            if (ret != 1) {  // 이전과 동일한 경우도 예외 발생하게 처리
-                throw new SQLException("executeUpdate return: "+ret);
-            }
+            pstmt.executeUpdate();
             conn.commit();  // 트랜잭션 커밋
             return true;
         } catch (Exception e) {
@@ -228,7 +216,7 @@ public class JdbcMemberRepository implements MemberRepository {
             }
             return false;
         } finally {
-            close(conn, pstmt, rs);
+            close(conn, pstmt, null);
         }
     }
 
