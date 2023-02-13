@@ -26,7 +26,7 @@ public class MemberServiceIntegrationTest {
 
         //then
         assertThat(result).isEqualTo(true);
-        Member findMember = memberService.findOne(member.getId()).get();
+        Member findMember = memberService.memberFindById(member.getId()).get();
         assertThat(findMember).isEqualTo(member);
     }
 
@@ -43,7 +43,7 @@ public class MemberServiceIntegrationTest {
         //then
         assertThat(result1).isEqualTo(true);
         assertThat(result2).isEqualTo(false);
-        Member findMember = memberService.findOne(member1.getId()).get();
+        Member findMember = memberService.memberFindById(member1.getId()).get();
         assertThat(findMember).isEqualTo(member1);
     }
 
