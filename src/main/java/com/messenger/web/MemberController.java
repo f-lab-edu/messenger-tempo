@@ -125,4 +125,13 @@ public class MemberController {
         return new ResponseEntity<>(findMemberAfter, HttpStatus.OK);
     }
 
+    @PostMapping(value = "/api/v1/members/login", consumes = "application/x-www-form-urlencoded")
+    public ResponseEntity<Member> loginMember(@RequestParam String id,
+                                              @RequestParam String password) {
+        Member findMember = memberService.loginMember(id, password).orElse(null);
+        if (findMember == null) {
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+        }
+        return new ResponseEntity<>(findMember, HttpStatus.OK);
+    }
 }
