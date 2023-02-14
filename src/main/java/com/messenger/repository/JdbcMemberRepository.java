@@ -29,22 +29,13 @@ public class JdbcMemberRepository implements MemberRepository {
         PreparedStatement pstmt = null;
         try {
             conn = getConnection();
-            conn.setAutoCommit(false);  // 트랜잭션 시작
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, member.getId());
             pstmt.setString(2, member.getPassword());
             pstmt.setString(3, member.getName());
             pstmt.executeUpdate();
-            conn.commit();  // 트랜잭션 커밋
             return true;
         } catch (Exception e) {
-            if (conn != null) {
-                try {
-                    conn.rollback();  // 트랜잭션 롤백
-                } catch (SQLException ex) {
-                    throw new RuntimeException(ex);
-                }
-            }
             return false;
         } finally {
             close(conn, pstmt, null);
@@ -161,21 +152,12 @@ public class JdbcMemberRepository implements MemberRepository {
         PreparedStatement pstmt = null;
         try {
             conn = getConnection();
-            conn.setAutoCommit(false);  // 트랜잭션 시작
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, password);
             pstmt.setString(2, id);
             pstmt.executeUpdate();
-            conn.commit();  // 트랜잭션 커밋
             return true;
         } catch (Exception e) {
-            if (conn != null) {
-                try {
-                    conn.rollback();  // 트랜잭션 롤백
-                } catch (SQLException ex) {
-                    throw new RuntimeException(ex);
-                }
-            }
             return false;
         } finally {
             close(conn, pstmt, null);
@@ -199,21 +181,12 @@ public class JdbcMemberRepository implements MemberRepository {
         PreparedStatement pstmt = null;
         try {
             conn = getConnection();
-            conn.setAutoCommit(false);  // 트랜잭션 시작
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, name);
             pstmt.setString(2, id);
             pstmt.executeUpdate();
-            conn.commit();  // 트랜잭션 커밋
             return true;
         } catch (Exception e) {
-            if (conn != null) {
-                try {
-                    conn.rollback();  // 트랜잭션 롤백
-                } catch (SQLException ex) {
-                    throw new RuntimeException(ex);
-                }
-            }
             return false;
         } finally {
             close(conn, pstmt, null);
