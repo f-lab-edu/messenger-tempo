@@ -94,7 +94,7 @@ public class MemberController {
      * @return  변경된 경우 : 변경된 회원 객체
      *          그 외 : null
      */
-    @PostMapping(value = "/api/v1/members/id/{memberId}", consumes = "application/x-www-form-urlencoded")
+    @PutMapping(value = "/api/v1/members/id/{memberId}", consumes = "application/x-www-form-urlencoded")
     public ResponseEntity<Member> updateMemberInfo(@PathVariable String memberId,
                                                    @RequestParam(required = false) String name,
                                                    @RequestParam(required = false) String password,
