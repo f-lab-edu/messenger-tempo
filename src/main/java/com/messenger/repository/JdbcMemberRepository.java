@@ -137,6 +137,35 @@ public class JdbcMemberRepository implements MemberRepository {
         }
     }
 
+    @Override
+    public Optional<Member> findByIdPw(String id, String password) {
+        String sql = "SELECT * FROM member WHERE id = ? AND password = ?";
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            conn = getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, id);
+            pstmt.setString(2, password);
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+                String memberId = rs.getString("id");
+                String memberPw = rs.getString("pw");
+                String displayName = rs.getString("display_name");
+                String statusMessage = rs.getString("status_message");
+                Member member = new Member(memberId, memberPw, displayName, statusMessage);
+                return Optional.of(member);
+            } else {
+                return Optional.empty();
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        } finally {
+            close(conn, pstmt, rs);
+        }
+    }
+
     /**
      * 회원 정보 변경
      * @param paramMember 변경할 회원 정보 객체
