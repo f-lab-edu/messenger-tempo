@@ -1,6 +1,7 @@
 package com.messenger.repository;
 
 import com.messenger.domain.Member;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
 
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
+@Slf4j
 public class JdbcMemberRepository implements MemberRepository {
 
     private final DataSource dataSource;
@@ -136,54 +138,27 @@ public class JdbcMemberRepository implements MemberRepository {
     }
 
     /**
-     * 회원 비밀번호 업데이트
-     * @param id        회원 id
-     * @param password  변경할 회원 비밀번호
-     * @return 업데이트 성공 여부
+     * 회원 정보 변경
+     * @param paramMember 변경할 회원 정보 객체
+     * @return 변경 성공 여부
      */
     @Override
-    public boolean updatePassword(String id, String password) {
-        Optional<Member> findMember = findById(id);
-        if (findMember.isEmpty()) {
-            return false;
-        }
-        String sql = "UPDATE member SET pw = ? WHERE id = ?";
+    public boolean updateMember(Member paramMember) {
+        String sql = "UPDATE member SET pw = ?, display_name = ?, content = ? WHERE id = ?";
         Connection conn = null;
         PreparedStatement pstmt = null;
         try {
+            log.debug("UPDATE member SET pw = {}, display_name = {}, content = {} WHERE id = {}",
+                    paramMember.getPassword(),
+                    paramMember.getName(),
+                    paramMember.getStatusMessage(),
+                    paramMember.getId());
             conn = getConnection();
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, password);
-            pstmt.setString(2, id);
-            pstmt.executeUpdate();
-            return true;
-        } catch (Exception e) {
-            return false;
-        } finally {
-            close(conn, pstmt, null);
-        }
-    }
-
-    /**
-     * 회원 이름 업데이트
-     * @param id    회원 id
-     * @param name  변경할 회원 이름
-     * @return 업데이트 성공 여부
-     */
-    @Override
-    public boolean updateDisplayName(String id, String name) {
-        Optional<Member> findMember = findById(id);
-        if (findMember.isEmpty()) {
-            return false;
-        }
-        String sql = "UPDATE member SET display_name = ? WHERE id = ?";
-        Connection conn = null;
-        PreparedStatement pstmt = null;
-        try {
-            conn = getConnection();
-            pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, name);
-            pstmt.setString(2, id);
+            pstmt.setString(1, paramMember.getPassword());
+            pstmt.setString(2, paramMember.getName());
+            pstmt.setString(3, paramMember.getStatusMessage());
+            pstmt.setString(4, paramMember.getId());
             pstmt.executeUpdate();
             return true;
         } catch (Exception e) {
