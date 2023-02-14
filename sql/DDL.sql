@@ -4,7 +4,7 @@ CREATE TABLE member(
     id VARCHAR(32) NOT NULL UNIQUE,
     pw VARCHAR(32) NOT NULL,
     display_name VARCHAR(50) NOT NULL,
-    content VARCHAR(100),
+    status_message VARCHAR(100),
     join_time DATETIME DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY(id)
 );
