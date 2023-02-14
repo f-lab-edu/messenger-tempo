@@ -28,4 +28,15 @@ public class Member {
             this.name = name;
         }
     }
+
+    public Member(String id, String password, String name, String statusMessage) {
+        this.id = id;
+        this.password = password;
+        if (name != null && !name.equals("")) {
+            this.name = name;
+        }
+        if (statusMessage != null && !statusMessage.equals("")) {
+            this.statusMessage = statusMessage;
+        }
+    }
 }
