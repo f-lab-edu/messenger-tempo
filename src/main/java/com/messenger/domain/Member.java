@@ -7,7 +7,7 @@ import lombok.Getter;
 @EqualsAndHashCode
 public class Member {
 
-    private String id;
+    private final String id;
     private String password;
     private String name = "undefined";
 
