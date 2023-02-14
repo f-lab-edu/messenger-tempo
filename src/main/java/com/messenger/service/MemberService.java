@@ -62,4 +62,8 @@ public class MemberService {
     private static boolean isEmpty(String param) {
         return param == null || param.isEmpty();
     }
+
+    public Optional<Member> loginMember(String id, String password) {
+        return memberRepository.findByIdPw(id, password);
+    }
 }
