@@ -11,12 +11,14 @@ import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
 
+import javax.servlet.http.HttpSession;
 import java.util.Optional;
 
 @Slf4j
 @RestController
 public class MemberController {
 
+    public static final String SESSION_KEY_USER_ID = "USER_ID";
     private final MemberService memberService;
 
     @Autowired
@@ -102,8 +104,8 @@ public class MemberController {
         log.debug("memberId={}, name={}, password={}", memberId, name, password);
 
         // memberId를 찾을 수 없는 경우
-        Member findMember = memberService.findMemberById(memberId).orElse(null);
-        if (findMember == null) {
+        Optional<Member> findMember = memberService.findMemberById(memberId);
+        if (findMember.isEmpty()) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
 
@@ -116,9 +118,9 @@ public class MemberController {
         }
 
         // 변경된 후 다시 memberId를 찾는다
-        Member findMemberAfter = memberService.findMemberById(memberId).orElseThrow();
+        Member findMemberAfter = memberService.findMemberById(memberId).orElseThrow(() -> new IllegalStateException("cannot find member by id"));
         // 변경된 것이 하나도 없는 경우
-        if (findMemberAfter.equals(findMember)) {
+        if (findMemberAfter.equals(findMember.get())) {
             return new ResponseEntity<>(null, HttpStatus.NOT_MODIFIED);
         }
 
@@ -127,11 +129,27 @@ public class MemberController {
 
     @PostMapping(value = "/api/v1/members/login", consumes = "application/x-www-form-urlencoded")
     public ResponseEntity<Member> loginMember(@RequestParam String id,
-                                              @RequestParam String password) {
+                                              @RequestParam String password,
+                                              HttpSession session) {
+        // 세션 값이 있으면 이미 로그인 중
+        String sessionUserId = (String) session.getAttribute(SESSION_KEY_USER_ID);
+        if (sessionUserId != null) {
+            return new ResponseEntity<>(null, HttpStatus.ACCEPTED);
+        }
+
+        // 아이디, 비밀번호 확인
         Member findMember = memberService.loginMember(id, password).orElse(null);
         if (findMember == null) {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
+        session.setAttribute(SESSION_KEY_USER_ID, id);
         return new ResponseEntity<>(findMember, HttpStatus.OK);
     }
+
+    @PostMapping(value = "/api/v1/members/logout")
+    public ResponseEntity<Void> logoutMember(HttpSession session) {
+        session.removeAttribute(SESSION_KEY_USER_ID);
+        return new ResponseEntity<>(null, HttpStatus.OK);
+    }
+
 }
