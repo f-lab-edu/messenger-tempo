@@ -18,7 +18,7 @@ public class MemberService {
         this.memberRepository = memberRepository;
     }
 
-    public boolean memberSignup(Member member) {
+    public boolean signupMember(Member member) {
         boolean result = validateDuplicateMember(member);
         if (!result) {
             return false;
@@ -26,12 +26,44 @@ public class MemberService {
         return memberRepository.save(member);
     }
 
-    public List<Member> memberList() {
+    public List<Member> listMember() {
         return memberRepository.findAll();
     }
 
     private boolean validateDuplicateMember(Member member) {
         Optional<Member> result = memberRepository.findById(member.getId());
         return result.isEmpty();
+    }
+
+    public Optional<Member> findMemberById(String id) {
+        return memberRepository.findById(id);
+    }
+
+    public List<Member> findMemberByName(String name) {
+        return memberRepository.findByName(name);
+    }
+
+    public boolean updateMemberInfo(Member paramMember) {
+        Member findMember = findMemberById(paramMember.getId()).orElseThrow();
+
+        if (isEmpty(paramMember.getPassword())) {
+            paramMember.setPassword(findMember.getPassword());
+        }
+        if (isEmpty(paramMember.getName())) {
+            paramMember.setName(findMember.getName());
+        }
+        if (isEmpty(paramMember.getStatusMessage())) {
+            paramMember.setStatusMessage(findMember.getStatusMessage());
+        }
+        return memberRepository.updateMember(paramMember);
+    }
+
+    // 문자열이 null 또는 빈 문자열인지 여부
+    private static boolean isEmpty(String param) {
+        return param == null || param.isEmpty();
+    }
+
+    public Optional<Member> loginMember(String id, String password) {
+        return memberRepository.findByIdPw(id, password);
     }
 }

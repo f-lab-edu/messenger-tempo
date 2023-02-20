@@ -1,6 +1,7 @@
 package com.messenger.repository;
 
 import com.messenger.domain.Member;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
 
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
+@Slf4j
 public class JdbcMemberRepository implements MemberRepository {
 
     private final DataSource dataSource;
@@ -61,7 +63,8 @@ public class JdbcMemberRepository implements MemberRepository {
                 String memberId = rs.getString("id");
                 String password = rs.getString("pw");
                 String displayName = rs.getString("display_name");
-                Member member = new Member(memberId, password, displayName);
+                String statusMessage = rs.getString("status_message");
+                Member member = new Member(memberId, password, displayName, statusMessage);
                 return Optional.of(member);
             } else {
                 return Optional.empty();
@@ -94,7 +97,8 @@ public class JdbcMemberRepository implements MemberRepository {
                 String memberId = rs.getString("id");
                 String password = rs.getString("pw");
                 String displayName = rs.getString("display_name");
-                Member member = new Member(memberId, password, displayName);
+                String statusMessage = rs.getString("status_message");
+                Member member = new Member(memberId, password, displayName, statusMessage);
                 members.add(member);
             }
             return members;
@@ -124,7 +128,8 @@ public class JdbcMemberRepository implements MemberRepository {
                 String memberId = rs.getString("id");
                 String password = rs.getString("pw");
                 String displayName = rs.getString("display_name");
-                Member member = new Member(memberId, password, displayName);
+                String statusMessage = rs.getString("status_message");
+                Member member = new Member(memberId, password, displayName, statusMessage);
                 members.add(member);
             }
             return members;
@@ -135,55 +140,57 @@ public class JdbcMemberRepository implements MemberRepository {
         }
     }
 
-    /**
-     * 회원 비밀번호 업데이트
-     * @param id        회원 id
-     * @param password  변경할 회원 비밀번호
-     * @return 업데이트 성공 여부
-     */
     @Override
-    public boolean updatePassword(String id, String password) {
-        Optional<Member> findMember = findById(id);
-        if (findMember.isEmpty()) {
-            return false;
-        }
-        String sql = "UPDATE member SET pw = ? WHERE id = ?";
+    public Optional<Member> findByIdPw(String id, String password) {
+        String sql = "SELECT * FROM member WHERE id = ? AND pw = ?";
         Connection conn = null;
         PreparedStatement pstmt = null;
+        ResultSet rs = null;
         try {
             conn = getConnection();
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, password);
-            pstmt.setString(2, id);
-            pstmt.executeUpdate();
-            return true;
+            pstmt.setString(1, id);
+            pstmt.setString(2, password);
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+                String memberId = rs.getString("id");
+                String memberPw = rs.getString("pw");
+                String displayName = rs.getString("display_name");
+                String statusMessage = rs.getString("status_message");
+                Member member = new Member(memberId, memberPw, displayName, statusMessage);
+                return Optional.of(member);
+            } else {
+                return Optional.empty();
+            }
         } catch (Exception e) {
-            return false;
+            throw new IllegalStateException(e);
         } finally {
-            close(conn, pstmt, null);
+            close(conn, pstmt, rs);
         }
     }
 
     /**
-     * 회원 이름 업데이트
-     * @param id    회원 id
-     * @param name  변경할 회원 이름
-     * @return 업데이트 성공 여부
+     * 회원 정보 변경
+     * @param paramMember 변경할 회원 정보 객체
+     * @return 변경 성공 여부
      */
     @Override
-    public boolean updateDisplayName(String id, String name) {
-        Optional<Member> findMember = findById(id);
-        if (findMember.isEmpty()) {
-            return false;
-        }
-        String sql = "UPDATE member SET display_name = ? WHERE id = ?";
+    public boolean updateMember(Member paramMember) {
+        String sql = "UPDATE member SET pw = ?, display_name = ?, content = ? WHERE id = ?";
         Connection conn = null;
         PreparedStatement pstmt = null;
         try {
+            log.debug("UPDATE member SET pw = {}, display_name = {}, content = {} WHERE id = {}",
+                    paramMember.getPassword(),
+                    paramMember.getName(),
+                    paramMember.getStatusMessage(),
+                    paramMember.getId());
             conn = getConnection();
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, name);
-            pstmt.setString(2, id);
+            pstmt.setString(1, paramMember.getPassword());
+            pstmt.setString(2, paramMember.getName());
+            pstmt.setString(3, paramMember.getStatusMessage());
+            pstmt.setString(4, paramMember.getId());
             pstmt.executeUpdate();
             return true;
         } catch (Exception e) {
