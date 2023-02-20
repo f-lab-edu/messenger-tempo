@@ -63,7 +63,8 @@ public class JdbcMemberRepository implements MemberRepository {
                 String memberId = rs.getString("id");
                 String password = rs.getString("pw");
                 String displayName = rs.getString("display_name");
-                Member member = new Member(memberId, password, displayName);
+                String statusMessage = rs.getString("status_message");
+                Member member = new Member(memberId, password, displayName, statusMessage);
                 return Optional.of(member);
             } else {
                 return Optional.empty();
@@ -96,7 +97,8 @@ public class JdbcMemberRepository implements MemberRepository {
                 String memberId = rs.getString("id");
                 String password = rs.getString("pw");
                 String displayName = rs.getString("display_name");
-                Member member = new Member(memberId, password, displayName);
+                String statusMessage = rs.getString("status_message");
+                Member member = new Member(memberId, password, displayName, statusMessage);
                 members.add(member);
             }
             return members;
@@ -126,7 +128,8 @@ public class JdbcMemberRepository implements MemberRepository {
                 String memberId = rs.getString("id");
                 String password = rs.getString("pw");
                 String displayName = rs.getString("display_name");
-                Member member = new Member(memberId, password, displayName);
+                String statusMessage = rs.getString("status_message");
+                Member member = new Member(memberId, password, displayName, statusMessage);
                 members.add(member);
             }
             return members;
@@ -139,7 +142,7 @@ public class JdbcMemberRepository implements MemberRepository {
 
     @Override
     public Optional<Member> findByIdPw(String id, String password) {
-        String sql = "SELECT * FROM member WHERE id = ? AND password = ?";
+        String sql = "SELECT * FROM member WHERE id = ? AND pw = ?";
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
