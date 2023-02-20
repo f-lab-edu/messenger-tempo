@@ -135,43 +135,47 @@ public class MemberController {
                                               @RequestParam String password,
                                               HttpSession session) {
 
-        // 디버그용
-        log.debug("session id={}",session.getId());
-        log.debug("session CreationTime={}", convertTimestampMillis2String(session.getCreationTime()));
-        log.debug("session LastAccessedTime={}", convertTimestampMillis2String(session.getLastAccessedTime()));
-        Enumeration<String> sessionNames = session.getAttributeNames();
-        while (sessionNames.hasMoreElements()) {
-            String sessionName = sessionNames.nextElement();
-            log.debug("session key={}, value={}", sessionName, session.getAttribute(sessionName));
-        }
+        logForSession(session);
 
         // 세션 값이 있으면 이미 로그인 중
         String sessionUserId = (String) session.getAttribute(SESSION_KEY_USER_ID);
-        log.debug("sessionUserId={}", sessionUserId);
         if (sessionUserId != null) {
-            return new ResponseEntity<>(null, HttpStatus.ACCEPTED);
+            Optional<Member> findMemberSession = memberService.findMemberById(sessionUserId);
+            // 세션 값에 해당하는 유저를 찾지 못하면 세션 삭제
+            if (findMemberSession.isEmpty()) {
+                session.removeAttribute(SESSION_KEY_USER_ID);
+                return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            }
+            return new ResponseEntity<>(findMemberSession.get(), HttpStatus.ACCEPTED);
         }
 
         // 아이디, 비밀번호 확인
-        Member findMember = memberService.loginMember(id, password).orElse(null);
-        if (findMember == null) {
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+        Optional<Member> findMember = memberService.loginMember(id, password);
+        if (findMember.isEmpty()) {
+            return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
         }
         session.setAttribute(SESSION_KEY_USER_ID, id);
-        return new ResponseEntity<>(findMember, HttpStatus.OK);
+        return new ResponseEntity<>(findMember.get(), HttpStatus.OK);
     }
 
     @PostMapping(value = "/api/v1/members/logout")
     public ResponseEntity<Void> logoutMember(HttpSession session) {
 
-        String sessionUserId = (String) session.getAttribute(SESSION_KEY_USER_ID);
-        log.debug("session id={}",session.getId());
-        log.debug("session CreationTime={}", convertTimestampMillis2String(session.getCreationTime()));
-        log.debug("session LastAccessedTime={}", convertTimestampMillis2String(session.getLastAccessedTime()));
-        log.debug("sessionUserId={}", sessionUserId);
-
+        logForSession(session);
         session.removeAttribute(SESSION_KEY_USER_ID);
         return new ResponseEntity<>(null, HttpStatus.OK);
+    }
+
+    private static void logForSession(HttpSession session) {
+        log.debug("session id={}", session.getId());
+        log.debug("session CreationTime={}", convertTimestampMillis2String(session.getCreationTime()));
+        log.debug("session LastAccessedTime={}", convertTimestampMillis2String(session.getLastAccessedTime()));
+
+        Enumeration<String> sessionNames = session.getAttributeNames();
+        while (sessionNames.hasMoreElements()) {
+            String sessionName = sessionNames.nextElement();
+            log.debug("session key={}, value={}", sessionName, session.getAttribute(sessionName));
+        }
     }
 
 }
