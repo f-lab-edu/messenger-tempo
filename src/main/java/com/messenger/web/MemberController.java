@@ -7,12 +7,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Enumeration;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.http.HttpSession;
 import java.util.Optional;
+
+import static com.messenger.util.DateTimeConvertor.convertTimestampMillis2String;
 
 @Slf4j
 @RestController
@@ -131,8 +134,20 @@ public class MemberController {
     public ResponseEntity<Member> loginMember(@RequestParam String id,
                                               @RequestParam String password,
                                               HttpSession session) {
+
+        // 디버그용
+        log.debug("session id={}",session.getId());
+        log.debug("session CreationTime={}", convertTimestampMillis2String(session.getCreationTime()));
+        log.debug("session LastAccessedTime={}", convertTimestampMillis2String(session.getLastAccessedTime()));
+        Enumeration<String> sessionNames = session.getAttributeNames();
+        while (sessionNames.hasMoreElements()) {
+            String sessionName = sessionNames.nextElement();
+            log.debug("session key={}, value={}", sessionName, session.getAttribute(sessionName));
+        }
+
         // 세션 값이 있으면 이미 로그인 중
         String sessionUserId = (String) session.getAttribute(SESSION_KEY_USER_ID);
+        log.debug("sessionUserId={}", sessionUserId);
         if (sessionUserId != null) {
             return new ResponseEntity<>(null, HttpStatus.ACCEPTED);
         }
@@ -148,6 +163,13 @@ public class MemberController {
 
     @PostMapping(value = "/api/v1/members/logout")
     public ResponseEntity<Void> logoutMember(HttpSession session) {
+
+        String sessionUserId = (String) session.getAttribute(SESSION_KEY_USER_ID);
+        log.debug("session id={}",session.getId());
+        log.debug("session CreationTime={}", convertTimestampMillis2String(session.getCreationTime()));
+        log.debug("session LastAccessedTime={}", convertTimestampMillis2String(session.getLastAccessedTime()));
+        log.debug("sessionUserId={}", sessionUserId);
+
         session.removeAttribute(SESSION_KEY_USER_ID);
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
