@@ -1,43 +1,23 @@
 package com.messenger.domain;
 
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@Builder(builderMethodName = "hiddenBuilder")
 @EqualsAndHashCode
+@ToString
 public class Member {
 
     private final String id;
     private String password;
-    private String name = "undefined";
+    @Builder.Default private String name = "undefined";
+    @Builder.Default private String statusMessage = "";  // 상태 메시지
 
-    public Member(String id, String password) {
-        this.id = id;
-        this.password = password;
+    public static MemberBuilder builder(String id, String password) {
+        return hiddenBuilder().id(id).password(password);
     }
 
-    public Member(String id, String password, String name) {
-        this.id = id;
-        this.password = password;
-        if (!name.equals("")) {
-            this.name = name;
-        }
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String toString() {
-        return "Member{" +
-                "id='" + id + '\'' +
-                ", password='" + password + '\'' +
-                ", name='" + name + '\'' +
-                '}';
-    }
 }
