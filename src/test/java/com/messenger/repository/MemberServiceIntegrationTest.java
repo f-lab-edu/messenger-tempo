@@ -19,7 +19,7 @@ public class MemberServiceIntegrationTest {
     @Test
     public void signup() {
         //given
-        Member member = new Member("id1", "pw1", "name1");
+        Member member = Member.builder("id1", "pw1").name("name1").build();
 
         //when
         boolean result = memberService.signupMember(member);
@@ -33,8 +33,8 @@ public class MemberServiceIntegrationTest {
     @Test
     public void duplicatedMember() {
         //given
-        Member member1 = new Member("id1", "pw1", "name1");
-        Member member2 = new Member("id1", "pw2", "name2");
+        Member member1 = Member.builder("id1", "pw1").name("name1").build();
+        Member member2 = Member.builder("id1", "pw2").name("name2").build();
 
         //when
         boolean result1 = memberService.signupMember(member1);

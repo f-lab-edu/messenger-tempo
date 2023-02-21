@@ -50,7 +50,7 @@ public class MemberController {
     public ResponseEntity<Member> signup(@RequestParam String id,
                                          @RequestParam String password,
                                          @RequestParam(required = false, defaultValue = "") String name) {
-        Member member = new Member(id, password, name);
+        Member member = Member.builder(id, password).name(name).build();
         boolean ret = memberService.signupMember(member);
         if (!ret) {
             return new ResponseEntity<>(null, HttpStatus.CONFLICT);
@@ -112,8 +112,7 @@ public class MemberController {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
 
-        Member paramMember = new Member(memberId, password, name);
-        paramMember.setStatusMessage(content);
+        Member paramMember = Member.builder(memberId, password).name(name).statusMessage(content).build();
 
         boolean result = memberService.updateMemberInfo(paramMember);
         if (!result) {

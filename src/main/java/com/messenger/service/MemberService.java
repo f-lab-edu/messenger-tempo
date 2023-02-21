@@ -46,21 +46,26 @@ public class MemberService {
     public boolean updateMemberInfo(Member paramMember) {
         Member findMember = findMemberById(paramMember.getId()).orElseThrow();
 
-        if (isEmpty(paramMember.getPassword())) {
-            paramMember.setPassword(findMember.getPassword());
-        }
-        if (isEmpty(paramMember.getName())) {
-            paramMember.setName(findMember.getName());
-        }
-        if (isEmpty(paramMember.getStatusMessage())) {
-            paramMember.setStatusMessage(findMember.getStatusMessage());
-        }
-        return memberRepository.updateMember(paramMember);
-    }
+        String memberId = paramMember.getId();
+        String modifiedPassword = paramMember.getPassword();
+        String modifiedName = paramMember.getName();
+        String modifiedStatusMessage = paramMember.getStatusMessage();
 
-    // 문자열이 null 또는 빈 문자열인지 여부
-    private static boolean isEmpty(String param) {
-        return param == null || param.isEmpty();
+        if (paramMember.getPassword().equals("")) {
+            modifiedPassword = findMember.getPassword();
+        }
+        if (paramMember.getName().equals("")) {
+            modifiedName = findMember.getName();
+        }
+        if (paramMember.getStatusMessage().equals("")) {
+            modifiedStatusMessage = findMember.getStatusMessage();
+        }
+        return memberRepository.updateMember(
+                Member.builder(memberId, modifiedPassword)
+                        .name(modifiedName)
+                        .statusMessage(modifiedStatusMessage)
+                        .build()
+        );
     }
 
     public Optional<Member> loginMember(String id, String password) {

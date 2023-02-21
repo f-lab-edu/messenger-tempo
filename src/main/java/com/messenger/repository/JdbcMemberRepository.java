@@ -61,10 +61,11 @@ public class JdbcMemberRepository implements MemberRepository {
             rs = pstmt.executeQuery();
             if (rs.next()) {
                 String memberId = rs.getString("id");
-                String password = rs.getString("pw");
+                String memberPw = rs.getString("pw");
                 String displayName = rs.getString("display_name");
                 String statusMessage = rs.getString("status_message");
-                Member member = new Member(memberId, password, displayName, statusMessage);
+                Member member = Member.builder(memberId, memberPw)
+                        .name(displayName).statusMessage(statusMessage).build();
                 return Optional.of(member);
             } else {
                 return Optional.empty();
@@ -95,10 +96,11 @@ public class JdbcMemberRepository implements MemberRepository {
             List<Member> members = new ArrayList<>();
             while (rs.next()) {
                 String memberId = rs.getString("id");
-                String password = rs.getString("pw");
+                String memberPw = rs.getString("pw");
                 String displayName = rs.getString("display_name");
                 String statusMessage = rs.getString("status_message");
-                Member member = new Member(memberId, password, displayName, statusMessage);
+                Member member = Member.builder(memberId, memberPw)
+                        .name(displayName).statusMessage(statusMessage).build();
                 members.add(member);
             }
             return members;
@@ -126,10 +128,11 @@ public class JdbcMemberRepository implements MemberRepository {
             List<Member> members = new ArrayList<>();
             while (rs.next()) {
                 String memberId = rs.getString("id");
-                String password = rs.getString("pw");
+                String memberPw = rs.getString("pw");
                 String displayName = rs.getString("display_name");
                 String statusMessage = rs.getString("status_message");
-                Member member = new Member(memberId, password, displayName, statusMessage);
+                Member member = Member.builder(memberId, memberPw)
+                        .name(displayName).statusMessage(statusMessage).build();
                 members.add(member);
             }
             return members;
@@ -157,7 +160,8 @@ public class JdbcMemberRepository implements MemberRepository {
                 String memberPw = rs.getString("pw");
                 String displayName = rs.getString("display_name");
                 String statusMessage = rs.getString("status_message");
-                Member member = new Member(memberId, memberPw, displayName, statusMessage);
+                Member member = Member.builder(memberId, memberPw)
+                        .name(displayName).statusMessage(statusMessage).build();
                 return Optional.of(member);
             } else {
                 return Optional.empty();
