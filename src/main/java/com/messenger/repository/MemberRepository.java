@@ -10,6 +10,6 @@ public interface MemberRepository {
     public Optional<Member> findById(String id);
     public List<Member> findByName(String name);
     public List<Member> findAll();
-    public boolean updatePassword(String id, String password);
-    public boolean updateDisplayName(String id, String name);
+    public boolean updateMember(Member member);
+    public Optional<Member> findByIdPw(String id, String password);
 }

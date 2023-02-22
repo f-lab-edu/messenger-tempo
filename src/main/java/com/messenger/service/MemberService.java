@@ -18,7 +18,7 @@ public class MemberService {
         this.memberRepository = memberRepository;
     }
 
-    public boolean memberSignup(Member member) {
+    public boolean signupMember(Member member) {
         boolean result = validateDuplicateMember(member);
         if (!result) {
             return false;
@@ -26,12 +26,49 @@ public class MemberService {
         return memberRepository.save(member);
     }
 
-    public List<Member> memberList() {
+    public List<Member> listMember() {
         return memberRepository.findAll();
     }
 
     private boolean validateDuplicateMember(Member member) {
         Optional<Member> result = memberRepository.findById(member.getId());
         return result.isEmpty();
+    }
+
+    public Optional<Member> findMemberById(String id) {
+        return memberRepository.findById(id);
+    }
+
+    public List<Member> findMemberByName(String name) {
+        return memberRepository.findByName(name);
+    }
+
+    public boolean updateMemberInfo(Member paramMember) {
+        Member findMember = findMemberById(paramMember.getId()).orElseThrow();
+
+        String memberId = paramMember.getId();
+        String modifiedPassword = paramMember.getPassword();
+        String modifiedName = paramMember.getName();
+        String modifiedStatusMessage = paramMember.getStatusMessage();
+
+        if (paramMember.getPassword().equals("")) {
+            modifiedPassword = findMember.getPassword();
+        }
+        if (paramMember.getName().equals("")) {
+            modifiedName = findMember.getName();
+        }
+        if (paramMember.getStatusMessage().equals("")) {
+            modifiedStatusMessage = findMember.getStatusMessage();
+        }
+        return memberRepository.updateMember(
+                Member.builder(memberId, modifiedPassword)
+                        .name(modifiedName)
+                        .statusMessage(modifiedStatusMessage)
+                        .build()
+        );
+    }
+
+    public Optional<Member> loginMember(String id, String password) {
+        return memberRepository.findByIdPw(id, password);
     }
 }
