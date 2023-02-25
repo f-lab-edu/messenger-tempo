@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@Repository
+//@Repository
 @Slf4j
 public class JdbcMemberRepository implements MemberRepository {
 
@@ -29,7 +29,7 @@ public class JdbcMemberRepository implements MemberRepository {
      * @return 저장 성공 여부
      */
     public boolean save(Member member) {
-        String sql = "INSERT INTO member(id, pw, display_name) values(?, ?, ?)";
+        String sql = "INSERT INTO member(id, pw, display_name, status_message) values(?, ?, ?, ?)";
         Connection conn = null;
         PreparedStatement pstmt = null;
         try {
@@ -38,6 +38,7 @@ public class JdbcMemberRepository implements MemberRepository {
             pstmt.setString(1, member.getId());
             pstmt.setString(2, member.getPassword());
             pstmt.setString(3, member.getName());
+            pstmt.setString(4, member.getStatusMessage());
             pstmt.executeUpdate();
             return true;
         } catch (DuplicateKeyException e) {
@@ -181,11 +182,11 @@ public class JdbcMemberRepository implements MemberRepository {
      */
     @Override
     public boolean updateMember(Member paramMember) {
-        String sql = "UPDATE member SET pw = ?, display_name = ?, content = ? WHERE id = ?";
+        String sql = "UPDATE member SET pw = ?, display_name = ?, status_message = ? WHERE id = ?";
         Connection conn = null;
         PreparedStatement pstmt = null;
         try {
-            log.debug("UPDATE member SET pw = {}, display_name = {}, content = {} WHERE id = {}",
+            log.debug("UPDATE member SET pw = {}, display_name = {}, status_message = {} WHERE id = {}",
                     paramMember.getPassword(),
                     paramMember.getName(),
                     paramMember.getStatusMessage(),
