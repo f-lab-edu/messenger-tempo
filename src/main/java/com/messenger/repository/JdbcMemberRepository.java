@@ -23,11 +23,6 @@ public class JdbcMemberRepository implements MemberRepository {
         this.dataSource = dataSource;
     }
 
-    /**
-     * 회원정보를 저장소에 저장
-     * @param member 저장할 회원 객체
-     * @return 저장 성공 여부
-     */
     public boolean save(Member member) {
         String sql = "INSERT INTO member(id, pw, display_name, status_message) values(?, ?, ?, ?)";
         Connection conn = null;
@@ -50,11 +45,6 @@ public class JdbcMemberRepository implements MemberRepository {
         }
     }
 
-    /**
-     * 저장소에서 id 기반으로 회원 검색
-     * @param id 검색할 회원 id
-     * @return (nullable)검색된 회원 객체
-     */
     public Optional<Member> findById(String id) {
         String sql = "SELECT * FROM member WHERE id = ?";
         Connection conn = null;
@@ -82,11 +72,6 @@ public class JdbcMemberRepository implements MemberRepository {
         }
     }
 
-    /**
-     * 저장소에서 이름 기반으로 회원 검색
-     * @param name 검색할 회원 이름
-     * @return 검색된 회원 객체의 List
-     */
     @Override
     public List<Member> findByName(String name) {
         String sql = "SELECT * FROM member WHERE display_name = ?";
@@ -115,10 +100,6 @@ public class JdbcMemberRepository implements MemberRepository {
         }
     }
 
-    /**
-     * 회원 목록
-     * @return 회원 객체의 List
-     */
     @Override
     public List<Member> findAll() {
         String sql = "SELECT * FROM member";
@@ -175,11 +156,6 @@ public class JdbcMemberRepository implements MemberRepository {
         }
     }
 
-    /**
-     * 회원 정보 변경
-     * @param paramMember 변경할 회원 정보 객체
-     * @return 변경 성공 여부
-     */
     @Override
     public boolean updateMember(Member paramMember) {
         String sql = "UPDATE member SET pw = ?, display_name = ?, status_message = ? WHERE id = ?";
