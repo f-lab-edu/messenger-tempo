@@ -36,7 +36,13 @@ public class JdbcTemplateMemberRepository implements MemberRepository {
                 member.getName(),
                 member.getStatusMessage()
         };
-        int update = jdbcTemplate.update(sql, args);
+        int update = -1;
+        try {
+            update = jdbcTemplate.update(sql, args);
+        } catch (Exception e) {
+            log.warn(e.getMessage());
+        }
+        log.debug("update={}", update);
         return update == 1;
     }
 
@@ -75,7 +81,13 @@ public class JdbcTemplateMemberRepository implements MemberRepository {
                 paramMember.getStatusMessage(),
                 paramMember.getId()
         };
-        int update = jdbcTemplate.update(sql, args);
+        int update = -1;
+        try {
+            update = jdbcTemplate.update(sql, args);
+        } catch (Exception e) {
+            log.warn(e.getMessage());
+        }
+        log.debug("update={}", update);
         return update == 1;
     }
 }
