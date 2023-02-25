@@ -1,7 +1,10 @@
 package com.messenger.repository;
 
 import com.messenger.domain.Member;
+import com.messenger.exception.ErrorCode;
+import com.messenger.exception.MyException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
 
@@ -37,6 +40,8 @@ public class JdbcMemberRepository implements MemberRepository {
             pstmt.setString(3, member.getName());
             pstmt.executeUpdate();
             return true;
+        } catch (DuplicateKeyException e) {
+            throw new MyException(ErrorCode.ALREADY_EXIST_ID);
         } catch (Exception e) {
             return false;
         } finally {
