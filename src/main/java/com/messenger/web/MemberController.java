@@ -35,7 +35,7 @@ public class MemberController {
      */
     @GetMapping("/api/v1/members")
     public List<Member> members() {
-        return memberService.listMember();
+        return memberService.listAll();
     }
 
     /**
@@ -51,7 +51,7 @@ public class MemberController {
                                          @RequestParam String password,
                                          @RequestParam(required = false, defaultValue = "") String name) {
         Member member = Member.builder(id, password).name(name).build();
-        boolean ret = memberService.signupMember(member);
+        boolean ret = memberService.signup(member);
         if (!ret) {
             return new ResponseEntity<>(null, HttpStatus.CONFLICT);
         }
@@ -66,7 +66,7 @@ public class MemberController {
      */
     @GetMapping("/api/v1/members/id/{memberId}")
     public ResponseEntity<Member> findMemberById(@PathVariable String memberId) {
-        Optional<Member> findMember = memberService.findMemberById(memberId);
+        Optional<Member> findMember = memberService.findById(memberId);
 
         if (findMember.isEmpty()) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
@@ -82,7 +82,7 @@ public class MemberController {
      */
     @GetMapping("/api/v1/members/name/{memberName}")
     public ResponseEntity<List<Member>> findMemberByName(@PathVariable String memberName) {
-        List<Member> findMember = memberService.findMemberByName(memberName);
+        List<Member> findMember = memberService.findByName(memberName);
 
         if (findMember.isEmpty()) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
@@ -107,20 +107,20 @@ public class MemberController {
         log.debug("memberId={}, name={}, password={}", memberId, name, password);
 
         // memberId를 찾을 수 없는 경우
-        Optional<Member> findMember = memberService.findMemberById(memberId);
+        Optional<Member> findMember = memberService.findById(memberId);
         if (findMember.isEmpty()) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
 
         Member paramMember = new Member(memberId, password, name, content);
 
-        boolean result = memberService.updateMemberInfo(paramMember);
+        boolean result = memberService.updateInfo(paramMember);
         if (!result) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         // 변경된 후 다시 memberId를 찾는다
-        Member findMemberAfter = memberService.findMemberById(memberId).orElseThrow(() -> new IllegalStateException("cannot find member by id"));
+        Member findMemberAfter = memberService.findById(memberId).orElseThrow(() -> new IllegalStateException("cannot find member by id"));
         // 변경된 것이 하나도 없는 경우
         if (findMemberAfter.equals(findMember.get())) {
             return new ResponseEntity<>(null, HttpStatus.NOT_MODIFIED);
@@ -139,7 +139,7 @@ public class MemberController {
         // 세션 값이 있으면 이미 로그인 중
         String sessionUserId = (String) session.getAttribute(SESSION_KEY_USER_ID);
         if (sessionUserId != null) {
-            Optional<Member> findMemberSession = memberService.findMemberById(sessionUserId);
+            Optional<Member> findMemberSession = memberService.findById(sessionUserId);
             // 세션 값에 해당하는 유저를 찾지 못하면 세션 삭제
             if (findMemberSession.isEmpty()) {
                 session.removeAttribute(SESSION_KEY_USER_ID);
@@ -149,7 +149,7 @@ public class MemberController {
         }
 
         // 아이디, 비밀번호 확인
-        Optional<Member> findMember = memberService.loginMember(id, password);
+        Optional<Member> findMember = memberService.login(id, password);
         if (findMember.isEmpty()) {
             return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
         }

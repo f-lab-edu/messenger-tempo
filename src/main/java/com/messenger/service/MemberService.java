@@ -18,7 +18,7 @@ public class MemberService {
         this.memberRepository = memberRepository;
     }
 
-    public boolean signupMember(Member member) {
+    public boolean signup(Member member) {
         boolean result = validateDuplicateMember(member);
         if (!result) {
             return false;
@@ -26,7 +26,7 @@ public class MemberService {
         return memberRepository.save(member);
     }
 
-    public List<Member> listMember() {
+    public List<Member> listAll() {
         return memberRepository.findAll();
     }
 
@@ -35,16 +35,16 @@ public class MemberService {
         return result.isEmpty();
     }
 
-    public Optional<Member> findMemberById(String id) {
+    public Optional<Member> findById(String id) {
         return memberRepository.findById(id);
     }
 
-    public List<Member> findMemberByName(String name) {
+    public List<Member> findByName(String name) {
         return memberRepository.findByName(name);
     }
 
-    public boolean updateMemberInfo(Member paramMember) {
-        Member findMember = findMemberById(paramMember.getId()).orElseThrow();
+    public boolean updateInfo(Member paramMember) {
+        Member findMember = findById(paramMember.getId()).orElseThrow();
 
         String memberId = paramMember.getId();
         String modifiedPassword = paramMember.getPassword();
@@ -61,14 +61,11 @@ public class MemberService {
             modifiedStatusMessage = findMember.getStatusMessage();
         }
         return memberRepository.updateMember(
-                Member.builder(memberId, modifiedPassword)
-                        .name(modifiedName)
-                        .statusMessage(modifiedStatusMessage)
-                        .build()
+                new Member(memberId, modifiedPassword, modifiedName, modifiedStatusMessage)
         );
     }
 
-    public Optional<Member> loginMember(String id, String password) {
-        return memberRepository.findByIdPw(id, password);
+    public Optional<Member> login(String id, String password) {
+        return memberRepository.findByIdAndPw(id, password);
     }
 }

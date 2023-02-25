@@ -141,7 +141,7 @@ public class JdbcMemberRepository implements MemberRepository {
     }
 
     @Override
-    public Optional<Member> findByIdPw(String id, String password) {
+    public Optional<Member> findByIdAndPw(String id, String password) {
         String sql = "SELECT * FROM member WHERE id = ? AND pw = ?";
         Connection conn = null;
         PreparedStatement pstmt = null;

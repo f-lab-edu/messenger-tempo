@@ -22,11 +22,11 @@ public class MemberServiceIntegrationTest {
         Member member = Member.builder("id1", "pw1").name("name1").build();
 
         //when
-        boolean result = memberService.signupMember(member);
+        boolean result = memberService.signup(member);
 
         //then
         assertThat(result).isEqualTo(true);
-        Member findMember = memberService.findMemberById(member.getId()).get();
+        Member findMember = memberService.findById(member.getId()).get();
         assertThat(findMember).isEqualTo(member);
     }
 
@@ -37,13 +37,13 @@ public class MemberServiceIntegrationTest {
         Member member2 = Member.builder("id1", "pw2").name("name2").build();
 
         //when
-        boolean result1 = memberService.signupMember(member1);
-        boolean result2 = memberService.signupMember(member2);
+        boolean result1 = memberService.signup(member1);
+        boolean result2 = memberService.signup(member2);
 
         //then
         assertThat(result1).isEqualTo(true);
         assertThat(result2).isEqualTo(false);
-        Member findMember = memberService.findMemberById(member1.getId()).get();
+        Member findMember = memberService.findById(member1.getId()).get();
         assertThat(findMember).isEqualTo(member1);
     }
 
