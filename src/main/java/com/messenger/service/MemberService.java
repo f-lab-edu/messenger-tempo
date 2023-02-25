@@ -19,20 +19,11 @@ public class MemberService {
     }
 
     public boolean signup(Member member) {
-        boolean result = validateDuplicateMember(member);
-        if (!result) {
-            return false;
-        }
         return memberRepository.save(member);
     }
 
     public List<Member> listAll() {
         return memberRepository.findAll();
-    }
-
-    private boolean validateDuplicateMember(Member member) {
-        Optional<Member> result = memberRepository.findById(member.getId());
-        return result.isEmpty();
     }
 
     public Optional<Member> findById(String id) {
