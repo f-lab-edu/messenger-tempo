@@ -64,8 +64,7 @@ public class JdbcMemberRepository implements MemberRepository {
                 String memberPw = rs.getString("pw");
                 String displayName = rs.getString("display_name");
                 String statusMessage = rs.getString("status_message");
-                Member member = Member.builder(memberId, memberPw)
-                        .name(displayName).statusMessage(statusMessage).build();
+                Member member = new Member(memberId, memberPw, displayName, statusMessage);
                 return Optional.of(member);
             } else {
                 return Optional.empty();
@@ -99,8 +98,7 @@ public class JdbcMemberRepository implements MemberRepository {
                 String memberPw = rs.getString("pw");
                 String displayName = rs.getString("display_name");
                 String statusMessage = rs.getString("status_message");
-                Member member = Member.builder(memberId, memberPw)
-                        .name(displayName).statusMessage(statusMessage).build();
+                Member member = new Member(memberId, memberPw, displayName, statusMessage);
                 members.add(member);
             }
             return members;
@@ -131,8 +129,7 @@ public class JdbcMemberRepository implements MemberRepository {
                 String memberPw = rs.getString("pw");
                 String displayName = rs.getString("display_name");
                 String statusMessage = rs.getString("status_message");
-                Member member = Member.builder(memberId, memberPw)
-                        .name(displayName).statusMessage(statusMessage).build();
+                Member member = new Member(memberId, memberPw, displayName, statusMessage);
                 members.add(member);
             }
             return members;
@@ -160,8 +157,7 @@ public class JdbcMemberRepository implements MemberRepository {
                 String memberPw = rs.getString("pw");
                 String displayName = rs.getString("display_name");
                 String statusMessage = rs.getString("status_message");
-                Member member = Member.builder(memberId, memberPw)
-                        .name(displayName).statusMessage(statusMessage).build();
+                Member member = new Member(memberId, memberPw, displayName, statusMessage);
                 return Optional.of(member);
             } else {
                 return Optional.empty();

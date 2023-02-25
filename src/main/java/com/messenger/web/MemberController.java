@@ -112,7 +112,7 @@ public class MemberController {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
 
-        Member paramMember = Member.builder(memberId, password).name(name).statusMessage(content).build();
+        Member paramMember = new Member(memberId, password, name, content);
 
         boolean result = memberService.updateMemberInfo(paramMember);
         if (!result) {

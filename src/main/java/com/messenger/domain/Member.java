@@ -4,6 +4,7 @@ import lombok.*;
 
 @Value
 @Builder(builderMethodName = "hiddenBuilder")
+@AllArgsConstructor(access = AccessLevel.PUBLIC)
 public class Member {
 
     String id;
