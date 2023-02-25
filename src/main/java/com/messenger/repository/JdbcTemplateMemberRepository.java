@@ -65,7 +65,7 @@ public class JdbcTemplateMemberRepository implements MemberRepository {
     }
 
     @Override
-    public Optional<Member> findByIdPw(String id, String password) {
+    public Optional<Member> findByIdAndPw(String id, String password) {
         String sql = "SELECT * FROM member WHERE id = ? AND pw = ?";
         List<Member> result = jdbcTemplate.query(sql, memberRowMapper(), id, password);
         return result.stream().findAny();
