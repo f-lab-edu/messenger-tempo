@@ -6,6 +6,7 @@ import com.messenger.exception.MyException;
 import com.messenger.repository.MemberRepository;
 import com.messenger.web.MemberController;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
@@ -48,13 +49,13 @@ public class MemberService {
         String modifiedName = paramMember.getName();
         String modifiedStatusMessage = paramMember.getStatusMessage();
 
-        if (paramMember.getPassword().equals("")) {
+        if (ObjectUtils.isEmpty(paramMember.getPassword())) {
             modifiedPassword = findMember.getPassword();
         }
-        if (paramMember.getName().equals("")) {
+        if (ObjectUtils.isEmpty(paramMember.getName())) {
             modifiedName = findMember.getName();
         }
-        if (paramMember.getStatusMessage().equals("")) {
+        if (ObjectUtils.isEmpty(paramMember.getStatusMessage())) {
             modifiedStatusMessage = findMember.getStatusMessage();
         }
         boolean ret = memberRepository.updateMember(
