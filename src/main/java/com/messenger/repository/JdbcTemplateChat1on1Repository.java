@@ -81,7 +81,7 @@ public class JdbcTemplateChat1on1Repository implements Chat1on1Repository {
     @Override
     public Optional<Chat> deleteOne(long messageId, String userId) {
         // 전송 사용자 id가 일치해야만 삭제 처리
-        String sql = "UPDATE chat_1on1 SET deleted = 1 WHERE id = ? AND msessage_from = ?";
+        String sql = "UPDATE chat_1on1 SET deleted = 1 WHERE id = ? AND message_from = ?";
         Object[] args = {messageId, userId};
         log.debug("delete chat messageId={}, userId={}", messageId, userId);
         int update = 0;
