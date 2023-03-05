@@ -49,7 +49,11 @@ public class MemberController {
     public ResponseEntity<Member> signup(@RequestParam String id,
                                          @RequestParam String password,
                                          @RequestParam(required = false, defaultValue = "") String name) {
-        Member member = Member.builder(id, password).name(name).build();
+        Member member = Member.builder()
+                                .id(id)
+                                .password(password)
+                                .name(name)
+                                .build();
         Member result;
         try {
             result = memberService.signup(member);
@@ -100,7 +104,13 @@ public class MemberController {
         log.debug("memberId={}, name={}, password={}", memberId, name, password);
         Member result;
         try {
-            result = memberService.updateInfo(new Member(memberId, password, name, content));
+            result = memberService.updateInfo(
+                    Member.builder()
+                            .id(memberId)
+                            .password(password)
+                            .name(name)
+                            .statusMessage(content)
+                            .build());
         } catch (MyException e) {
             return new ResponseEntity<>(null, e.errorCode.httpStatusCode);
         }

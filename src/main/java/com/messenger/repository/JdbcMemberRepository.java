@@ -60,7 +60,12 @@ public class JdbcMemberRepository implements MemberRepository {
                 String memberPw = rs.getString("pw");
                 String displayName = rs.getString("display_name");
                 String statusMessage = rs.getString("status_message");
-                Member member = new Member(memberId, memberPw, displayName, statusMessage);
+                Member member = Member.builder()
+                        .id(memberId)
+                        .password(memberPw)
+                        .name(displayName)
+                        .statusMessage(statusMessage)
+                        .build();
                 return Optional.of(member);
             } else {
                 return Optional.empty();
@@ -89,7 +94,12 @@ public class JdbcMemberRepository implements MemberRepository {
                 String memberPw = rs.getString("pw");
                 String displayName = rs.getString("display_name");
                 String statusMessage = rs.getString("status_message");
-                Member member = new Member(memberId, memberPw, displayName, statusMessage);
+                Member member = Member.builder()
+                        .id(memberId)
+                        .password(memberPw)
+                        .name(displayName)
+                        .statusMessage(statusMessage)
+                        .build();
                 members.add(member);
             }
             return members;
@@ -116,7 +126,12 @@ public class JdbcMemberRepository implements MemberRepository {
                 String memberPw = rs.getString("pw");
                 String displayName = rs.getString("display_name");
                 String statusMessage = rs.getString("status_message");
-                Member member = new Member(memberId, memberPw, displayName, statusMessage);
+                Member member = Member.builder()
+                        .id(memberId)
+                        .password(memberPw)
+                        .name(displayName)
+                        .statusMessage(statusMessage)
+                        .build();
                 members.add(member);
             }
             return members;
@@ -144,7 +159,12 @@ public class JdbcMemberRepository implements MemberRepository {
                 String memberPw = rs.getString("pw");
                 String displayName = rs.getString("display_name");
                 String statusMessage = rs.getString("status_message");
-                Member member = new Member(memberId, memberPw, displayName, statusMessage);
+                Member member = Member.builder()
+                        .id(memberId)
+                        .password(memberPw)
+                        .name(displayName)
+                        .statusMessage(statusMessage)
+                        .build();
                 return Optional.of(member);
             } else {
                 return Optional.empty();

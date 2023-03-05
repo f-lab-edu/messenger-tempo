@@ -24,7 +24,9 @@ public class JdbcTemplateMemberRepository implements MemberRepository {
     }
 
     private RowMapper<Member> memberRowMapper() {
-        return (rs, rowNum) -> Member.builder(rs.getString("id"), rs.getString("pw"))
+        return (rs, rowNum) -> Member.builder()
+                .id(rs.getString("id"))
+                .password(rs.getString("pw"))
                 .name(rs.getString("display_name"))
                 .statusMessage(rs.getString("status_message"))
                 .build();

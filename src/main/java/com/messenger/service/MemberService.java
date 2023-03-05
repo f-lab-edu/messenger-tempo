@@ -59,7 +59,12 @@ public class MemberService {
             modifiedStatusMessage = findMember.getStatusMessage();
         }
         boolean ret = memberRepository.updateMember(
-                new Member(memberId, modifiedPassword, modifiedName, modifiedStatusMessage));
+                Member.builder()
+                        .id(memberId)
+                        .password(modifiedPassword)
+                        .name(modifiedName)
+                        .statusMessage(modifiedStatusMessage)
+                        .build());
 
         // 업데이트 실패한 경우
         if (!ret) {
