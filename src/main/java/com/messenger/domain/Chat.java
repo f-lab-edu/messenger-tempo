@@ -2,7 +2,6 @@ package com.messenger.domain;
 
 import lombok.Builder;
 import lombok.Value;
-import org.springframework.lang.NonNull;
 
 import java.sql.Timestamp;
 
@@ -19,7 +18,7 @@ public class Chat {
     Boolean deleted;
 
     @Builder
-    private Chat(@NonNull long id, String message_from, String message_to, String message, short unread_count, Timestamp created_at, Boolean deleted) {
+    private Chat(long id, String message_from, String message_to, String message, short unread_count, Timestamp created_at, Boolean deleted) {
         this.id = id;
         this.message_from = message_from;
         this.message_to = message_to;
