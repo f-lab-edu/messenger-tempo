@@ -42,7 +42,7 @@ public class JdbcTemplateChat1on1Repository implements Chat1on1Repository {
      */
     @Override
     public Chat save(Chat chat) {
-        String sql = "INSERT INTO chat_1on1(message_from, message_to, message) values(?, ?, ?)";
+        String sql = "INSERT INTO personal_chat(message_from, message_to, message) values(?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         log.debug("chat={}", chat);
@@ -81,7 +81,7 @@ public class JdbcTemplateChat1on1Repository implements Chat1on1Repository {
     @Override
     public Optional<Chat> deleteOne(long messageId, String userId) {
         // 전송 사용자 id가 일치해야만 삭제 처리
-        String sql = "UPDATE chat_1on1 SET deleted = 1 WHERE id = ? AND message_from = ?";
+        String sql = "UPDATE personal_chat SET deleted = 1 WHERE id = ? AND message_from = ?";
         Object[] args = {messageId, userId};
         log.debug("delete chat messageId={}, userId={}", messageId, userId);
         int update = 0;
@@ -104,7 +104,7 @@ public class JdbcTemplateChat1on1Repository implements Chat1on1Repository {
      */
     @Override
     public Optional<Chat> findById(long id) {
-        String sql = "SELECT * FROM chat_1on1 WHERE id = ?";
+        String sql = "SELECT * FROM personal_chat WHERE id = ?";
         List<Chat> result = jdbcTemplate.query(sql, chatRowMapper(), id);
         return result.stream().findAny();
     }
@@ -116,7 +116,7 @@ public class JdbcTemplateChat1on1Repository implements Chat1on1Repository {
      */
     @Override
     public List<Chat> findAll() {
-        String sql = "SELECT * FROM chat_1on1";
+        String sql = "SELECT * FROM personal_chat";
         return jdbcTemplate.query(sql, chatRowMapper());
     }
 
@@ -128,7 +128,7 @@ public class JdbcTemplateChat1on1Repository implements Chat1on1Repository {
      */
     @Override
     public List<Chat> findByFrom(String message_from) {
-        String sql = "SELECT * FROM chat_1on1 WHERE message_from = ? AND deleted = 0";
+        String sql = "SELECT * FROM personal_chat WHERE message_from = ? AND deleted = 0";
         return jdbcTemplate.query(sql, chatRowMapper(), message_from);
     }
 
@@ -139,7 +139,7 @@ public class JdbcTemplateChat1on1Repository implements Chat1on1Repository {
      */
     @Override
     public List<Chat> findByTo(String message_to) {
-        String sql = "SELECT * FROM chat_1on1 WHERE message_to = ? AND deleted = 0";
+        String sql = "SELECT * FROM personal_chat WHERE message_to = ? AND deleted = 0";
         return jdbcTemplate.query(sql, chatRowMapper(), message_to);
     }
 

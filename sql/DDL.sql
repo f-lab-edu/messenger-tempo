@@ -9,7 +9,7 @@ create table member(
     PRIMARY KEY(id)
 );
 
-create table chat_1on1 (
+create table personal_chat (
     id BIGINT NOT NULL AUTO_INCREMENT,
     message_from VARCHAR(35) NOT NULL,
     message_to VARCHAR(35) NOT NULL,
