@@ -60,13 +60,6 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
             log.error(e.getMessage());
             throw e;
         }
-//        List<Map<String, Object>> keyList = keyHolder.getKeyList();
-//        for (Map<String, Object> t : keyList) {
-//            for (String t2 : t.keySet()) {
-//                log.debug("key={}, value={}", t2, t.get(t2));
-//            }
-//            log.debug("============");
-//        }
         long id = Objects.requireNonNull(keyHolder.getKey()).longValue();
         return findById(id).orElseThrow(() -> new NullPointerException("cannot find chat by id"));
     }
