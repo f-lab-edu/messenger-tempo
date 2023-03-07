@@ -34,7 +34,7 @@ public class JdbcTemplateMemberRepository implements MemberRepository {
                 .build();
     }
 
-    public boolean save(Member member) {
+    public Member save(Member member) {
         String sql = "INSERT INTO member(id, pw, display_name, status_message) values(?, ?, ?, ?)";
         log.debug("member={}", member);
         Object[] args = {
@@ -43,16 +43,19 @@ public class JdbcTemplateMemberRepository implements MemberRepository {
                 member.getName(),
                 member.getStatusMessage()
         };
-        int update = -1;
+        int update = 0;
         try {
             update = jdbcTemplate.update(sql, args);
         } catch (DuplicateKeyException e) {
             throw new MyException(ErrorCode.ALREADY_EXIST_ID);
         } catch (Exception e) {
-            log.warn(e.getMessage());
+            throw new MyException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
         log.debug("update={}", update);
-        return update == 1;
+        if (update == 0) {
+            throw new MyException(ErrorCode.NOT_MODIFIED);
+        }
+        return member;
     }
 
     public Optional<Member> findById(String id) {
