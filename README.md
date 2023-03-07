@@ -42,4 +42,5 @@ Spring 기반 채팅 메신저 API
 ## 사용 기술, 언어
 - Spring 5.3.25
 - Spring Boot 2.7.8
+- MySQL 5.7.41
 - JDK 11
