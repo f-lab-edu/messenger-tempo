@@ -97,7 +97,7 @@ public class JdbcTemplateMemberRepository implements MemberRepository {
         try {
             update = jdbcTemplate.update(sql, args);
         } catch (Exception e) {
-            log.warn(e.getMessage());
+            throw new MyException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
         log.debug("update={}", update);
         if (update == 0) {
