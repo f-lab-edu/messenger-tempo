@@ -11,6 +11,6 @@ public interface PersonalChatRepository {
      Optional<Chat> deleteOne(long messageId, String userId);
      Optional<Chat> findById(long id);
      List<Chat> findAll();
-     List<Chat> findByFrom(String message_from);
-     List<Chat> findByTo(String message_to);
+     List<Chat> findBySender(String message_from);
+     List<Chat> findByReceiver(String message_to);
 }

@@ -32,11 +32,11 @@ public class ChatService {
         return personalChatRepository.findAll();
     }
 
-    public List<Chat> listChat1on1ByFrom(String message_from) {
-        return personalChatRepository.findByFrom(message_from);
+    public List<Chat> listChat1on1ByFrom(String senderUserId) {
+        return personalChatRepository.findBySender(senderUserId);
     }
 
-    public List<Chat> listChat1on1ByTo(String message_to) {
-        return personalChatRepository.findByTo(message_to);
+    public List<Chat> listChat1on1ByTo(String receiverUserId) {
+        return personalChatRepository.findByReceiver(receiverUserId);
     }
 }

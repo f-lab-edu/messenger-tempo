@@ -116,24 +116,24 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
 
     /**
      * 전송 사용자 id 기반으로 삭제되지 않은 메시지를 검색
-     * @param message_from 메시지 전송 사용자 id
+     * @param senderUserId 메시지 전송 사용자 id
      * @return 메시지 객체 리스트
      */
     @Override
-    public List<Chat> findByFrom(String message_from) {
+    public List<Chat> findBySender(String senderUserId) {
         String sql = "SELECT * FROM personal_chat WHERE message_from = ? AND deleted = 0";
-        return jdbcTemplate.query(sql, chatRowMapper(), message_from);
+        return jdbcTemplate.query(sql, chatRowMapper(), senderUserId);
     }
 
     /**
      * 수신 사용자 id 기반으로 삭제되지 않은 메시지를 검색
-     * @param message_to 메시지 수신 사용자 id
+     * @param receiverUserId  메시지 수신 사용자 id
      * @return 메시지 객체 리스트
      */
     @Override
-    public List<Chat> findByTo(String message_to) {
+    public List<Chat> findByReceiver(String receiverUserId) {
         String sql = "SELECT * FROM personal_chat WHERE message_to = ? AND deleted = 0";
-        return jdbcTemplate.query(sql, chatRowMapper(), message_to);
+        return jdbcTemplate.query(sql, chatRowMapper(), receiverUserId );
     }
 
 }
