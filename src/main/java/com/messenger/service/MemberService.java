@@ -22,11 +22,13 @@ public class MemberService {
     }
 
     public Member signup(Member member) throws MyException {
-        boolean result = memberRepository.save(member);
-        if (!result) {
+        Member result;
+        try {
+            result = memberRepository.save(member);
+        } catch (MyException e) {
             throw new MyException(ErrorCode.FAIL_SIGNUP);
         }
-        return member;
+        return result;
     }
 
     public List<Member> listAll() {
@@ -58,26 +60,23 @@ public class MemberService {
         if (ObjectUtils.isEmpty(paramMember.getStatusMessage())) {
             modifiedStatusMessage = findMember.getStatusMessage();
         }
-        boolean ret = memberRepository.updateMember(
-                Member.builder()
-                        .id(memberId)
-                        .password(modifiedPassword)
-                        .name(modifiedName)
-                        .statusMessage(modifiedStatusMessage)
-                        .build());
-
-        // 업데이트 실패한 경우
-        if (!ret) {
-            throw new MyException(ErrorCode.FAIL_UPDATE_MEMBER);
+        Member ret;
+        try {
+            ret = memberRepository.updateMember(
+                    Member.builder()
+                            .id(memberId)
+                            .password(modifiedPassword)
+                            .name(modifiedName)
+                            .statusMessage(modifiedStatusMessage)
+                            .build());
+        } catch (MyException e) {
+            if(!e.errorCode.equals(ErrorCode.NOT_MODIFIED)) {
+                throw new MyException(ErrorCode.FAIL_UPDATE_MEMBER);
+            }
+            throw e;
         }
 
-        // 변경된 후 다시 memberId를 찾는다
-        Member findMemberAfter = findById(memberId).orElseThrow(() -> new MyException(ErrorCode.NOT_FOUND_MEMBER));
-        // 변경된 것이 하나도 없는 경우
-        if (findMemberAfter.equals(findMember)) {
-            throw new MyException(ErrorCode.NOT_MODIFIED);
-        }
-        return findMemberAfter;
+        return ret;
     }
 
     public Member login(String id, String password, HttpSession session) throws MyException {
