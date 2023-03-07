@@ -26,7 +26,7 @@ public class JdbcMemberRepository implements MemberRepository {
         this.dataSource = dataSource;
     }
 
-    public boolean save(Member member) {
+    public Member save(Member member) {
         String sql = "INSERT INTO member(id, pw, display_name, status_message) values(?, ?, ?, ?)";
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -38,11 +38,11 @@ public class JdbcMemberRepository implements MemberRepository {
             pstmt.setString(3, member.getName());
             pstmt.setString(4, member.getStatusMessage());
             pstmt.executeUpdate();
-            return true;
+            return member;
         } catch (DuplicateKeyException e) {
             throw new MyException(ErrorCode.ALREADY_EXIST_ID);
-        } catch (Exception e) {
-            return false;
+        } catch (SQLException e) {
+            throw new MyException(ErrorCode.INTERNAL_SERVER_ERROR);
         } finally {
             close(conn, pstmt, null);
         }
@@ -180,7 +180,7 @@ public class JdbcMemberRepository implements MemberRepository {
     }
 
     @Override
-    public boolean updateMember(Member paramMember) {
+    public Member updateMember(Member paramMember) {
         String sql = "UPDATE member SET pw = ?, display_name = ?, status_message = ? WHERE id = ?";
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -197,9 +197,9 @@ public class JdbcMemberRepository implements MemberRepository {
             pstmt.setString(3, paramMember.getStatusMessage());
             pstmt.setString(4, paramMember.getId());
             pstmt.executeUpdate();
-            return true;
-        } catch (Exception e) {
-            return false;
+            return findById(paramMember.getId()).orElseThrow(() -> new MyException(ErrorCode.NOT_FOUND_MEMBER));
+        } catch (SQLException e) {
+            throw new MyException(ErrorCode.INTERNAL_SERVER_ERROR);
         } finally {
             close(conn, pstmt, null);
         }
