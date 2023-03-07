@@ -5,7 +5,6 @@ import com.messenger.repository.PersonalChatRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ChatService {
@@ -21,11 +20,7 @@ public class ChatService {
     }
 
     public Chat deleteChat1on1(long messageId, String userId) {
-        Optional<Chat> ret = personalChatRepository.deleteOne(messageId, userId);
-        if (ret.isEmpty()) {
-            throw new NullPointerException("cannot find chat by id");
-        }
-        return ret.get();
+        return personalChatRepository.deleteOne(messageId, userId);
     }
 
     public List<Chat> listAllChat1on1() {

@@ -8,7 +8,7 @@ import java.util.Optional;
 public interface PersonalChatRepository {
 
      Chat save(Chat chat);
-     Optional<Chat> deleteOne(long messageId, String userId);
+     Chat deleteOne(long messageId, String userId);
      Optional<Chat> findById(long id);
      List<Chat> findAll();
      List<Chat> findBySender(String message_from);
