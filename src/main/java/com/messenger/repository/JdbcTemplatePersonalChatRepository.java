@@ -15,11 +15,11 @@ import java.util.*;
 
 @Repository
 @Slf4j
-public class JdbcTemplateChat1on1Repository implements Chat1on1Repository {
+public class JdbcTemplatePersonalChatRepository implements PersonalChatRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
-    public JdbcTemplateChat1on1Repository(DataSource dataSource) {
+    public JdbcTemplatePersonalChatRepository(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 

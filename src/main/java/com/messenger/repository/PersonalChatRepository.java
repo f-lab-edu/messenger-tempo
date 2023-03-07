@@ -5,7 +5,7 @@ import com.messenger.domain.Chat;
 import java.util.List;
 import java.util.Optional;
 
-public interface Chat1on1Repository {
+public interface PersonalChatRepository {
 
      Chat save(Chat chat);
      Optional<Chat> deleteOne(long messageId, String userId);
