@@ -1,7 +1,8 @@
 package com.messenger.domain;
 
-import lombok.*;
-import org.springframework.lang.NonNull;
+import lombok.Value;
+import lombok.Builder;
+import lombok.NonNull;
 
 @Value
 public class Member {
