@@ -84,7 +84,7 @@ public class JdbcTemplateMemberRepository implements MemberRepository {
     }
 
     @Override
-    public boolean updateMember(Member paramMember) {
+    public Member updateMember(Member paramMember) {
         String sql = "UPDATE member SET pw = ?, display_name = ?, status_message = ? WHERE id = ?";
         log.debug("paramMember={}", paramMember);
         Object[] args = {
@@ -93,13 +93,16 @@ public class JdbcTemplateMemberRepository implements MemberRepository {
                 paramMember.getStatusMessage(),
                 paramMember.getId()
         };
-        int update = -1;
+        int update = 0;
         try {
             update = jdbcTemplate.update(sql, args);
         } catch (Exception e) {
             log.warn(e.getMessage());
         }
         log.debug("update={}", update);
-        return update == 1;
+        if (update == 0) {
+            throw new MyException(ErrorCode.NOT_MODIFIED);
+        }
+        return findById(paramMember.getId()).orElseThrow(() -> new MyException(ErrorCode.NOT_FOUND_MEMBER));
     }
 }
