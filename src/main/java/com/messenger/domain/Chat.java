@@ -10,19 +10,19 @@ import java.sql.Timestamp;
 public class Chat {
 
     long id;
-    String message_from;
-    String message_to;
-    String message;
+    String senderUserId;
+    String receiverUserId;
+    String content;
     short unread_count;
     Timestamp created_at;
     Boolean deleted;
 
     @Builder
-    private Chat(long id, String message_from, String message_to, String message, short unread_count, Timestamp created_at, Boolean deleted) {
+    private Chat(long id, String senderUserId, String receiverUserId, String content, short unread_count, Timestamp created_at, Boolean deleted) {
         this.id = id;
-        this.message_from = message_from;
-        this.message_to = message_to;
-        this.message = message;
+        this.senderUserId = senderUserId;
+        this.receiverUserId = receiverUserId;
+        this.content = content;
         this.unread_count = unread_count;
         this.created_at = created_at;
         this.deleted = deleted;

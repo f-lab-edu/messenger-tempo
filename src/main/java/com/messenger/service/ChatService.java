@@ -15,23 +15,23 @@ public class ChatService {
         this.personalChatRepository = personalChatRepository;
     }
 
-    public Chat sendChat1on1(Chat chat) {
+    public Chat sendPersonalChat(Chat chat) {
         return personalChatRepository.save(chat);
     }
 
-    public Chat deleteChat1on1(long messageId, String userId) {
-        return personalChatRepository.deleteOne(messageId, userId);
+    public Chat deletePersonalChat(long chatId, String userId) {
+        return personalChatRepository.deleteOne(chatId, userId);
     }
 
-    public List<Chat> listAllChat1on1() {
+    public List<Chat> listAllPersonalChat() {
         return personalChatRepository.findAll();
     }
 
-    public List<Chat> listChat1on1ByFrom(String senderUserId) {
+    public List<Chat> listPersonalChatBySender(String senderUserId) {
         return personalChatRepository.findBySender(senderUserId);
     }
 
-    public List<Chat> listChat1on1ByTo(String receiverUserId) {
+    public List<Chat> listPersonalChatByReceiver(String receiverUserId) {
         return personalChatRepository.findByReceiver(receiverUserId);
     }
 }

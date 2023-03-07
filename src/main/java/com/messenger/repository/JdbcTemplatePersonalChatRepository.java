@@ -26,9 +26,9 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
     private RowMapper<Chat> chatRowMapper() {
         return (rs, rowNum) -> Chat.builder()
                 .id(rs.getLong("id"))
-                .message_from(rs.getString("message_from"))
-                .message_to(rs.getString("message_to"))
-                .message(rs.getString("message"))
+                .senderUserId(rs.getString("sender_user_id"))
+                .receiverUserId(rs.getString("receiver_user_id"))
+                .content(rs.getString("content"))
                 .unread_count(rs.getShort("unread_count"))
                 .created_at(rs.getTimestamp("created_at"))
                 .deleted(rs.getBoolean("deleted"))
@@ -42,16 +42,16 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
      */
     @Override
     public Chat save(Chat chat) {
-        String sql = "INSERT INTO personal_chat(message_from, message_to, message) values(?, ?, ?)";
+        String sql = "INSERT INTO personal_chat(sender_user_id, receiver_user_id, content) values(?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         log.debug("chat={}", chat);
         try {
             jdbcTemplate.update(conn -> {
                 PreparedStatement ps = conn.prepareStatement(sql, new String[] {"id"});
-                ps.setString(1, chat.getMessage_from());
-                ps.setString(2, chat.getMessage_to());
-                ps.setString(3, chat.getMessage());
+                ps.setString(1, chat.getSenderUserId());
+                ps.setString(2, chat.getReceiverUserId());
+                ps.setString(3, chat.getContent());
                 return ps;
             }, keyHolder);
         } catch (DuplicateKeyException e) {
@@ -67,32 +67,32 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
     /**
      * 메시지 id 기반으로 메시지 하나를 삭제
      * (실제로는 deleted 칼럼을 1로 설정하여 비표시 처리)
-     * @param messageId 메시지 id
+     * @param chatId 메시지 id
      * @param userId    사용자 id
      * @return (Nullable) 삭제한 메시지 객체
      */
     @Override
-    public Chat deleteOne(long messageId, String userId) {
+    public Chat deleteOne(long chatId, String userId) {
         // 전송 사용자 id가 일치해야만 삭제 처리
-        String sql = "UPDATE personal_chat SET deleted = 1 WHERE id = ? AND message_from = ?";
-        Object[] args = {messageId, userId};
-        log.debug("delete chat messageId={}, userId={}", messageId, userId);
+        String sql = "UPDATE personal_chat SET deleted = 1 WHERE id = ? AND sender_user_id = ?";
+        Object[] args = {chatId, userId};
+        log.debug("delete chat chatId={}, userId={}", chatId, userId);
         int update = jdbcTemplate.update(sql, args);
         if (update == 0) {
             throw new NullPointerException("cannot delete chat");
         }
-        return findById(messageId).orElseThrow(() -> new NullPointerException("cannot find chat by id"));
+        return findById(chatId).orElseThrow(() -> new NullPointerException("cannot find chat by id"));
     }
 
     /**
      * 메시지 id 기반으로 메시지를 검색
-     * @param id 검색할 메시지 id
+     * @param chatId 검색할 메시지 id
      * @return (Nullable) 메시지 객체
      */
     @Override
-    public Optional<Chat> findById(long id) {
+    public Optional<Chat> findById(long chatId) {
         String sql = "SELECT * FROM personal_chat WHERE id = ?";
-        List<Chat> result = jdbcTemplate.query(sql, chatRowMapper(), id);
+        List<Chat> result = jdbcTemplate.query(sql, chatRowMapper(), chatId);
         return result.stream().findAny();
     }
 
@@ -115,7 +115,7 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
      */
     @Override
     public List<Chat> findBySender(String senderUserId) {
-        String sql = "SELECT * FROM personal_chat WHERE message_from = ? AND deleted = 0";
+        String sql = "SELECT * FROM personal_chat WHERE sender_user_id = ? AND deleted = 0";
         return jdbcTemplate.query(sql, chatRowMapper(), senderUserId);
     }
 
@@ -126,7 +126,7 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
      */
     @Override
     public List<Chat> findByReceiver(String receiverUserId) {
-        String sql = "SELECT * FROM personal_chat WHERE message_to = ? AND deleted = 0";
+        String sql = "SELECT * FROM personal_chat WHERE receiver_user_id = ? AND deleted = 0";
         return jdbcTemplate.query(sql, chatRowMapper(), receiverUserId );
     }
 

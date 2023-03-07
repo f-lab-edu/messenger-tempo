@@ -24,15 +24,15 @@ public class ChatController {
 
     /**
      * 메시지를 전송
-     * @param message_to 수신 사용자 id
-     * @param message    메시지 내용
+     * @param receiverUserId 수신 사용자 id
+     * @param content    메시지 내용
      * @param session    세션
      * @return 메시지 객체
      */
     @PostMapping("/api/v1/chat")
-    public ResponseEntity<Chat> sendChat1on1(@RequestParam String message_to,
-                                             @RequestParam String message,
-                                             @NonNull HttpSession session) {
+    public ResponseEntity<Chat> sendPersonalChat(@RequestParam String receiverUserId,
+                                                 @RequestParam String content,
+                                                 @NonNull HttpSession session) {
         String sessionUserId = getSessionUserId(session);
         if (sessionUserId == null) {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
@@ -40,11 +40,11 @@ public class ChatController {
 
         Chat ret;
         try {
-            ret = chatService.sendChat1on1(
+            ret = chatService.sendPersonalChat(
                     Chat.builder()
-                            .message_from(sessionUserId)
-                            .message_to(message_to)
-                            .message(message)
+                            .senderUserId(sessionUserId)
+                            .receiverUserId(receiverUserId)
+                            .content(content)
                             .build()
             );
         } catch (DuplicateKeyException e) {
@@ -63,8 +63,8 @@ public class ChatController {
      * @return 메시지 객체 리스트
      */
     @GetMapping("/api/v1/chat")
-    public ResponseEntity<List<Chat>> listAllChat1on1() {
-        return new ResponseEntity<>(chatService.listAllChat1on1(), HttpStatus.OK);
+    public ResponseEntity<List<Chat>> listAllPersonalChat() {
+        return new ResponseEntity<>(chatService.listAllPersonalChat(), HttpStatus.OK);
     }
 
     /**
@@ -78,7 +78,7 @@ public class ChatController {
         if (sessionUserId == null) {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
-        return new ResponseEntity<>(chatService.listChat1on1ByFrom(sessionUserId), HttpStatus.OK);
+        return new ResponseEntity<>(chatService.listPersonalChatBySender(sessionUserId), HttpStatus.OK);
     }
 
     /**
@@ -92,17 +92,17 @@ public class ChatController {
         if (sessionUserId == null) {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
-        return new ResponseEntity<>(chatService.listChat1on1ByTo(sessionUserId), HttpStatus.OK);
+        return new ResponseEntity<>(chatService.listPersonalChatByReceiver(sessionUserId), HttpStatus.OK);
     }
 
     /**
      * 자신이 전송한 메시지 하나를 삭제
-     * @param messageId 메시지 id
+     * @param chatId 메시지 id
      * @param session   세션
      * @return 메시지 객체
      */
-    @DeleteMapping("/api/v1/chat/{messageId}")
-    public ResponseEntity<Chat> deleteChat(@PathVariable long messageId, HttpSession session) {
+    @DeleteMapping("/api/v1/chat/{chatId}")
+    public ResponseEntity<Chat> deleteChat(@PathVariable long chatId, HttpSession session) {
         String sessionUserId = getSessionUserId(session);
         if (sessionUserId == null) {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
@@ -110,7 +110,7 @@ public class ChatController {
 
         Chat ret;
         try {
-            ret = chatService.deleteChat1on1(messageId, sessionUserId);
+            ret = chatService.deletePersonalChat(chatId, sessionUserId);
         } catch (NullPointerException e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
