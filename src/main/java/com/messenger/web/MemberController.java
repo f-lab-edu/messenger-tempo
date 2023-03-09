@@ -1,8 +1,8 @@
 package com.messenger.web;
 
 import com.messenger.domain.Member;
+import com.messenger.exception.MyException;
 import com.messenger.service.MemberService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +24,6 @@ public class MemberController {
     public static final String SESSION_KEY_USER_ID = "USER_ID";
     private final MemberService memberService;
 
-    @Autowired
     public MemberController(MemberService memberService) {
         this.memberService = memberService;
     }
@@ -35,7 +34,7 @@ public class MemberController {
      */
     @GetMapping("/api/v1/members")
     public List<Member> members() {
-        return memberService.listMember();
+        return memberService.listAll();
     }
 
     /**
@@ -50,12 +49,18 @@ public class MemberController {
     public ResponseEntity<Member> signup(@RequestParam String id,
                                          @RequestParam String password,
                                          @RequestParam(required = false, defaultValue = "") String name) {
-        Member member = Member.builder(id, password).name(name).build();
-        boolean ret = memberService.signupMember(member);
-        if (!ret) {
-            return new ResponseEntity<>(null, HttpStatus.CONFLICT);
+        Member member = Member.builder()
+                                .id(id)
+                                .password(password)
+                                .name(name)
+                                .build();
+        Member result;
+        try {
+            result = memberService.signup(member);
+        } catch (MyException e) {
+            return new ResponseEntity<>(null, e.errorCode.httpStatusCode);
         }
-        return new ResponseEntity<>(member, HttpStatus.OK);
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     /**
@@ -64,14 +69,10 @@ public class MemberController {
      * @return  조회된 경우 : 조회된 회원 객체
      *          그 외 : null
      */
-    @GetMapping("/api/v1/members/id/{memberId}")
-    public ResponseEntity<Member> findMemberById(@PathVariable String memberId) {
-        Optional<Member> findMember = memberService.findMemberById(memberId);
-
-        if (findMember.isEmpty()) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(findMember.get(), HttpStatus.OK);
+    @GetMapping("/api/v1/members/{memberId}")
+    public ResponseEntity<Member> findById(@PathVariable String memberId) {
+        Optional<Member> findMember = memberService.findById(memberId);
+        return new ResponseEntity<>(findMember.orElse(null), HttpStatus.OK);
     }
 
     /**
@@ -81,12 +82,8 @@ public class MemberController {
      *          그 외 : null
      */
     @GetMapping("/api/v1/members/name/{memberName}")
-    public ResponseEntity<List<Member>> findMemberByName(@PathVariable String memberName) {
-        List<Member> findMember = memberService.findMemberByName(memberName);
-
-        if (findMember.isEmpty()) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<List<Member>> findByName(@PathVariable String memberName) {
+        List<Member> findMember = memberService.findByName(memberName);
         return new ResponseEntity<>(findMember, HttpStatus.OK);
     }
 
@@ -99,67 +96,44 @@ public class MemberController {
      * @return  변경된 경우 : 변경된 회원 객체
      *          그 외 : null
      */
-    @PutMapping(value = "/api/v1/members/id/{memberId}", consumes = "application/x-www-form-urlencoded")
-    public ResponseEntity<Member> updateMemberInfo(@PathVariable String memberId,
-                                                   @RequestParam(required = false) String name,
-                                                   @RequestParam(required = false) String password,
-                                                   @RequestParam(required = false) String content) {
+    @PutMapping(value = "/api/v1/members/{memberId}", consumes = "application/x-www-form-urlencoded")
+    public ResponseEntity<Member> updateInfo(@PathVariable String memberId,
+                                             @RequestParam(required = false) String name,
+                                             @RequestParam(required = false) String password,
+                                             @RequestParam(required = false) String content) {
         log.debug("memberId={}, name={}, password={}", memberId, name, password);
-
-        // memberId를 찾을 수 없는 경우
-        Optional<Member> findMember = memberService.findMemberById(memberId);
-        if (findMember.isEmpty()) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        Member result;
+        try {
+            result = memberService.updateInfo(
+                    Member.builder()
+                            .id(memberId)
+                            .password(password)
+                            .name(name)
+                            .statusMessage(content)
+                            .build());
+        } catch (MyException e) {
+            return new ResponseEntity<>(null, e.errorCode.httpStatusCode);
         }
-
-        Member paramMember = Member.builder(memberId, password).name(name).statusMessage(content).build();
-
-        boolean result = memberService.updateMemberInfo(paramMember);
-        if (!result) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-        // 변경된 후 다시 memberId를 찾는다
-        Member findMemberAfter = memberService.findMemberById(memberId).orElseThrow(() -> new IllegalStateException("cannot find member by id"));
-        // 변경된 것이 하나도 없는 경우
-        if (findMemberAfter.equals(findMember.get())) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_MODIFIED);
-        }
-
-        return new ResponseEntity<>(findMemberAfter, HttpStatus.OK);
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @PostMapping(value = "/api/v1/members/login", consumes = "application/x-www-form-urlencoded")
-    public ResponseEntity<Member> loginMember(@RequestParam String id,
-                                              @RequestParam String password,
-                                              HttpSession session) {
+    public ResponseEntity<Member> login(@RequestParam String id,
+                                        @RequestParam String password,
+                                        HttpSession session) {
 
         logForSession(session);
-
-        // 세션 값이 있으면 이미 로그인 중
-        String sessionUserId = (String) session.getAttribute(SESSION_KEY_USER_ID);
-        if (sessionUserId != null) {
-            Optional<Member> findMemberSession = memberService.findMemberById(sessionUserId);
-            // 세션 값에 해당하는 유저를 찾지 못하면 세션 삭제
-            if (findMemberSession.isEmpty()) {
-                session.removeAttribute(SESSION_KEY_USER_ID);
-                return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-            }
-            return new ResponseEntity<>(findMemberSession.get(), HttpStatus.ACCEPTED);
+        Member findMember;
+        try {
+            findMember = memberService.login(id, password, session);
+        } catch (MyException e) {
+            return new ResponseEntity<>(null, e.errorCode.httpStatusCode);
         }
-
-        // 아이디, 비밀번호 확인
-        Optional<Member> findMember = memberService.loginMember(id, password);
-        if (findMember.isEmpty()) {
-            return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
-        }
-        session.setAttribute(SESSION_KEY_USER_ID, id);
-        return new ResponseEntity<>(findMember.get(), HttpStatus.OK);
+        return new ResponseEntity<>(findMember, HttpStatus.OK);
     }
 
     @PostMapping(value = "/api/v1/members/logout")
-    public ResponseEntity<Void> logoutMember(HttpSession session) {
-
+    public ResponseEntity<Void> logout(HttpSession session) {
         logForSession(session);
         session.removeAttribute(SESSION_KEY_USER_ID);
         return new ResponseEntity<>(null, HttpStatus.OK);

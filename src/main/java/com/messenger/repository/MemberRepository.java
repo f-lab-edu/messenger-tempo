@@ -6,10 +6,11 @@ import java.util.*;
 
 public interface MemberRepository {
 
-    public boolean save(Member member);
-    public Optional<Member> findById(String id);
-    public List<Member> findByName(String name);
-    public List<Member> findAll();
-    public boolean updateMember(Member member);
-    public Optional<Member> findByIdPw(String id, String password);
+
+    Member save(Member member);
+    List<Member> findAll();
+    Optional<Member> findById(String id);
+    List<Member> findByName(String name);
+    Optional<Member> findByIdAndPw(String id, String password);
+    Member updateMember(Member paramMember);
 }

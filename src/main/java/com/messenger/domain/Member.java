@@ -1,18 +1,22 @@
 package com.messenger.domain;
 
-import lombok.*;
+import lombok.Value;
+import lombok.Builder;
+import lombok.NonNull;
 
 @Value
-@Builder(builderMethodName = "hiddenBuilder")
 public class Member {
 
     String id;
     String password;
-    @Builder.Default String name = "undefined";
-    @Builder.Default String statusMessage = "";  // 상태 메시지
+    String name;
+    String statusMessage;  // 상태 메시지
 
-    public static MemberBuilder builder(String id, String password) {
-        return hiddenBuilder().id(id).password(password);
+    @Builder
+    private Member(@NonNull String id, @NonNull String password, String name, String statusMessage) {
+        this.id = id;
+        this.password = password;
+        this.name = (name == null) ? "undefined": name;
+        this.statusMessage = (statusMessage == null) ? "" : statusMessage;
     }
-
 }
