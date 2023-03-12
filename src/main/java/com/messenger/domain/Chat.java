@@ -7,7 +7,7 @@ import java.sql.Timestamp;
 
 
 @Value
-public class Chat {
+public class Chat implements Pageable {
 
     long id;
     String senderUserId;
