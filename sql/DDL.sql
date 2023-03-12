@@ -13,7 +13,7 @@ create table personal_chat (
     id BIGINT NOT NULL AUTO_INCREMENT,
     sender_user_id VARCHAR(35) NOT NULL,
     receiver_user_id VARCHAR(35) NOT NULL,
-    content VARCHAR(5005),
+    content VARCHAR(5000),
     unread_count TINYINT(1) DEFAULT 1,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     deleted BOOLEAN DEFAULT 0,
