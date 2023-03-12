@@ -68,7 +68,7 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
      * 메시지 id 기반으로 메시지 하나를 삭제
      * (실제로는 deleted 칼럼을 1로 설정하여 비표시 처리)
      * @param chatId 메시지 id
-     * @param userId    사용자 id
+     * @param userId 사용자 id
      * @return (Nullable) 삭제한 메시지 객체
      */
     @Override
@@ -99,35 +99,56 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
     /**
      * (개발자용) 모든 메시지를 리스트로 반환
      * 삭제된 메시지도 모두 포함된다
+     * (커서 기반 페이지네이션)
+     * @param prevChatId 이전 조회한 마지막 메시지 id
+     * @param size 조회할 메시지 개수
      * @return 메시지 객체 리스트
      */
     @Override
-    public List<Chat> findAll() {
-        String sql = "SELECT * FROM personal_chat";
-        return jdbcTemplate.query(sql, chatRowMapper());
+    public List<Chat> findAll(Integer prevChatId, Integer size) {
+        if (prevChatId == null) {
+            String sql = "SELECT * FROM personal_chat ORDER BY id DESC LIMIT ?";
+            return jdbcTemplate.query(sql, chatRowMapper(), size);
+        }
+        String sql = "SELECT * FROM personal_chat WHERE id < ? ORDER BY id DESC LIMIT ?";
+        return jdbcTemplate.query(sql, chatRowMapper(), prevChatId, size);
     }
 
 
     /**
      * 전송 사용자 id 기반으로 삭제되지 않은 메시지를 검색
+     * (커서 기반 페이지네이션)
      * @param senderUserId 메시지 전송 사용자 id
+     * @param prevChatId 이전 조회한 마지막 메시지 id
+     * @param size 조회할 메시지 개수
      * @return 메시지 객체 리스트
      */
     @Override
-    public List<Chat> findBySender(String senderUserId) {
-        String sql = "SELECT * FROM personal_chat WHERE sender_user_id = ? AND deleted = 0";
-        return jdbcTemplate.query(sql, chatRowMapper(), senderUserId);
+    public List<Chat> findBySender(String senderUserId, Integer prevChatId, Integer size) {
+        if (prevChatId == null) {
+            String sql = "SELECT * FROM personal_chat WHERE sender_user_id = ? AND deleted = 0 ORDER BY id DESC LIMIT ?";
+            return jdbcTemplate.query(sql, chatRowMapper(), senderUserId, size);
+        }
+        String sql = "SELECT * FROM personal_chat WHERE sender_user_id = ? AND deleted = 0 AND id < ? ORDER BY id DESC LIMIT ?";
+        return jdbcTemplate.query(sql, chatRowMapper(), senderUserId, prevChatId, size);
     }
 
     /**
      * 수신 사용자 id 기반으로 삭제되지 않은 메시지를 검색
+     * (커서 기반 페이지네이션)
      * @param receiverUserId  메시지 수신 사용자 id
+     * @param prevChatId 이전 조회한 마지막 메시지 id
+     * @param size 조회할 메시지 개수
      * @return 메시지 객체 리스트
      */
     @Override
-    public List<Chat> findByReceiver(String receiverUserId) {
-        String sql = "SELECT * FROM personal_chat WHERE receiver_user_id = ? AND deleted = 0";
-        return jdbcTemplate.query(sql, chatRowMapper(), receiverUserId );
+    public List<Chat> findByReceiver(String receiverUserId, Integer prevChatId, Integer size) {
+        if (prevChatId == null) {
+            String sql = "SELECT * FROM personal_chat WHERE receiver_user_id = ? AND deleted = 0 ORDER BY id DESC LIMIT ?";
+            return jdbcTemplate.query(sql, chatRowMapper(), receiverUserId, size);
+        }
+        String sql = "SELECT * FROM personal_chat WHERE receiver_user_id = ? AND deleted = 0 AND id < ? ORDER BY id DESC LIMIT ?";
+        return jdbcTemplate.query(sql, chatRowMapper(), receiverUserId, prevChatId, size);
     }
 
 }

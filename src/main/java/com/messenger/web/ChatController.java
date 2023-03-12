@@ -45,8 +45,7 @@ public class ChatController {
                             .senderUserId(sessionUserId)
                             .receiverUserId(receiverUserId)
                             .content(content)
-                            .build()
-            );
+                            .build());
         } catch (DuplicateKeyException e) {
             return new ResponseEntity<>(null, HttpStatus.CONFLICT);
         } catch (NullPointerException e) {
@@ -63,8 +62,9 @@ public class ChatController {
      * @return 메시지 객체 리스트
      */
     @GetMapping("/api/v1/chat")
-    public ResponseEntity<List<Chat>> listAllPersonalChat() {
-        return new ResponseEntity<>(chatService.listAllPersonalChat(), HttpStatus.OK);
+    public ResponseEntity<List<Chat>> listAllPersonalChat(@RequestParam(required = false) Integer prevChatId,
+                                                          @RequestParam(required = false, defaultValue = "3") Integer size) {
+        return new ResponseEntity<>(chatService.listAllPersonalChat(prevChatId, size), HttpStatus.OK);
     }
 
     /**
@@ -73,12 +73,14 @@ public class ChatController {
      * @return 메시지 객체 리스트
      */
     @GetMapping("/api/v1/chat/sent")
-    public ResponseEntity<List<Chat>> listSent(HttpSession session) {
+    public ResponseEntity<List<Chat>> listSent(@RequestParam(required = false) Integer prevChatId,
+                                               @RequestParam(required = false, defaultValue = "3") Integer size,
+                                               HttpSession session) {
         String sessionUserId = getSessionUserId(session);
         if (sessionUserId == null) {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
-        return new ResponseEntity<>(chatService.listPersonalChatBySender(sessionUserId), HttpStatus.OK);
+        return new ResponseEntity<>(chatService.listPersonalChatBySender(sessionUserId, prevChatId, size), HttpStatus.OK);
     }
 
     /**
@@ -87,18 +89,20 @@ public class ChatController {
      * @return 메시지 객체 리스트
      */
     @GetMapping("/api/v1/chat/received")
-    public ResponseEntity<List<Chat>> listReceived(HttpSession session) {
+    public ResponseEntity<List<Chat>> listReceived(@RequestParam(required = false) Integer prevChatId,
+                                                   @RequestParam(required = false, defaultValue = "3") Integer size,
+                                                   HttpSession session) {
         String sessionUserId = getSessionUserId(session);
         if (sessionUserId == null) {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
-        return new ResponseEntity<>(chatService.listPersonalChatByReceiver(sessionUserId), HttpStatus.OK);
+        return new ResponseEntity<>(chatService.listPersonalChatByReceiver(sessionUserId, prevChatId, size), HttpStatus.OK);
     }
 
     /**
      * 자신이 전송한 메시지 하나를 삭제
      * @param chatId 메시지 id
-     * @param session   세션
+     * @param session 세션
      * @return 메시지 객체
      */
     @DeleteMapping("/api/v1/chat/{chatId}")
