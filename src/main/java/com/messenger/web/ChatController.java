@@ -62,9 +62,10 @@ public class ChatController {
      * @return 메시지 객체 리스트
      */
     @GetMapping("/api/v1/chat")
-    public ResponseEntity<List<Chat>> listAllPersonalChat(@RequestParam(required = false) Integer prevChatId,
-                                                          @RequestParam(required = false, defaultValue = "3") Integer size) {
-        return new ResponseEntity<>(chatService.listAllPersonalChat(prevChatId, size), HttpStatus.OK);
+    public ResponseEntity<PaginationWrapper> listAllPersonalChat(@RequestParam(required = false) Integer prevId,
+                                                                 @RequestParam(required = false, defaultValue = "3") Integer size) {
+        List<Chat> list = chatService.listAllPersonalChat(prevId, size);
+        return new ResponseEntity<>(new PaginationWrapper(list), HttpStatus.OK);
     }
 
     /**
@@ -73,14 +74,15 @@ public class ChatController {
      * @return 메시지 객체 리스트
      */
     @GetMapping("/api/v1/chat/sent")
-    public ResponseEntity<List<Chat>> listSent(@RequestParam(required = false) Integer prevChatId,
-                                               @RequestParam(required = false, defaultValue = "3") Integer size,
-                                               HttpSession session) {
+    public ResponseEntity<PaginationWrapper> listSent(@RequestParam(required = false) Integer prevId,
+                                                      @RequestParam(required = false, defaultValue = "3") Integer size,
+                                                      HttpSession session) {
         String sessionUserId = getSessionUserId(session);
         if (sessionUserId == null) {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
-        return new ResponseEntity<>(chatService.listPersonalChatBySender(sessionUserId, prevChatId, size), HttpStatus.OK);
+        List<Chat> list = chatService.listPersonalChatBySender(sessionUserId, prevId, size);
+        return new ResponseEntity<>(new PaginationWrapper(list), HttpStatus.OK);
     }
 
     /**
@@ -89,14 +91,15 @@ public class ChatController {
      * @return 메시지 객체 리스트
      */
     @GetMapping("/api/v1/chat/received")
-    public ResponseEntity<List<Chat>> listReceived(@RequestParam(required = false) Integer prevChatId,
-                                                   @RequestParam(required = false, defaultValue = "3") Integer size,
-                                                   HttpSession session) {
+    public ResponseEntity<PaginationWrapper> listReceived(@RequestParam(required = false) Integer prevId,
+                                                          @RequestParam(required = false, defaultValue = "3") Integer size,
+                                                          HttpSession session) {
         String sessionUserId = getSessionUserId(session);
         if (sessionUserId == null) {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
-        return new ResponseEntity<>(chatService.listPersonalChatByReceiver(sessionUserId, prevChatId, size), HttpStatus.OK);
+        List<Chat> list = chatService.listPersonalChatByReceiver(sessionUserId, prevId, size);
+        return new ResponseEntity<>(new PaginationWrapper(list), HttpStatus.OK);
     }
 
     /**
@@ -106,7 +109,7 @@ public class ChatController {
      * @return 메시지 객체
      */
     @DeleteMapping("/api/v1/chat/{chatId}")
-    public ResponseEntity<Chat> deleteChat(@PathVariable long chatId, HttpSession session) {
+    public ResponseEntity<Chat> deletePersonalChat(@PathVariable long chatId, HttpSession session) {
         String sessionUserId = getSessionUserId(session);
         if (sessionUserId == null) {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
