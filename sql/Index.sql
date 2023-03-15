@@ -1,0 +1,1 @@
+CREATE INDEX personal_chat_index ON personal_chat (group_id, id);
