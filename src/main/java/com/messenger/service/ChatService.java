@@ -34,4 +34,8 @@ public class ChatService {
     public List<Chat> listPersonalChatByReceiver(String receiverUserId, Integer prevId, Integer size) {
         return personalChatRepository.findByReceiver(receiverUserId, prevId, size);
     }
+
+    public List<Chat> listPersonalChatByGroup(String userId, String oppositeUserId, Integer prevId, Integer size) {
+        return personalChatRepository.findByGroup(userId, oppositeUserId, prevId, size);
+    }
 }

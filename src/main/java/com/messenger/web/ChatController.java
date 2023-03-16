@@ -59,6 +59,8 @@ public class ChatController {
     /**
      * (개발자용) 전체 메시지 목록
      * 삭제된 메시지도 포함된다
+     * @param prevId 이전 조회한 마지막 메시지 id
+     * @param size 조회할 메시지 개수
      * @return 메시지 객체 리스트
      */
     @GetMapping("/api/v1/chat")
@@ -70,6 +72,8 @@ public class ChatController {
 
     /**
      * 자신이 전송한 메시지의 목록
+     * @param prevId 이전 조회한 마지막 메시지 id
+     * @param size 조회할 메시지 개수
      * @param session 세션
      * @return 메시지 객체 리스트
      */
@@ -87,6 +91,8 @@ public class ChatController {
 
     /**
      * 자신이 수신한 모든 메시지 목록
+     * @param prevId 이전 조회한 마지막 메시지 id
+     * @param size 조회할 메시지 개수
      * @param session 세션
      * @return 메시지 객체 리스트
      */
@@ -99,6 +105,27 @@ public class ChatController {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
         List<Chat> list = chatService.listPersonalChatByReceiver(sessionUserId, prevId, size);
+        return new ResponseEntity<>(new PaginationWrapper(list), HttpStatus.OK);
+    }
+
+    /**
+     * 1:1 채팅 그룹의 모든 메시지 목록
+     * @param oppositeUserId 상대방 사용자 id
+     * @param prevId 이전 조회한 마지막 메시지 id
+     * @param size 조회할 메시지 개수
+     * @param session 세션
+     * @return 메시지 객체 리스트
+     */
+    @GetMapping("/api/v1/chat/received")
+    public ResponseEntity<PaginationWrapper> listByGroup(@RequestParam String oppositeUserId,
+                                                         @RequestParam(required = false) Integer prevId,
+                                                         @RequestParam(required = false, defaultValue = "3") Integer size,
+                                                         HttpSession session) {
+        String sessionUserId = getSessionUserId(session);
+        if (sessionUserId == null) {
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+        }
+        List<Chat> list = chatService.listPersonalChatByGroup(sessionUserId, oppositeUserId, prevId, size);
         return new ResponseEntity<>(new PaginationWrapper(list), HttpStatus.OK);
     }
 

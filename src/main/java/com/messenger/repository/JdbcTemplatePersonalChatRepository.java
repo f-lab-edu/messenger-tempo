@@ -151,4 +151,22 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
         return jdbcTemplate.query(sql, chatRowMapper(), receiverUserId, prevId, size);
     }
 
+
+    /**
+     * 자신과 상대방 사용자 id 기반으로 1:1 그룹의 메시지를 검색
+     * @param userId 자신의 사용자 id
+     * @param oppositeUserId 상대방 사용자 id
+     * @param prevId 이전 조회한 마지막 메시지 id
+     * @param size 조회할 메시지 개수
+     * @return 메시지 객체 리스트
+     */
+    @Override
+    public List<Chat> findByGroup(String userId, String oppositeUserId, Integer prevId, Integer size) {
+        if (prevId == null) {
+            String sql = "SELECT * FROM personal_chat WHERE group_id = FUNC_CONCAT_ID(?, ?) ORDER BY id DESC LIMIT ?";
+            return jdbcTemplate.query(sql, chatRowMapper(), userId, oppositeUserId, size);
+        }
+        String sql = "SELECT * FROM personal_chat WHERE group_id = FUNC_CONCAT_ID(?, ?) AND id < ? ORDER BY id DESC LIMIT ?";
+        return jdbcTemplate.query(sql, chatRowMapper(), userId, oppositeUserId, prevId, size);
+    }
 }

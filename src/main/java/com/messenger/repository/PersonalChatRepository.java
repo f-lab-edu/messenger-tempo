@@ -13,4 +13,5 @@ public interface PersonalChatRepository {
      List<Chat> findAll(Integer prevId, Integer size);
      List<Chat> findBySender(String senderUserId, Integer prevId, Integer size);
      List<Chat> findByReceiver(String receiverUserId, Integer prevId, Integer size);
+     List<Chat> findByGroup(String userId, String oppositeUserId, Integer prevId, Integer size);
 }
