@@ -1,6 +1,7 @@
 package com.messenger.web;
 
 import com.messenger.domain.Chat;
+import com.messenger.domain.PaginationWrapper;
 import com.messenger.service.ChatService;
 import lombok.NonNull;
 import org.springframework.dao.DuplicateKeyException;

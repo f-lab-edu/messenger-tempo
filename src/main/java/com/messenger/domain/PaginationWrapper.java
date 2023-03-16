@@ -1,6 +1,4 @@
-package com.messenger.web;
-
-import com.messenger.domain.Pageable;
+package com.messenger.domain;
 
 import java.util.HashMap;
 import java.util.List;
