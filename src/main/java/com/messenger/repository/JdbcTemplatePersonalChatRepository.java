@@ -42,7 +42,7 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
      */
     @Override
     public Chat save(Chat chat) {
-        String sql = "INSERT INTO personal_chat(sender_user_id, receiver_user_id, content, groupId) values(?, ?, ?, FUNC_CONCAT_ID(sender_user_id, receiver_user_id))";
+        String sql = "INSERT INTO personal_chat(sender_user_id, receiver_user_id, content, group_id) values(?, ?, ?, FUNC_CONCAT_ID(sender_user_id, receiver_user_id))";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         log.debug("chat={}", chat);
@@ -69,7 +69,6 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
      * (실제로는 deleted 칼럼을 1로 설정하여 비표시 처리)
      * @param chatId 메시지 id
      * @param userId 사용자 id
-     * @return (Nullable) 삭제한 메시지 객체
      */
     @Override
     public void deleteOne(long chatId, String userId) {
@@ -107,7 +106,7 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
     @Override
     public List<Chat> findAll(Integer prevId, Integer size) {
         if (prevId == null) {
-            String sql = "SELECT * FROM personal_chat AND id >= 0 ORDER BY id DESC LIMIT ?";
+            String sql = "SELECT * FROM personal_chat WHERE id >= 0 ORDER BY id DESC LIMIT ?";
             return jdbcTemplate.query(sql, chatRowMapper(), size);
         }
         String sql = "SELECT * FROM personal_chat WHERE id < ? ORDER BY id DESC LIMIT ?";
