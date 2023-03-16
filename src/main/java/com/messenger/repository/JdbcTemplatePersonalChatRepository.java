@@ -107,7 +107,7 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
     @Override
     public List<Chat> findAll(Integer prevId, Integer size) {
         if (prevId == null) {
-            String sql = "SELECT * FROM personal_chat ORDER BY id DESC LIMIT ?";
+            String sql = "SELECT * FROM personal_chat AND id >= 0 ORDER BY id DESC LIMIT ?";
             return jdbcTemplate.query(sql, chatRowMapper(), size);
         }
         String sql = "SELECT * FROM personal_chat WHERE id < ? ORDER BY id DESC LIMIT ?";
@@ -126,7 +126,7 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
     @Override
     public List<Chat> findBySender(String senderUserId, Integer prevId, Integer size) {
         if (prevId == null) {
-            String sql = "SELECT * FROM personal_chat WHERE sender_user_id = ? ORDER BY id DESC LIMIT ?";
+            String sql = "SELECT * FROM personal_chat WHERE sender_user_id = ? AND id >= 0 ORDER BY id DESC LIMIT ?";
             return jdbcTemplate.query(sql, chatRowMapper(), senderUserId, size);
         }
         String sql = "SELECT * FROM personal_chat WHERE sender_user_id = ? AND id < ? ORDER BY id DESC LIMIT ?";
@@ -144,7 +144,7 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
     @Override
     public List<Chat> findByReceiver(String receiverUserId, Integer prevId, Integer size) {
         if (prevId == null) {
-            String sql = "SELECT * FROM personal_chat WHERE receiver_user_id = ? ORDER BY id DESC LIMIT ?";
+            String sql = "SELECT * FROM personal_chat WHERE receiver_user_id = ? AND id >= 0 ORDER BY id DESC LIMIT ?";
             return jdbcTemplate.query(sql, chatRowMapper(), receiverUserId, size);
         }
         String sql = "SELECT * FROM personal_chat WHERE receiver_user_id = ? AND id < ? ORDER BY id DESC LIMIT ?";
@@ -163,7 +163,7 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
     @Override
     public List<Chat> findByGroup(String userId, String oppositeUserId, Integer prevId, Integer size) {
         if (prevId == null) {
-            String sql = "SELECT * FROM personal_chat WHERE group_id = FUNC_CONCAT_ID(?, ?) ORDER BY id DESC LIMIT ?";
+            String sql = "SELECT * FROM personal_chat WHERE group_id = FUNC_CONCAT_ID(?, ?) AND id >= 0 ORDER BY id DESC LIMIT ?";
             return jdbcTemplate.query(sql, chatRowMapper(), userId, oppositeUserId, size);
         }
         String sql = "SELECT * FROM personal_chat WHERE group_id = FUNC_CONCAT_ID(?, ?) AND id < ? ORDER BY id DESC LIMIT ?";
