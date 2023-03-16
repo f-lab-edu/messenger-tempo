@@ -72,16 +72,16 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
      * @return (Nullable) 삭제한 메시지 객체
      */
     @Override
-    public Chat deleteOne(long chatId, String userId) {
+    public void deleteOne(long chatId, String userId) {
         // 전송 사용자 id가 일치해야만 삭제 처리
         String sql = "DELETE FROM personal_chat WHERE id = ? AND sender_user_id = ?";
         Object[] args = {chatId, userId};
         log.debug("delete chat chatId={}, userId={}", chatId, userId);
         int update = jdbcTemplate.update(sql, args);
+        log.debug("update={}", update);
         if (update == 0) {
             throw new NullPointerException("cannot delete chat");
         }
-        return findById(chatId).orElseThrow(() -> new NullPointerException("cannot find chat by id"));
     }
 
     /**

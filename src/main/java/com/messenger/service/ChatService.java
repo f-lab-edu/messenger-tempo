@@ -19,8 +19,8 @@ public class ChatService {
         return personalChatRepository.save(chat);
     }
 
-    public Chat deletePersonalChat(long chatId, String userId) {
-        return personalChatRepository.deleteOne(chatId, userId);
+    public void deletePersonalChat(long chatId, String userId) {
+        personalChatRepository.deleteOne(chatId, userId);
     }
 
     public List<Chat> listAllPersonalChat(Integer prevId, Integer size) {

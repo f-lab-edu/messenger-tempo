@@ -58,7 +58,31 @@ public class ChatController {
     }
 
     /**
-     * (개발자용) 전체 메시지 목록
+     * 자신이 전송한 1:1 메시지 하나를 삭제
+     * @param chatId 메시지 id
+     * @param session 세션
+     * @return 메시지 객체
+     */
+    @DeleteMapping("/api/v1/chat/{chatId}")
+    public ResponseEntity<String> deletePersonalChat(@PathVariable long chatId, HttpSession session) {
+        String sessionUserId = getSessionUserId(session);
+        if (sessionUserId == null) {
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+        }
+
+        try {
+            chatService.deletePersonalChat(chatId, sessionUserId);
+        } catch (NullPointerException e) {
+            log.debug(e.getMessage());
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>("success", HttpStatus.OK);
+    }
+
+    /**
+     * (개발자용) 전체 1:1 메시지 목록
      * 삭제된 메시지도 포함된다
      * @param prevId 이전 조회한 마지막 메시지 id
      * @param size 조회할 메시지 개수
@@ -128,30 +152,6 @@ public class ChatController {
         }
         List<Chat> list = chatService.listPersonalChatByGroup(sessionUserId, oppositeUserId, prevId, size);
         return new ResponseEntity<>(new PaginationWrapper(list), HttpStatus.OK);
-    }
-
-    /**
-     * 자신이 전송한 메시지 하나를 삭제
-     * @param chatId 메시지 id
-     * @param session 세션
-     * @return 메시지 객체
-     */
-    @DeleteMapping("/api/v1/chat/{chatId}")
-    public ResponseEntity<Chat> deletePersonalChat(@PathVariable long chatId, HttpSession session) {
-        String sessionUserId = getSessionUserId(session);
-        if (sessionUserId == null) {
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
-        }
-
-        Chat ret;
-        try {
-            ret = chatService.deletePersonalChat(chatId, sessionUserId);
-        } catch (NullPointerException e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        return new ResponseEntity<>(ret, HttpStatus.OK);
     }
 
     @Nullable
