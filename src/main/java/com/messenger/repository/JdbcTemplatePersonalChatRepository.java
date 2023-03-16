@@ -28,10 +28,10 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
                 .id(rs.getLong("id"))
                 .senderUserId(rs.getString("sender_user_id"))
                 .receiverUserId(rs.getString("receiver_user_id"))
+                .groupId(rs.getString("group_id"))
                 .content(rs.getString("content"))
-                .unread_count(rs.getShort("unread_count"))
+                .read_at(rs.getTimestamp("read_at"))
                 .created_at(rs.getTimestamp("created_at"))
-                .deleted(rs.getBoolean("deleted"))
                 .build();
     }
 
@@ -42,7 +42,7 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
      */
     @Override
     public Chat save(Chat chat) {
-        String sql = "INSERT INTO personal_chat(sender_user_id, receiver_user_id, content) values(?, ?, ?)";
+        String sql = "INSERT INTO personal_chat(sender_user_id, receiver_user_id, content, groupId) values(?, ?, ?, FUNC_CONCAT_ID(sender_user_id, receiver_user_id))";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         log.debug("chat={}", chat);
@@ -74,7 +74,7 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
     @Override
     public Chat deleteOne(long chatId, String userId) {
         // 전송 사용자 id가 일치해야만 삭제 처리
-        String sql = "UPDATE personal_chat SET deleted = 1 WHERE id = ? AND sender_user_id = ?";
+        String sql = "DELETE FROM personal_chat WHERE id = ? AND sender_user_id = ?";
         Object[] args = {chatId, userId};
         log.debug("delete chat chatId={}, userId={}", chatId, userId);
         int update = jdbcTemplate.update(sql, args);
@@ -126,10 +126,10 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
     @Override
     public List<Chat> findBySender(String senderUserId, Integer prevId, Integer size) {
         if (prevId == null) {
-            String sql = "SELECT * FROM personal_chat WHERE sender_user_id = ? AND deleted = 0 ORDER BY id DESC LIMIT ?";
+            String sql = "SELECT * FROM personal_chat WHERE sender_user_id = ? ORDER BY id DESC LIMIT ?";
             return jdbcTemplate.query(sql, chatRowMapper(), senderUserId, size);
         }
-        String sql = "SELECT * FROM personal_chat WHERE sender_user_id = ? AND deleted = 0 AND id < ? ORDER BY id DESC LIMIT ?";
+        String sql = "SELECT * FROM personal_chat WHERE sender_user_id = ? AND id < ? ORDER BY id DESC LIMIT ?";
         return jdbcTemplate.query(sql, chatRowMapper(), senderUserId, prevId, size);
     }
 
@@ -144,10 +144,10 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
     @Override
     public List<Chat> findByReceiver(String receiverUserId, Integer prevId, Integer size) {
         if (prevId == null) {
-            String sql = "SELECT * FROM personal_chat WHERE receiver_user_id = ? AND deleted = 0 ORDER BY id DESC LIMIT ?";
+            String sql = "SELECT * FROM personal_chat WHERE receiver_user_id = ? ORDER BY id DESC LIMIT ?";
             return jdbcTemplate.query(sql, chatRowMapper(), receiverUserId, size);
         }
-        String sql = "SELECT * FROM personal_chat WHERE receiver_user_id = ? AND deleted = 0 AND id < ? ORDER BY id DESC LIMIT ?";
+        String sql = "SELECT * FROM personal_chat WHERE receiver_user_id = ? AND id < ? ORDER BY id DESC LIMIT ?";
         return jdbcTemplate.query(sql, chatRowMapper(), receiverUserId, prevId, size);
     }
 
