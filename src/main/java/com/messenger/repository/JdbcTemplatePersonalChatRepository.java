@@ -162,4 +162,34 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
         String sql = "SELECT * FROM personal_chat WHERE group_id = FUNC_CONCAT_ID(?, ?) AND id < ? ORDER BY id DESC LIMIT ?";
         return jdbcTemplate.query(sql, chatRowMapper(), userId, oppositeUserId, prevId, size);
     }
+
+    /**
+     * 자신과 상대방 사용자 id 기반으로 1:1 그룹에서 자신이 받은 마지막 메시지를 검색
+     * @param userId 자신의 사용자 id
+     * @param oppositeUserId 상대방 사용자 id
+     * @return (Nullable) 메시지 객체
+     */
+    @Override
+    public Optional<Chat> findLastReceivedByGroup(String userId, String oppositeUserId) {
+        String sql_select = "SELECT * FROM personal_chat WHERE receiver_user_id = ? AND sender_user_id = ? AND id >= 0 ORDER BY id DESC LIMIT 1";
+        List<Chat> result = jdbcTemplate.query(sql_select, chatRowMapper(), userId, oppositeUserId);
+        return result.stream().findAny();
+    }
+
+    /**
+     * 메시지를 읽음 표시
+     * Chat 테이블의 read_at 칼럼을 현재 시간으로 업데이트함으로써 읽음 표시
+     * @param chatId 읽음 표시할 메시지 id
+     * @return (Nullable) 메시지 객체
+     */
+    @Override
+    public Optional<Chat> markReadById(long chatId) {
+        log.debug("mark as read by id, chatId = {}", chatId);
+        String sql_update = "UPDATE personal_chat SET read_at = CURRENT_TIMESTAMP WHERE id = ? AND read_at IS NULL";
+        int update = jdbcTemplate.update(sql_update, chatId);
+        if (update == 0) {
+            throw new NullPointerException("cannot update chat");
+        }
+        return findById(chatId);
+    }
 }

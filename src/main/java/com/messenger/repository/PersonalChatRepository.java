@@ -14,4 +14,6 @@ public interface PersonalChatRepository {
      List<Chat> findBySender(String senderUserId, Integer prevId, Integer size);
      List<Chat> findByReceiver(String receiverUserId, Integer prevId, Integer size);
      List<Chat> findByGroup(String userId, String oppositeUserId, Integer prevId, Integer size);
+     Optional<Chat> findLastReceivedByGroup(String userId, String oppositeUserId);
+     Optional<Chat> markReadById(long chatId);
 }

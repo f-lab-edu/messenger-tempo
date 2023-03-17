@@ -5,6 +5,7 @@ import com.messenger.repository.PersonalChatRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ChatService {
@@ -37,5 +38,24 @@ public class ChatService {
 
     public List<Chat> listPersonalChatByGroup(String userId, String oppositeUserId, Integer prevId, Integer size) {
         return personalChatRepository.findByGroup(userId, oppositeUserId, prevId, size);
+    }
+
+    public Optional<Chat> markPersonalChatAsReadByGroup(String userId, String oppositeUserId) {
+        // 1:1 채팅 그룹 안에서 자신이 받은 마지막 메시지를 찾는다
+        Optional<Chat> foundChat = personalChatRepository.findLastReceivedByGroup(userId, oppositeUserId);
+
+        // 자신이 받은 마지막 메시지가 없는 경우
+        if (foundChat.isEmpty()) {
+            return foundChat;
+        }
+
+        // 마지막 메시지가 이미 읽음 표시가 된 경우
+        if (foundChat.get().getRead_at() != null) {
+            return foundChat;
+        }
+
+        // 마지막 메시지를 읽음 표시
+        long chatId = foundChat.get().getId();
+        return personalChatRepository.markReadById(chatId);
     }
 }
