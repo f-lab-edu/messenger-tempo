@@ -41,25 +41,19 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
      * @return 저장한 메시지 객체
      */
     @Override
-    public Chat save(Chat chat) {
+    public Chat save(Chat chat) throws DuplicateKeyException {
         String sql = "INSERT INTO personal_chat(sender_user_id, receiver_user_id, content, group_id) values(?, ?, ?, FUNC_CONCAT_ID(sender_user_id, receiver_user_id))";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         log.debug("chat={}", chat);
-        try {
-            jdbcTemplate.update(conn -> {
-                PreparedStatement ps = conn.prepareStatement(sql, new String[] {"id"});
-                ps.setString(1, chat.getSenderUserId());
-                ps.setString(2, chat.getReceiverUserId());
-                ps.setString(3, chat.getContent());
-                return ps;
-            }, keyHolder);
-        } catch (DuplicateKeyException e) {
-            throw e;
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            throw e;
-        }
+        jdbcTemplate.update(conn -> {
+            PreparedStatement ps = conn.prepareStatement(sql, new String[] {"id"});
+            ps.setString(1, chat.getSenderUserId());
+            ps.setString(2, chat.getReceiverUserId());
+            ps.setString(3, chat.getContent());
+            return ps;
+        }, keyHolder);
+
         long id = Objects.requireNonNull(keyHolder.getKey()).longValue();
         return findById(id).orElseThrow(() -> new NullPointerException("cannot find chat by id"));
     }
