@@ -60,7 +60,6 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
 
     /**
      * 메시지 id 기반으로 메시지 하나를 삭제
-     * (실제로는 deleted 칼럼을 1로 설정하여 비표시 처리)
      * @param chatId 메시지 id
      * @param userId 사용자 id
      */
@@ -91,7 +90,6 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
 
     /**
      * (개발자용) 모든 메시지를 리스트로 반환
-     * 삭제된 메시지도 모두 포함된다
      * (커서 기반 페이지네이션)
      * @param prevId 이전 조회한 마지막 메시지 id
      * @param size 조회할 메시지 개수

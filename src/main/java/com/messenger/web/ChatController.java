@@ -88,7 +88,6 @@ public class ChatController {
 
     /**
      * (개발자용) 전체 1:1 메시지 목록
-     * 삭제된 메시지도 포함된다
      * @param prevId 이전 조회한 마지막 메시지 id
      * @param size 조회할 메시지 개수
      * @return 메시지 객체 리스트
