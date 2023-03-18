@@ -7,24 +7,24 @@ import java.sql.Timestamp;
 
 
 @Value
-public class Chat {
+public class Chat implements Pageable {
 
     long id;
     String senderUserId;
     String receiverUserId;
+    String groupId;
     String content;
-    short unread_count;
+    Timestamp read_at;
     Timestamp created_at;
-    Boolean deleted;
 
     @Builder
-    private Chat(long id, String senderUserId, String receiverUserId, String content, short unread_count, Timestamp created_at, Boolean deleted) {
+    private Chat(long id, String senderUserId, String receiverUserId, String groupId, String content, Timestamp read_at, Timestamp created_at) {
         this.id = id;
         this.senderUserId = senderUserId;
         this.receiverUserId = receiverUserId;
+        this.groupId = groupId;
         this.content = content;
-        this.unread_count = unread_count;
+        this.read_at = read_at;
         this.created_at = created_at;
-        this.deleted = deleted;
     }
 }

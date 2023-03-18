@@ -3,16 +3,14 @@ package com.messenger.web;
 import com.messenger.domain.Member;
 import com.messenger.exception.MyException;
 import com.messenger.service.MemberService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpSession;
 import java.util.Enumeration;
 import java.util.List;
-
-import lombok.extern.slf4j.Slf4j;
-
-import javax.servlet.http.HttpSession;
 import java.util.Optional;
 
 import static com.messenger.util.DateTimeConvertor.convertTimestampMillis2String;
@@ -48,7 +46,7 @@ public class MemberController {
     @PostMapping(value = "/api/v1/members", consumes = "application/x-www-form-urlencoded")
     public ResponseEntity<Member> signup(@RequestParam String id,
                                          @RequestParam String password,
-                                         @RequestParam(required = false, defaultValue = "") String name) {
+                                         @RequestParam(required = false) String name) {
         Member member = Member.builder()
                                 .id(id)
                                 .password(password)
