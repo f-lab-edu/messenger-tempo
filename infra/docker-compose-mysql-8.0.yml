@@ -1,9 +1,9 @@
 version: "3"
 
 services:
-  mysql:
-    image: mysql:5.7.41
-    container_name: mysql_57
+  mysql80:
+    image: mysql:8.0.32
+    container_name: mysql_80
     environment:
       - MYSQL_ROOT_PASSWORD=password
       - TZ=Asia/Seoul
@@ -11,5 +11,6 @@ services:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
       - --default-time-zone=Asia/Seoul
+      - --default-authentication-plugin=mysql_native_password
     ports:
-      - 3306:3306
+      - 3307:3306
