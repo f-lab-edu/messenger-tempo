@@ -3,6 +3,7 @@ package com.messenger.web;
 import com.messenger.domain.Member;
 import com.messenger.exception.MyException;
 import com.messenger.service.MemberService;
+import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import java.util.Optional;
 
 import static com.messenger.util.DateTimeConvertor.convertTimestampMillis2String;
 
+@Api(value = "멤버 컨트롤러")
 @Slf4j
 @RestController
 public class MemberController {
@@ -30,6 +32,8 @@ public class MemberController {
      * 전체회원 목록
      * @return 전체회원 객체를 List로 반환
      */
+    @ApiOperation(value = "전체 회원 목록", notes = "전체 회원 객체를 List로 반환")
+    @ApiResponse(code = 200, message = "ok")
     @GetMapping("/api/v1/members")
     public List<Member> members() {
         return memberService.listAll();
@@ -43,10 +47,16 @@ public class MemberController {
      * @return  정상적으로 가입된 경우 : 가입된 회원 객체
      *          그 외 : null
      */
+    @ApiOperation(value = "회원 가입")
     @PostMapping(value = "/api/v1/members", consumes = "application/x-www-form-urlencoded")
-    public ResponseEntity<Member> signup(@RequestParam String id,
-                                         @RequestParam String password,
-                                         @RequestParam(required = false) String name) {
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "id", value = "회원 id", paramType = "query", required = true),
+//            @ApiImplicitParam(name = "password", value = "회원 비밀번호", paramType = "query", required = true),
+//            @ApiImplicitParam(name = "name", value = "회원 이름", paramType = "query")
+//    })
+    public ResponseEntity<Member> signup(@ApiParam(value = "회원 id") @RequestParam String id,
+                                         @ApiParam(value = "회원 id") @RequestParam String password,
+                                         @ApiParam(value = "회원 id") @RequestParam(required = false) String name) {
         Member member = Member.builder()
                                 .id(id)
                                 .password(password)
