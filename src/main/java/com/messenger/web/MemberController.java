@@ -16,7 +16,7 @@ import java.util.Optional;
 
 import static com.messenger.util.DateTimeConvertor.convertTimestampMillis2String;
 
-@Api(value = "멤버 컨트롤러")
+@Api(tags = {"멤버 컨트롤러"})
 @Slf4j
 @RestController
 public class MemberController {
