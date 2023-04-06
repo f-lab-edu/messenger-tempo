@@ -1,10 +1,11 @@
 package com.messenger.domain;
 
-import lombok.Value;
 import lombok.Builder;
 import lombok.NonNull;
+import lombok.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.util.ObjectUtils;
 
 import java.util.Collection;
 
@@ -20,7 +21,7 @@ public class Member implements UserDetails {
     private Member(@NonNull String id, @NonNull String password, String name, String statusMessage) {
         this.id = id;
         this.password = password;
-        this.name = (name == null) ? "undefined": name;
+        this.name = (ObjectUtils.isEmpty(name)) ? "undefined": name;
         this.statusMessage = (statusMessage == null) ? "" : statusMessage;
     }
 
