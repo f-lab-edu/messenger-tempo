@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.ObjectUtils;
 
 import java.util.Collection;
+import java.util.List;
 
 @Value
 public class Member implements UserDetails {
@@ -16,18 +17,20 @@ public class Member implements UserDetails {
     String password;
     String name;
     String statusMessage;  // 상태 메시지
+    MemberRole role;
 
     @Builder
-    private Member(@NonNull String id, @NonNull String password, String name, String statusMessage) {
+    private Member(@NonNull String id, @NonNull String password, String name, String statusMessage, MemberRole role) {
         this.id = id;
         this.password = password;
         this.name = (ObjectUtils.isEmpty(name)) ? "undefined": name;
         this.statusMessage = (statusMessage == null) ? "" : statusMessage;
+        this.role = (role == null) ? MemberRole.USER : role;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return List.of(role);
     }
 
     @Override

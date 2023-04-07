@@ -27,6 +27,8 @@ public class SpringSecurityConfig {
                                 .antMatchers("/").permitAll()
                                 // 로그인, 회원가입
                                 .antMatchers(HttpMethod.POST, "/api/v1/members/login", "/api/v1/members").permitAll()
+                                // 모든 유저 조회
+                                .antMatchers(HttpMethod.GET, "/api/v1/members").hasRole("ADMIN")
                                 .anyRequest().authenticated()
                 );
         return http.build();
