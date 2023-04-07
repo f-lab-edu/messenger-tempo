@@ -123,7 +123,7 @@ public class MemberController {
         logForSession(session);
         Member findMember;
         try {
-            findMember = memberService.login(id, password, session);
+            findMember = memberService.login(id, password);
         } catch (MyException e) {
             return new ResponseEntity<>(null, e.errorCode.httpStatusCode);
         }

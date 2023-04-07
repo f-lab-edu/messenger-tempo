@@ -4,26 +4,42 @@ import com.messenger.domain.Member;
 import com.messenger.exception.ErrorCode;
 import com.messenger.exception.MyException;
 import com.messenger.repository.MemberRepository;
-import com.messenger.web.MemberController;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpSession;
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class MemberService {
+public class MemberService implements UserDetailsService {
 
     private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
-    public MemberService(MemberRepository memberRepository) {
+    public MemberService(MemberRepository memberRepository, PasswordEncoder passwordEncoder, AuthenticationManagerBuilder authenticationManagerBuilder) {
         this.memberRepository = memberRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.authenticationManagerBuilder = authenticationManagerBuilder;
     }
 
     public Member signup(Member member) throws MyException {
         Member result;
         try {
-            result = memberRepository.save(member);
+            Member modifiedMember = Member.builder()
+                    .id(member.getId())
+                    .password(passwordEncoder.encode(member.getPassword()))
+                    .name(member.getName())
+                    .statusMessage(member.getStatusMessage())
+                    .build();
+            result = memberRepository.save(modifiedMember);
         } catch (MyException e) {
             throw new MyException(ErrorCode.FAIL_SIGNUP);
         }
@@ -78,26 +94,17 @@ public class MemberService {
         return ret;
     }
 
-    public Member login(String id, String password, HttpSession session) throws MyException {
+    public Member login(String id, String password) throws MyException {
 
-        String sessionUserId = (String) session.getAttribute(MemberController.SESSION_KEY_USER_ID);
-        // 세션 값이 있으면 이미 로그인 중
-        if (sessionUserId != null) {
-            Optional<Member> findMemberSession = findById(sessionUserId);
-            // 세션 값에 해당하는 유저를 찾지 못하면 세션 삭제
-            if (findMemberSession.isEmpty()) {
-                session.removeAttribute(MemberController.SESSION_KEY_USER_ID);
-                throw new MyException(ErrorCode.NOT_FOUND_MEMBER);
-            }
-            throw new MyException(ErrorCode.ALREADY_LOGIN);
-        }
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(id, password);
+        Authentication authenticate = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        SecurityContextHolder.getContext().setAuthentication(authenticate);
 
-        Member findMember = memberRepository.findByIdAndPw(id, password)
-                // 아이디가 존재하지 않거나 비밀번호가 일치하지 않는 경우
-                .orElseThrow(() -> new MyException(ErrorCode.NOT_MATCH_PASSWORD));
+        return memberRepository.findByIdAndPw(id, password).orElseThrow(() -> new MyException(ErrorCode.NOT_MATCH_PASSWORD));
+    }
 
-        // 아이디를 세션에 저장
-        session.setAttribute(MemberController.SESSION_KEY_USER_ID, id);
-        return findMember;
+    @Override
+    public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
+        return findById(id).orElseThrow(() -> new MyException(ErrorCode.NOT_FOUND_MEMBER));
     }
 }
