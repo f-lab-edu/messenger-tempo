@@ -1,10 +1,9 @@
 package com.messenger.domain;
 
-import lombok.Value;
-import lombok.Builder;
-import lombok.NonNull;
+import lombok.*;
 
-@Value
+@Getter
+@ToString
 public class Member {
 
     String id;
@@ -18,5 +17,17 @@ public class Member {
         this.password = password;
         this.name = (name == null) ? "undefined": name;
         this.statusMessage = (statusMessage == null) ? "" : statusMessage;
+    }
+
+    public void updatePassword(String password) {
+        this.password = password;
+    }
+
+    public void updateName(String name) {
+        this.name = name;
+    }
+
+    public void updateStatusMessage(String statusMessage) {
+        this.statusMessage = statusMessage;
     }
 }
