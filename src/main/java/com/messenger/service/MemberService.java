@@ -10,9 +10,12 @@ import com.messenger.repository.MemberRepository;
 import com.messenger.util.Pair;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -109,6 +112,7 @@ public class MemberService implements UserDetailsService {
         log.debug("authenticationToken = {}", authenticationToken);
         TokenInfo tokenInfo;
         try {
+            // credential 인증하려고 시도하고, 성공하면 Authentication 객체를 반환
             // authenticate()가 실행될때 loadUserByUsername()이 실행된다
             Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
             log.debug("authenticate = {}", authentication);
@@ -117,9 +121,18 @@ public class MemberService implements UserDetailsService {
 
             tokenInfo = tokenProvider.createToken(authentication);
             log.debug("tokenInfo = {}", tokenInfo);
-        } catch (IllegalArgumentException e) {
-            log.error("IllegalArgumentException : {}", e.getMessage());
+        } catch (DisabledException | LockedException e) {
+            // 계정이 disable 이거나 locked 인 경우
+            log.debug(e.getMessage());
+            throw new MyException(ErrorCode.NOT_FOUND_MEMBER);
+        } catch (AuthenticationException e) {
+            // 인증 실패
+            log.debug(e.getMessage());
             throw new MyException(ErrorCode.NOT_MATCH_PASSWORD);
+        } catch(Exception e) {
+            log.error(e.getMessage());
+            e.printStackTrace();
+            throw new MyException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
 
         Member findMember = memberRepository.findById(id).orElseThrow(() -> new MyException(ErrorCode.NOT_FOUND_MEMBER));
