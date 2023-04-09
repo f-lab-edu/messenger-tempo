@@ -59,7 +59,11 @@ public class MemberService implements UserDetailsService {
     }
 
     public List<Member> listAll() {
-        return memberRepository.findAll();
+        List<Member> members = memberRepository.findAll();
+        if (members.isEmpty()) {
+            throw new MyException(ErrorCode.NOT_FOUND_MEMBER);
+        }
+        return members;
     }
 
     public Member findById(String id) {
