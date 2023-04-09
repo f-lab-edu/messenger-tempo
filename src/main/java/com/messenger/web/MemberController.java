@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpSession;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Optional;
 
 import static com.messenger.util.DateTimeConvertor.convertTimestampMillis2String;
 
@@ -68,8 +67,8 @@ public class MemberController {
      */
     @GetMapping("/api/v1/members/{memberId}")
     public ResponseEntity<DefaultResponse<MemberDTO>> findById(@PathVariable String memberId) {
-        Optional<Member> findMember = memberService.findById(memberId);
-        return new ResponseEntity<>(DefaultResponse.ofSuccess(MemberDTO.of(findMember.orElse(null))), HttpStatus.OK);
+        Member findMember = memberService.findById(memberId);
+        return new ResponseEntity<>(DefaultResponse.ofSuccess(MemberDTO.of(findMember)), HttpStatus.OK);
     }
 
     /**

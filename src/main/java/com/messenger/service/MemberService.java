@@ -62,16 +62,24 @@ public class MemberService implements UserDetailsService {
         return memberRepository.findAll();
     }
 
-    public Optional<Member> findById(String id) {
-        return memberRepository.findById(id);
+    public Member findById(String id) {
+        Optional<Member> member = memberRepository.findById(id);
+        if (member.isEmpty()) {
+            throw new MyException(ErrorCode.NOT_FOUND_MEMBER);
+        }
+        return member.get();
     }
 
     public List<Member> findByName(String name) {
-        return memberRepository.findByName(name);
+        List<Member> members = memberRepository.findByName(name);
+        if (members.isEmpty()) {
+            throw new MyException(ErrorCode.NOT_FOUND_MEMBER);
+        }
+        return members;
     }
 
     public Member updateInfo(Member paramMember) throws MyException {
-        Member findMember = findById(paramMember.getId()).orElseThrow(() -> new MyException(ErrorCode.NOT_FOUND_MEMBER));
+        Member findMember = findById(paramMember.getId());
 
         if (paramMember.getPassword() != null) {
             findMember.updatePassword(paramMember.getPassword());
@@ -115,13 +123,12 @@ public class MemberService implements UserDetailsService {
             // 계정이 disable 이거나 locked 인 경우
             log.debug(e.getMessage());
             throw new MyException(ErrorCode.NOT_FOUND_MEMBER);
-        } catch (AuthenticationException e) {
-            // 인증 실패
+        } catch (AuthenticationException | IllegalArgumentException e) {
+            // 인증 실패 또는 PasswordEncoder가 지원하지 않는 방식으로 DB에 password가 저장된 경우
             log.debug(e.getMessage());
             throw new MyException(ErrorCode.NOT_MATCH_PASSWORD);
         } catch(Exception e) {
             log.error(e.getMessage());
-            e.printStackTrace();
             throw new MyException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
 
@@ -134,6 +141,6 @@ public class MemberService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
-        return findById(id).orElseThrow(() -> new MyException(ErrorCode.NOT_FOUND_MEMBER));
+        return findById(id);
     }
 }
