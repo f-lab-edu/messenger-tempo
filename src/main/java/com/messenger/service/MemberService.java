@@ -109,7 +109,6 @@ public class MemberService implements UserDetailsService {
         log.debug("authenticationToken = {}", authenticationToken);
         TokenInfo tokenInfo;
         try {
-            // authenticationToken 이용해서 Authentication 객체 생성하려고
             // authenticate()가 실행될때 loadUserByUsername()이 실행된다
             Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
             log.debug("authenticate = {}", authentication);
@@ -123,7 +122,7 @@ public class MemberService implements UserDetailsService {
             throw new MyException(ErrorCode.NOT_MATCH_PASSWORD);
         }
 
-        Member findMember = memberRepository.findById(id).orElseThrow(() -> new MyException(ErrorCode.NOT_MATCH_PASSWORD));
+        Member findMember = memberRepository.findById(id).orElseThrow(() -> new MyException(ErrorCode.NOT_FOUND_MEMBER));
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(JwtSecurityConfig.AUTHORIZATION_HEADER, JwtSecurityConfig.TOKEN_PREFIX + tokenInfo.getAccessToken());
 

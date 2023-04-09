@@ -46,7 +46,6 @@ public class TokenProvider implements InitializingBean {
         log.debug("keyBytes : {} bytes ({} bits)", keyBytes.length, keyBytes.length * 8);
     }
 
-    // Authentication 객체에 포함되어 있는 권한 정보들을 담은 토큰을 생성하고 jwt.token-validity-in-seconds 값을 이용해 토큰의 만료 시간을 지정
     public TokenInfo createToken(Authentication authentication) {
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
@@ -68,7 +67,6 @@ public class TokenProvider implements InitializingBean {
                 .build();
     }
 
-    // getAuthentication 메소드는 토큰에 담겨있는 권한 정보들을 이용해 Authentication 객체를 리턴합니다.
     public Authentication getAuthentication(String token) {
         Claims claims = Jwts
                 .parserBuilder()
@@ -91,19 +89,18 @@ public class TokenProvider implements InitializingBean {
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);
     }
 
-    // validateToken 메소드는 토큰을 검증하는 역할을 수행합니다.
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-            log.info("잘못된 JWT 서명입니다.");
+            log.debug("잘못된 JWT 서명입니다");
         } catch (ExpiredJwtException e) {
-            log.info("만료된 JWT 토큰입니다.");
+            log.debug("만료된 JWT 토큰입니다");
         } catch (UnsupportedJwtException e) {
-            log.info("지원되지 않는 JWT 토큰입니다.");
+            log.debug("지원되지 않는 JWT 토큰입니다");
         } catch (IllegalArgumentException e) {
-            log.info("JWT 토큰이 잘못되었습니다.");
+            log.debug("JWT 토큰이 잘못되었습니다");
         }
         return false;
     }

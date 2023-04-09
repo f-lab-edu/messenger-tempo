@@ -12,8 +12,8 @@ public class MessengerTempoApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(MessengerTempoApplication.class, args);
 
-		String getVersion = SpringVersion.getVersion();
-		log.info("Spring version = {}", getVersion);
+		String springVersion = SpringVersion.getVersion();
+		log.info("Spring version = {}", springVersion);
 	}
 
 }
