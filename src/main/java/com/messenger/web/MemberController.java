@@ -52,12 +52,8 @@ public class MemberController {
                                 .password(password)
                                 .name(name)
                                 .build();
-        Member result;
-        try {
-            result = memberService.signup(member);
-        } catch (MyException e) {
-            return new ResponseEntity<>(null, e.errorCode.httpStatusCode);
-        }
+        Member result = memberService.signup(member);
+
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
@@ -101,17 +97,13 @@ public class MemberController {
                                              @RequestParam(required = false) String content) {
         log.debug("memberId={}, name={}, password={}", memberId, name, password);
         Member result;
-        try {
-            result = memberService.updateInfo(
-                    Member.builder()
-                            .id(memberId)
-                            .password(password)
-                            .name(name)
-                            .statusMessage(content)
-                            .build());
-        } catch (MyException e) {
-            return new ResponseEntity<>(null, e.errorCode.httpStatusCode);
-        }
+        result = memberService.updateInfo(
+                Member.builder()
+                        .id(memberId)
+                        .password(password)
+                        .name(name)
+                        .statusMessage(content)
+                        .build());
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
@@ -121,12 +113,8 @@ public class MemberController {
                                         HttpSession session) {
 
         logForSession(session);
-        Member findMember;
-        try {
-            findMember = memberService.login(id, password, session);
-        } catch (MyException e) {
-            return new ResponseEntity<>(null, e.errorCode.httpStatusCode);
-        }
+        Member findMember = memberService.login(id, password, session);
+
         return new ResponseEntity<>(findMember, HttpStatus.OK);
     }
 
@@ -135,6 +123,12 @@ public class MemberController {
         logForSession(session);
         session.removeAttribute(SESSION_KEY_USER_ID);
         return new ResponseEntity<>(null, HttpStatus.OK);
+    }
+
+    @ExceptionHandler(MyException.class)
+    public ResponseEntity<String> myExceptionHandler(MyException e) {
+        log.error("MyException = {} {}", e.errorCode.httpStatusCode, e.errorCode.message);
+        return new ResponseEntity<>(e.errorCode.message, e.errorCode.httpStatusCode);
     }
 
     private static void logForSession(HttpSession session) {
