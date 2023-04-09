@@ -2,6 +2,7 @@ package com.messenger.dto;
 
 import com.messenger.domain.Member;
 import lombok.Getter;
+import lombok.NonNull;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,17 +14,17 @@ public class MemberDTO {
     private final String name;
     private final String statusMessage;
 
-    private MemberDTO(Member member) {
+    private MemberDTO(@NonNull Member member) {
         this.id = member.getId();
         this.name = member.getName();
         this.statusMessage = member.getStatusMessage();
     }
 
-    public static MemberDTO of(Member member) {
+    public static MemberDTO of(@NonNull Member member) {
         return new MemberDTO(member);
     }
 
-    public static List<MemberDTO> of(List<Member> members) {
+    public static List<MemberDTO> of(@NonNull List<Member> members) {
         return members.stream().map(MemberDTO::new).collect(Collectors.toList());
     }
 }
