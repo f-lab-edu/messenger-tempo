@@ -22,8 +22,8 @@ public class Member implements UserDetails {
     private Member(@NonNull String id, @NonNull String password, String name, String statusMessage, MemberRole role) {
         this.id = id;
         this.password = password;
-        this.name = (!StringUtils.hasText(name)) ? "undefined": name;
-        this.statusMessage = (statusMessage == null) ? "" : statusMessage;
+        this.name = (StringUtils.hasText(name)) ? name : "undefined";
+        this.statusMessage = (StringUtils.hasText(statusMessage)) ? statusMessage : "";
         this.role = (role == null) ? MemberRole.USER : role;
     }
 
