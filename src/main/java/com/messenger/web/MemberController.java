@@ -1,6 +1,8 @@
 package com.messenger.web;
 
 import com.messenger.domain.Member;
+import com.messenger.dto.DefaultResponse;
+import com.messenger.dto.MemberDTO;
 import com.messenger.exception.MyException;
 import com.messenger.service.MemberService;
 import lombok.extern.slf4j.Slf4j;
@@ -31,8 +33,8 @@ public class MemberController {
      * @return 전체회원 객체를 List로 반환
      */
     @GetMapping("/api/v1/members")
-    public List<Member> members() {
-        return memberService.listAll();
+    public DefaultResponse<List<MemberDTO>> members() {
+        return DefaultResponse.ofSuccess(MemberDTO.of(memberService.listAll()));
     }
 
     /**
@@ -44,7 +46,7 @@ public class MemberController {
      *          그 외 : null
      */
     @PostMapping(value = "/api/v1/members", consumes = "application/x-www-form-urlencoded")
-    public ResponseEntity<Member> signup(@RequestParam String id,
+    public ResponseEntity<DefaultResponse<MemberDTO>> signup(@RequestParam String id,
                                          @RequestParam String password,
                                          @RequestParam(required = false) String name) {
         Member member = Member.builder()
@@ -56,9 +58,9 @@ public class MemberController {
         try {
             result = memberService.signup(member);
         } catch (MyException e) {
-            return new ResponseEntity<>(null, e.errorCode.httpStatusCode);
+            return new ResponseEntity<>(DefaultResponse.ofErrorCode(e.errorCode), e.errorCode.httpStatusCode);
         }
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        return new ResponseEntity<>(DefaultResponse.ofSuccess(MemberDTO.of(result)), HttpStatus.OK);
     }
 
     /**
@@ -68,9 +70,9 @@ public class MemberController {
      *          그 외 : null
      */
     @GetMapping("/api/v1/members/{memberId}")
-    public ResponseEntity<Member> findById(@PathVariable String memberId) {
+    public ResponseEntity<DefaultResponse<MemberDTO>> findById(@PathVariable String memberId) {
         Optional<Member> findMember = memberService.findById(memberId);
-        return new ResponseEntity<>(findMember.orElse(null), HttpStatus.OK);
+        return new ResponseEntity<>(DefaultResponse.ofSuccess(MemberDTO.of(findMember.orElse(null))), HttpStatus.OK);
     }
 
     /**
@@ -80,9 +82,9 @@ public class MemberController {
      *          그 외 : null
      */
     @GetMapping("/api/v1/members/name/{memberName}")
-    public ResponseEntity<List<Member>> findByName(@PathVariable String memberName) {
-        List<Member> findMember = memberService.findByName(memberName);
-        return new ResponseEntity<>(findMember, HttpStatus.OK);
+    public ResponseEntity<DefaultResponse<List<MemberDTO>>> findByName(@PathVariable String memberName) {
+        List<Member> findMemberList = memberService.findByName(memberName);
+        return new ResponseEntity<>(DefaultResponse.ofSuccess(MemberDTO.of(findMemberList)), HttpStatus.OK);
     }
 
     /**
@@ -95,7 +97,7 @@ public class MemberController {
      *          그 외 : null
      */
     @PutMapping(value = "/api/v1/members/{memberId}", consumes = "application/x-www-form-urlencoded")
-    public ResponseEntity<Member> updateInfo(@PathVariable String memberId,
+    public ResponseEntity<DefaultResponse<MemberDTO>> updateInfo(@PathVariable String memberId,
                                              @RequestParam(required = false) String name,
                                              @RequestParam(required = false) String password,
                                              @RequestParam(required = false) String content) {
@@ -110,31 +112,31 @@ public class MemberController {
                             .statusMessage(content)
                             .build());
         } catch (MyException e) {
-            return new ResponseEntity<>(null, e.errorCode.httpStatusCode);
+            return new ResponseEntity<>(DefaultResponse.ofErrorCode(e.errorCode), e.errorCode.httpStatusCode);
         }
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        return new ResponseEntity<>(DefaultResponse.ofSuccess(MemberDTO.of(result)), HttpStatus.OK);
     }
 
     @PostMapping(value = "/api/v1/members/login", consumes = "application/x-www-form-urlencoded")
-    public ResponseEntity<Member> login(@RequestParam String id,
-                                        @RequestParam String password,
-                                        HttpSession session) {
+    public ResponseEntity<DefaultResponse<MemberDTO>> login(@RequestParam String id,
+                                                            @RequestParam String password,
+                                                            HttpSession session) {
 
         logForSession(session);
         Member findMember;
         try {
             findMember = memberService.login(id, password, session);
         } catch (MyException e) {
-            return new ResponseEntity<>(null, e.errorCode.httpStatusCode);
+            return new ResponseEntity<>(DefaultResponse.ofErrorCode(e.errorCode), e.errorCode.httpStatusCode);
         }
-        return new ResponseEntity<>(findMember, HttpStatus.OK);
+        return new ResponseEntity<>(DefaultResponse.ofSuccess(MemberDTO.of(findMember)), HttpStatus.OK);
     }
 
     @PostMapping(value = "/api/v1/members/logout")
-    public ResponseEntity<Void> logout(HttpSession session) {
+    public ResponseEntity<DefaultResponse<Void>> logout(HttpSession session) {
         logForSession(session);
         session.removeAttribute(SESSION_KEY_USER_ID);
-        return new ResponseEntity<>(null, HttpStatus.OK);
+        return new ResponseEntity<>(DefaultResponse.ofSuccess(), HttpStatus.OK);
     }
 
     private static void logForSession(HttpSession session) {
