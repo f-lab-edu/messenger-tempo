@@ -57,12 +57,8 @@ public class MemberController {
                                 .password(password)
                                 .name(name)
                                 .build();
-        Member result;
-        try {
-            result = memberService.signup(member);
-        } catch (MyException e) {
-            return new ResponseEntity<>(DefaultResponse.ofErrorCode(e.errorCode), e.errorCode.httpStatusCode);
-        }
+        Member result = memberService.signup(member);
+
         return new ResponseEntity<>(DefaultResponse.ofSuccess(MemberDTO.of(result)), HttpStatus.OK);
     }
 
@@ -106,17 +102,13 @@ public class MemberController {
                                              @RequestParam(required = false) String content) {
         log.debug("memberId={}, name={}, password={}", memberId, name, password);
         Member result;
-        try {
-            result = memberService.updateInfo(
-                    Member.builder()
-                            .id(memberId)
-                            .password(password)
-                            .name(name)
-                            .statusMessage(content)
-                            .build());
-        } catch (MyException e) {
-            return new ResponseEntity<>(DefaultResponse.ofErrorCode(e.errorCode), e.errorCode.httpStatusCode);
-        }
+        result = memberService.updateInfo(
+                Member.builder()
+                        .id(memberId)
+                        .password(password)
+                        .name(name)
+                        .statusMessage(content)
+                        .build());
         return new ResponseEntity<>(DefaultResponse.ofSuccess(MemberDTO.of(result)), HttpStatus.OK);
     }
 
@@ -126,12 +118,7 @@ public class MemberController {
                                                             HttpSession session) {
 
         logForSession(session);
-        Pair<Member, HttpHeaders> pair;
-        try {
-            pair = memberService.login(id, password);
-        } catch (MyException e) {
-            return new ResponseEntity<>(DefaultResponse.ofErrorCode(e.errorCode), e.errorCode.httpStatusCode);
-        }
+        Pair<Member, HttpHeaders> pair = memberService.login(id, password);
         Member findMember = pair.getFirst();
         HttpHeaders httpHeaders = pair.getSecond();
         return new ResponseEntity<>(DefaultResponse.ofSuccess(MemberDTO.of(findMember)), httpHeaders, HttpStatus.OK);
@@ -142,6 +129,20 @@ public class MemberController {
         logForSession(session);
         session.removeAttribute(SESSION_KEY_USER_ID);
         return new ResponseEntity<>(DefaultResponse.ofSuccess(), HttpStatus.OK);
+    }
+
+    @ExceptionHandler(MyException.class)
+    public ResponseEntity<String> myExceptionHandler(MyException e) {
+        log.error("MyException = {} {}", e.errorCode.httpStatusCode, e.errorCode.message);
+        return new ResponseEntity<>(e.errorCode.message, e.errorCode.httpStatusCode);
+    }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(Exception.class)
+    public String exceptionHandler(Exception e) {
+        log.error("Exception = {}", e.getMessage());
+        e.printStackTrace();
+        return e.getMessage();
     }
 
     private static void logForSession(HttpSession session) {
