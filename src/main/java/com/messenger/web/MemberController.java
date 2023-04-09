@@ -45,8 +45,8 @@ public class MemberController {
      * @return  정상적으로 가입된 경우 : 가입된 회원 객체
      *          그 외 : null
      */
-    @PostMapping(value = "/api/v1/members", consumes = "application/x-www-form-urlencoded")
-    public ResponseEntity<DefaultResponse<MemberDTO>> signup(@RequestParam String id,
+    @PostMapping(value = "/api/v1/members")
+    public DefaultResponse<MemberDTO> signup(@RequestParam String id,
                                          @RequestParam String password,
                                          @RequestParam(required = false) String name) {
         Member member = Member.builder()
@@ -56,7 +56,7 @@ public class MemberController {
                                 .build();
         Member result = memberService.signup(member);
 
-        return new ResponseEntity<>(DefaultResponse.ofSuccess(MemberDTO.of(result)), HttpStatus.OK);
+        return DefaultResponse.ofSuccess(MemberDTO.of(result));
     }
 
     /**
@@ -66,9 +66,9 @@ public class MemberController {
      *          그 외 : null
      */
     @GetMapping("/api/v1/members/{memberId}")
-    public ResponseEntity<DefaultResponse<MemberDTO>> findById(@PathVariable String memberId) {
+    public DefaultResponse<MemberDTO> findById(@PathVariable String memberId) {
         Member findMember = memberService.findById(memberId);
-        return new ResponseEntity<>(DefaultResponse.ofSuccess(MemberDTO.of(findMember)), HttpStatus.OK);
+        return DefaultResponse.ofSuccess(MemberDTO.of(findMember));
     }
 
     /**
@@ -78,9 +78,9 @@ public class MemberController {
      *          그 외 : null
      */
     @GetMapping("/api/v1/members/name/{memberName}")
-    public ResponseEntity<DefaultResponse<List<MemberDTO>>> findByName(@PathVariable String memberName) {
+    public DefaultResponse<List<MemberDTO>> findByName(@PathVariable String memberName) {
         List<Member> findMemberList = memberService.findByName(memberName);
-        return new ResponseEntity<>(DefaultResponse.ofSuccess(MemberDTO.of(findMemberList)), HttpStatus.OK);
+        return DefaultResponse.ofSuccess(MemberDTO.of(findMemberList));
     }
 
     /**
@@ -92,8 +92,8 @@ public class MemberController {
      * @return  변경된 경우 : 변경된 회원 객체
      *          그 외 : null
      */
-    @PutMapping(value = "/api/v1/members/{memberId}", consumes = "application/x-www-form-urlencoded")
-    public ResponseEntity<DefaultResponse<MemberDTO>> updateInfo(@PathVariable String memberId,
+    @PutMapping(value = "/api/v1/members/{memberId}")
+    public DefaultResponse<MemberDTO> updateInfo(@PathVariable String memberId,
                                              @RequestParam(required = false) String name,
                                              @RequestParam(required = false) String password,
                                              @RequestParam(required = false) String content) {
@@ -106,10 +106,10 @@ public class MemberController {
                         .name(name)
                         .statusMessage(content)
                         .build());
-        return new ResponseEntity<>(DefaultResponse.ofSuccess(MemberDTO.of(result)), HttpStatus.OK);
+        return DefaultResponse.ofSuccess(MemberDTO.of(result));
     }
 
-    @PostMapping(value = "/api/v1/members/login", consumes = "application/x-www-form-urlencoded")
+    @PostMapping(value = "/api/v1/members/login")
     public ResponseEntity<DefaultResponse<MemberDTO>> login(@RequestParam String id,
                                                             @RequestParam String password,
                                                             HttpSession session) {
@@ -118,14 +118,17 @@ public class MemberController {
         Pair<Member, HttpHeaders> pair = memberService.login(id, password);
         Member findMember = pair.getFirst();
         HttpHeaders httpHeaders = pair.getSecond();
+
+        // 헤더에 jwt 토큰을 넣어주기 위해서 ResponseEntity 사용
         return new ResponseEntity<>(DefaultResponse.ofSuccess(MemberDTO.of(findMember)), httpHeaders, HttpStatus.OK);
     }
 
     @PostMapping(value = "/api/v1/members/logout")
-    public ResponseEntity<DefaultResponse<Void>> logout(HttpSession session) {
+    public DefaultResponse<Void> logout(HttpSession session) {
         logForSession(session);
-        session.removeAttribute(SESSION_KEY_USER_ID);
-        return new ResponseEntity<>(DefaultResponse.ofSuccess(), HttpStatus.OK);
+
+        // TODO: 로그아웃 한 경우, 기존 jwt 토큰 처리 필요
+        return DefaultResponse.ofSuccess();
     }
 
 
