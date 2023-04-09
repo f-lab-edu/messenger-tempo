@@ -1,10 +1,15 @@
 package com.messenger.service;
 
 import com.messenger.domain.Member;
+import com.messenger.domain.TokenInfo;
 import com.messenger.exception.ErrorCode;
 import com.messenger.exception.MyException;
+import com.messenger.jwt.JwtSecurityConfig;
+import com.messenger.jwt.TokenProvider;
 import com.messenger.repository.MemberRepository;
+import com.messenger.util.Pair;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -25,11 +30,13 @@ public class MemberService implements UserDetailsService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final TokenProvider tokenProvider;
 
-    public MemberService(MemberRepository memberRepository, PasswordEncoder passwordEncoder, AuthenticationManagerBuilder authenticationManagerBuilder) {
+    public MemberService(MemberRepository memberRepository, PasswordEncoder passwordEncoder, AuthenticationManagerBuilder authenticationManagerBuilder, TokenProvider tokenProvider) {
         this.memberRepository = memberRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
+        this.tokenProvider = tokenProvider;
     }
 
     public Member signup(Member member) throws MyException {
@@ -96,20 +103,31 @@ public class MemberService implements UserDetailsService {
         return ret;
     }
 
-    public Member login(String id, String password) throws MyException {
+    public Pair<Member, HttpHeaders> login(String id, String password) throws MyException {
 
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(id, password);
         log.debug("authenticationToken = {}", authenticationToken);
+        TokenInfo tokenInfo;
         try {
-            Authentication authenticate = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-            log.debug("authenticate = {}", authenticate);
-            SecurityContextHolder.getContext().setAuthentication(authenticate);
+            // authenticationToken 이용해서 Authentication 객체 생성하려고
+            // authenticate()가 실행될때 loadUserByUsername()이 실행된다
+            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+            log.debug("authenticate = {}", authentication);
+            // Authentication 객체를 SecurityContext 에 저장
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            tokenInfo = tokenProvider.createToken(authentication);
+            log.debug("tokenInfo = {}", tokenInfo);
         } catch (IllegalArgumentException e) {
-            log.debug("IllegalArgumentException : {}", e.getMessage());
+            log.error("IllegalArgumentException : {}", e.getMessage());
             throw new MyException(ErrorCode.NOT_MATCH_PASSWORD);
         }
 
-        return memberRepository.findById(id).orElseThrow(() -> new MyException(ErrorCode.NOT_MATCH_PASSWORD));
+        Member findMember = memberRepository.findById(id).orElseThrow(() -> new MyException(ErrorCode.NOT_MATCH_PASSWORD));
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add(JwtSecurityConfig.AUTHORIZATION_HEADER, JwtSecurityConfig.TOKEN_PREFIX + tokenInfo.getAccessToken());
+
+        return new Pair<>(findMember, httpHeaders);
     }
 
     @Override
