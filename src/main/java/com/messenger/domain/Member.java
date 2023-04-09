@@ -1,8 +1,6 @@
 package com.messenger.domain;
 
-import lombok.Builder;
-import lombok.NonNull;
-import lombok.Value;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.StringUtils;
@@ -10,7 +8,8 @@ import org.springframework.util.StringUtils;
 import java.util.Collection;
 import java.util.List;
 
-@Value
+@Getter
+@ToString
 public class Member implements UserDetails {
 
     String id;
@@ -61,5 +60,17 @@ public class Member implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public void updatePassword(String password) {
+        this.password = password;
+    }
+
+    public void updateName(String name) {
+        this.name = name;
+    }
+
+    public void updateStatusMessage(String statusMessage) {
+        this.statusMessage = statusMessage;
     }
 }

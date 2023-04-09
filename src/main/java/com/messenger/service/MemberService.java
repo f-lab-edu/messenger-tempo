@@ -73,29 +73,19 @@ public class MemberService implements UserDetailsService {
     public Member updateInfo(Member paramMember) throws MyException {
         Member findMember = findById(paramMember.getId()).orElseThrow(() -> new MyException(ErrorCode.NOT_FOUND_MEMBER));
 
-        String memberId = paramMember.getId();
-        String modifiedPassword = paramMember.getPassword();
-        String modifiedName = paramMember.getName();
-        String modifiedStatusMessage = paramMember.getStatusMessage();
+        if (paramMember.getPassword() != null) {
+            findMember.updatePassword(paramMember.getPassword());
+        }
+        if (paramMember.getName() != null) {
+            findMember.updateName(paramMember.getName());
+        }
+        if (paramMember.getStatusMessage() != null) {
+            findMember.updateStatusMessage(paramMember.getStatusMessage());
+        }
 
-        if (paramMember.getPassword() == null) {
-            modifiedPassword = findMember.getPassword();
-        }
-        if (paramMember.getName() == null) {
-            modifiedName = findMember.getName();
-        }
-        if (paramMember.getStatusMessage() == null) {
-            modifiedStatusMessage = findMember.getStatusMessage();
-        }
         Member ret;
         try {
-            ret = memberRepository.updateMember(
-                    Member.builder()
-                            .id(memberId)
-                            .password(modifiedPassword)
-                            .name(modifiedName)
-                            .statusMessage(modifiedStatusMessage)
-                            .build());
+            ret = memberRepository.updateMember(findMember);
         } catch (MyException e) {
             if(!e.errorCode.equals(ErrorCode.NOT_MODIFIED)) {
                 throw new MyException(ErrorCode.FAIL_UPDATE_MEMBER);
