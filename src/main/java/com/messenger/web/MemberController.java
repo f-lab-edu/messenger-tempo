@@ -4,6 +4,9 @@ import com.messenger.domain.Member;
 import com.messenger.exception.MyException;
 import com.messenger.service.MemberService;
 import lombok.extern.slf4j.Slf4j;
+import com.messenger.util.Pair;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -121,13 +124,15 @@ public class MemberController {
                                         HttpSession session) {
 
         logForSession(session);
-        Member findMember;
+        Pair<Member, HttpHeaders> pair;
         try {
-            findMember = memberService.login(id, password, session);
+            pair = memberService.login(id, password);
         } catch (MyException e) {
             return new ResponseEntity<>(null, e.errorCode.httpStatusCode);
         }
-        return new ResponseEntity<>(findMember, HttpStatus.OK);
+        Member findMember = pair.getFirst();
+        HttpHeaders httpHeaders = pair.getSecond();
+        return new ResponseEntity<>(findMember, httpHeaders, HttpStatus.OK);
     }
 
     @PostMapping(value = "/api/v1/members/logout")

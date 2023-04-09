@@ -1,29 +1,57 @@
 package com.messenger.service;
 
 import com.messenger.domain.Member;
+import com.messenger.domain.TokenInfo;
 import com.messenger.exception.ErrorCode;
 import com.messenger.exception.MyException;
+import com.messenger.jwt.JwtSecurityConfig;
+import com.messenger.jwt.TokenProvider;
 import com.messenger.repository.MemberRepository;
-import com.messenger.web.MemberController;
+import com.messenger.util.Pair;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpSession;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
-public class MemberService {
+public class MemberService implements UserDetailsService {
 
     private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final TokenProvider tokenProvider;
 
-    public MemberService(MemberRepository memberRepository) {
+    public MemberService(MemberRepository memberRepository, PasswordEncoder passwordEncoder, AuthenticationManagerBuilder authenticationManagerBuilder, TokenProvider tokenProvider) {
         this.memberRepository = memberRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.authenticationManagerBuilder = authenticationManagerBuilder;
+        this.tokenProvider = tokenProvider;
     }
 
     public Member signup(Member member) throws MyException {
         Member result;
         try {
-            result = memberRepository.save(member);
+            Member modifiedMember = Member.builder()
+                    .id(member.getId())
+                    .password(passwordEncoder.encode(member.getPassword()))
+                    .name(member.getName())
+                    .statusMessage(member.getStatusMessage())
+                    .build();
+            result = memberRepository.save(modifiedMember);
         } catch (MyException e) {
             throw new MyException(ErrorCode.FAIL_SIGNUP);
         }
@@ -78,26 +106,44 @@ public class MemberService {
         return ret;
     }
 
-    public Member login(String id, String password, HttpSession session) throws MyException {
+    public Pair<Member, HttpHeaders> login(String id, String password) throws MyException {
 
-        String sessionUserId = (String) session.getAttribute(MemberController.SESSION_KEY_USER_ID);
-        // 세션 값이 있으면 이미 로그인 중
-        if (sessionUserId != null) {
-            Optional<Member> findMemberSession = findById(sessionUserId);
-            // 세션 값에 해당하는 유저를 찾지 못하면 세션 삭제
-            if (findMemberSession.isEmpty()) {
-                session.removeAttribute(MemberController.SESSION_KEY_USER_ID);
-                throw new MyException(ErrorCode.NOT_FOUND_MEMBER);
-            }
-            throw new MyException(ErrorCode.ALREADY_LOGIN);
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(id, password);
+        log.debug("authenticationToken = {}", authenticationToken);
+        TokenInfo tokenInfo;
+        try {
+            // credential 인증하려고 시도하고, 성공하면 Authentication 객체를 반환
+            // authenticate()가 실행될때 loadUserByUsername()이 실행된다
+            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+            log.debug("authenticate = {}", authentication);
+            // Authentication 객체를 SecurityContext 에 저장
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            tokenInfo = tokenProvider.createToken(authentication);
+            log.debug("tokenInfo = {}", tokenInfo);
+        } catch (DisabledException | LockedException e) {
+            // 계정이 disable 이거나 locked 인 경우
+            log.debug(e.getMessage());
+            throw new MyException(ErrorCode.NOT_FOUND_MEMBER);
+        } catch (AuthenticationException e) {
+            // 인증 실패
+            log.debug(e.getMessage());
+            throw new MyException(ErrorCode.NOT_MATCH_PASSWORD);
+        } catch(Exception e) {
+            log.error(e.getMessage());
+            e.printStackTrace();
+            throw new MyException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
 
-        Member findMember = memberRepository.findByIdAndPw(id, password)
-                // 아이디가 존재하지 않거나 비밀번호가 일치하지 않는 경우
-                .orElseThrow(() -> new MyException(ErrorCode.NOT_MATCH_PASSWORD));
+        Member findMember = memberRepository.findById(id).orElseThrow(() -> new MyException(ErrorCode.NOT_FOUND_MEMBER));
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add(JwtSecurityConfig.AUTHORIZATION_HEADER, JwtSecurityConfig.TOKEN_PREFIX + tokenInfo.getAccessToken());
 
-        // 아이디를 세션에 저장
-        session.setAttribute(MemberController.SESSION_KEY_USER_ID, id);
-        return findMember;
+        return new Pair<>(findMember, httpHeaders);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
+        return findById(id).orElseThrow(() -> new MyException(ErrorCode.NOT_FOUND_MEMBER));
     }
 }
