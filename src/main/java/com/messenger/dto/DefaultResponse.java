@@ -24,7 +24,11 @@ public class DefaultResponse<T> {
         return new DefaultResponse<>(resultCode, message, data);
     }
 
-    public static <T> DefaultResponse<T> ofErrorCode(ErrorCode errorCode) {
+    public static <T> DefaultResponse<T> ofFail(String message) {
+        return new DefaultResponse<>(HttpStatus.INTERNAL_SERVER_ERROR, message, null);
+    }
+
+    public static <T> DefaultResponse<T> ofFail(ErrorCode errorCode) {
         return new DefaultResponse<>(errorCode.httpStatusCode, errorCode.message, null);
     }
 
