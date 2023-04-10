@@ -49,7 +49,7 @@ public class ChatController {
     }
 
     /**
-     * (개발자용) 전체 1:1 메시지 목록
+     * (개발자용) 전체 1:1 메시지 목록 (최신순으로 조회)
      * @param prevId 이전 조회한 마지막 메시지 id
      * @param size 조회할 메시지 개수
      * @return 메시지 객체 리스트
@@ -64,7 +64,7 @@ public class ChatController {
     }
 
     /**
-     * 자신이 전송한 모든 1:1 메시지의 목록
+     * 자신이 전송한 모든 1:1 메시지의 목록 (최신순으로 조회)
      * @param prevId 이전 조회한 마지막 메시지 id
      * @param size 조회할 메시지 개수
      * @param session 세션
@@ -81,7 +81,7 @@ public class ChatController {
     }
 
     /**
-     * 자신이 수신한 모든 1:1 메시지 목록
+     * 자신이 수신한 모든 1:1 메시지 목록 (최신순으로 조회)
      * @param prevId 이전 조회한 마지막 메시지 id
      * @param size 조회할 메시지 개수
      * @return 메시지 객체 리스트
@@ -112,7 +112,7 @@ public class ChatController {
     }
 
     /**
-     * 특정 1:1 채팅 그룹의 메시지 목록 (최신순)
+     * 특정 1:1 채팅 그룹의 메시지 목록 (최신순으로 조회)
      * 자신과 상대방의 사용자 id를 기준으로 검색한다
      * @param oppositeUserId 상대방 사용자 id
      * @param prevId 이전 조회한 마지막 메시지 id
