@@ -2,10 +2,9 @@ package com.messenger.web;
 
 import com.messenger.domain.Chat;
 import com.messenger.domain.PaginationWrapper;
+import com.messenger.dto.DefaultResponse;
 import com.messenger.service.ChatService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
@@ -28,12 +27,12 @@ public class ChatController {
      * @return 메시지 객체
      */
     @PostMapping("/api/v1/chat")
-    public ResponseEntity<Chat> sendPersonalChat(
+    public DefaultResponse<Chat> sendPersonalChat(
                 @RequestParam String receiverUserId,
                 @RequestParam String content) {
 
-        Chat ret = chatService.sendPersonalChat(receiverUserId, content);
-        return new ResponseEntity<>(ret, HttpStatus.OK);
+        Chat result = chatService.sendPersonalChat(receiverUserId, content);
+        return DefaultResponse.ofSuccess(result);
     }
 
     /**
@@ -42,11 +41,11 @@ public class ChatController {
      * @return "success"
      */
     @DeleteMapping("/api/v1/chat/{chatId}")
-    public ResponseEntity<String> deletePersonalChat(
+    public DefaultResponse<Void> deletePersonalChat(
                 @PathVariable long chatId) {
 
         chatService.deletePersonalChat(chatId);
-        return new ResponseEntity<>("success", HttpStatus.OK);
+        return DefaultResponse.ofSuccess();
     }
 
     /**
@@ -56,12 +55,12 @@ public class ChatController {
      * @return 메시지 객체 리스트
      */
     @GetMapping("/api/v1/chat")
-    public ResponseEntity<PaginationWrapper> listAllPersonalChat(
+    public DefaultResponse<PaginationWrapper> listAllPersonalChat(
                 @RequestParam(required = false) Integer prevId,
                 @RequestParam(required = false, defaultValue = "3") Integer size) {
 
         List<Chat> list = chatService.listAllPersonalChat(prevId, size);
-        return new ResponseEntity<>(new PaginationWrapper(list), HttpStatus.OK);
+        return DefaultResponse.ofSuccess(new PaginationWrapper(list));
     }
 
     /**
@@ -72,13 +71,13 @@ public class ChatController {
      * @return 메시지 객체 리스트
      */
     @GetMapping("/api/v1/chat/sent")
-    public ResponseEntity<PaginationWrapper> listSentPersonalChat(
+    public DefaultResponse<PaginationWrapper> listSentPersonalChat(
                 @RequestParam(required = false) Integer prevId,
                 @RequestParam(required = false, defaultValue = "3") Integer size,
                 HttpSession session) {
 
         List<Chat> list = chatService.listPersonalChatBySender(prevId, size);
-        return new ResponseEntity<>(new PaginationWrapper(list), HttpStatus.OK);
+        return DefaultResponse.ofSuccess(new PaginationWrapper(list));
     }
 
     /**
@@ -88,12 +87,12 @@ public class ChatController {
      * @return 메시지 객체 리스트
      */
     @GetMapping("/api/v1/chat/received")
-    public ResponseEntity<PaginationWrapper> listReceivedPersonalChat(
+    public DefaultResponse<PaginationWrapper> listReceivedPersonalChat(
                 @RequestParam(required = false) Integer prevId,
                 @RequestParam(required = false, defaultValue = "3") Integer size) {
 
         List<Chat> list = chatService.listPersonalChatByReceiver(prevId, size);
-        return new ResponseEntity<>(new PaginationWrapper(list), HttpStatus.OK);
+        return DefaultResponse.ofSuccess(new PaginationWrapper(list));
     }
 
     /**
@@ -104,12 +103,12 @@ public class ChatController {
      * @return 메시지 객체 리스트, 가장 최근 수신한 메시지
      */
     @GetMapping("/api/v1/chat/personal_chat/{oppositeUserId}/enter")
-    public ResponseEntity<PaginationWrapper> enterPersonalChatGroup(
+    public DefaultResponse<PaginationWrapper> enterPersonalChatGroup(
                 @PathVariable String oppositeUserId,
                 @RequestParam(required = false, defaultValue = "3") Integer size) {
 
         PaginationWrapper result = chatService.enterPersonalChatGroup(oppositeUserId, size);
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        return DefaultResponse.ofSuccess(result);
     }
 
     /**
@@ -121,12 +120,12 @@ public class ChatController {
      * @return 메시지 객체 리스트
      */
     @GetMapping("/api/v1/chat/personal_chat/{oppositeUserId}")
-    public ResponseEntity<PaginationWrapper> listPersonalChatByGroup(
+    public DefaultResponse<PaginationWrapper> listPersonalChatByGroup(
                 @PathVariable String oppositeUserId,
                 @RequestParam(required = false) Integer prevId,
                 @RequestParam(required = false, defaultValue = "3") Integer size) {
 
         List<Chat> chatList = chatService.listPersonalChatByGroup(oppositeUserId, prevId, size);
-        return new ResponseEntity<>(new PaginationWrapper(chatList), HttpStatus.OK);
+        return DefaultResponse.ofSuccess(new PaginationWrapper(chatList));
     }
 }
