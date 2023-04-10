@@ -1,6 +1,8 @@
 package com.messenger.repository;
 
 import com.messenger.domain.Chat;
+import com.messenger.exception.ErrorCode;
+import com.messenger.exception.MyException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -55,7 +57,7 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
         }, keyHolder);
 
         long id = Objects.requireNonNull(keyHolder.getKey()).longValue();
-        return findById(id).orElseThrow(() -> new NullPointerException("cannot find chat by id"));
+        return findById(id).orElseThrow(() -> new MyException(ErrorCode.NOT_FOUND_CHAT));
     }
 
     /**
@@ -72,7 +74,7 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
         int update = jdbcTemplate.update(sql, args);
         log.debug("update={}", update);
         if (update == 0) {
-            throw new NullPointerException("cannot delete chat");
+            throw new MyException(ErrorCode.FAIL_DELETE_CHAT);
         }
     }
 
@@ -169,8 +171,8 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
      */
     @Override
     public Optional<Chat> findLastReceivedByGroup(String userId, String oppositeUserId) {
-        String sql_select = "SELECT * FROM personal_chat WHERE receiver_user_id = ? AND sender_user_id = ? AND id >= 0 ORDER BY id DESC LIMIT 1";
-        List<Chat> result = jdbcTemplate.query(sql_select, chatRowMapper(), userId, oppositeUserId);
+        String sqlSelect = "SELECT * FROM personal_chat WHERE receiver_user_id = ? AND sender_user_id = ? AND id >= 0 ORDER BY id DESC LIMIT 1";
+        List<Chat> result = jdbcTemplate.query(sqlSelect, chatRowMapper(), userId, oppositeUserId);
         return result.stream().findAny();
     }
 
@@ -183,8 +185,8 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
     @Override
     public Optional<Chat> markReadById(long chatId) {
         log.debug("mark as read by id, chatId = {}", chatId);
-        String sql_update = "UPDATE personal_chat SET read_at = CURRENT_TIMESTAMP WHERE id = ? AND read_at IS NULL";
-        int update = jdbcTemplate.update(sql_update, chatId);
+        String sqlUpdate = "UPDATE personal_chat SET read_at = CURRENT_TIMESTAMP WHERE id = ? AND read_at IS NULL";
+        int update = jdbcTemplate.update(sqlUpdate, chatId);
         if (update == 0) {
             throw new NullPointerException("cannot update chat");
         }
