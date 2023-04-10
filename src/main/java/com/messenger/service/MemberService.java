@@ -45,13 +45,8 @@ public class MemberService implements UserDetailsService {
     public Member signup(Member member) throws MyException {
         Member result;
         try {
-            Member modifiedMember = Member.builder()
-                    .id(member.getId())
-                    .password(passwordEncoder.encode(member.getPassword()))
-                    .name(member.getName())
-                    .statusMessage(member.getStatusMessage())
-                    .build();
-            result = memberRepository.save(modifiedMember);
+            member.updatePassword(passwordEncoder.encode(member.getPassword()));
+            result = memberRepository.save(member);
         } catch (MyException e) {
             throw new MyException(ErrorCode.FAIL_SIGNUP);
         }
