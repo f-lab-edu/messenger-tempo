@@ -4,6 +4,7 @@ import com.messenger.domain.Chat;
 import com.messenger.domain.PaginationWrapper;
 import com.messenger.dto.DefaultResponse;
 import com.messenger.service.ChatService;
+import com.messenger.util.Pair;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
@@ -127,5 +128,21 @@ public class ChatController {
 
         List<Chat> chatList = chatService.listPersonalChatByGroup(oppositeUserId, prevId, size);
         return DefaultResponse.ofSuccess(new PaginationWrapper(chatList));
+    }
+
+    /**
+     * 테스트용
+     */
+    @PostMapping("/api/v1/chat/room")
+    public DefaultResponse<List<Pair<String, Long>>> listGroupByUser(
+                @RequestParam String userId) {
+        List<Pair<String, Long>> result = chatService.listGroupByUser(userId);
+        return DefaultResponse.ofSuccess(result);
+    }
+
+    @GetMapping("/api/v1/chat/room")
+    public DefaultResponse<List<Pair<String, Long>>> listGroupByUser() {
+        List<Pair<String, Long>> result = chatService.listGroupByUser();
+        return DefaultResponse.ofSuccess(result);
     }
 }

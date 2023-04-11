@@ -5,6 +5,7 @@ import com.messenger.domain.PaginationWrapper;
 import com.messenger.exception.ErrorCode;
 import com.messenger.exception.MyException;
 import com.messenger.repository.PersonalChatRepository;
+import com.messenger.util.Pair;
 import com.messenger.util.SpringSecurityUtil;
 import org.springframework.stereotype.Service;
 
@@ -115,5 +116,21 @@ public class ChatService {
 
         result.put("latest received chat", markedChat.orElse(null));
         return result;
+    }
+
+    /**
+     * 테스트용
+     */
+    public List<Pair<String, Long>> listGroupByUser(String userId) {
+        return personalChatRepository.listGroupByUser(userId);
+    }
+
+    public List<Pair<String, Long>> listGroupByUser() {
+        String userId = SpringSecurityUtil.getAuthenticationName();
+        if (userId == null) {
+            throw new MyException(ErrorCode.UNAUTHORIZED);
+        }
+
+        return personalChatRepository.listGroupByUser(userId);
     }
 }
