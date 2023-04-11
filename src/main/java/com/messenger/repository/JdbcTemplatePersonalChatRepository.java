@@ -52,7 +52,7 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
      * @return 저장한 메시지 객체
      */
     @Override
-    public Chat save(Chat chat) throws DuplicateKeyException {
+    public Chat save(Chat chat) {
         String sql = "INSERT INTO personal_chat(sender_user_id, receiver_user_id, content, group_id) values(?, ?, ?, FUNC_CONCAT_ID(sender_user_id, receiver_user_id))";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 

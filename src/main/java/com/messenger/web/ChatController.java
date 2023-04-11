@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -18,6 +19,14 @@ public class ChatController {
 
     public ChatController(ChatService chatService) {
         this.chatService = chatService;
+    }
+
+    @GetMapping("/api/v1/chat/{chatId}")
+    public DefaultResponse<Chat> getPersonalChat(
+            @PathVariable long chatId) {
+
+        Optional<Chat> chat = chatService.getPersonalChat(chatId);
+        return DefaultResponse.ofSuccess(chat.orElse(null));
     }
 
     /**
