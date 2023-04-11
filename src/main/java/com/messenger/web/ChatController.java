@@ -1,7 +1,7 @@
 package com.messenger.web;
 
 import com.messenger.domain.Chat;
-import com.messenger.domain.PaginationWrapper;
+import com.messenger.dto.PaginationWrapper;
 import com.messenger.dto.DefaultResponse;
 import com.messenger.service.ChatService;
 import com.messenger.util.Pair;

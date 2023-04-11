@@ -1,5 +1,6 @@
 package com.messenger.domain;
 
+import com.messenger.dto.Pageable;
 import lombok.Builder;
 import lombok.Value;
 

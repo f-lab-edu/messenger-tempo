@@ -1,7 +1,7 @@
 package com.messenger.service;
 
 import com.messenger.domain.Chat;
-import com.messenger.domain.PaginationWrapper;
+import com.messenger.dto.PaginationWrapper;
 import com.messenger.exception.ErrorCode;
 import com.messenger.exception.MyException;
 import com.messenger.repository.PersonalChatRepository;
