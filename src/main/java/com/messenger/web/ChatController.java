@@ -1,14 +1,13 @@
 package com.messenger.web;
 
 import com.messenger.domain.Chat;
-import com.messenger.dto.PaginationWrapper;
 import com.messenger.dto.DefaultResponse;
+import com.messenger.dto.PaginationWrapper;
 import com.messenger.service.ChatService;
 import com.messenger.util.Pair;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpSession;
 import java.util.List;
 
 @Slf4j
@@ -68,14 +67,12 @@ public class ChatController {
      * 자신이 전송한 모든 1:1 메시지의 목록 (최신순으로 조회)
      * @param prevId 이전 조회한 마지막 메시지 id
      * @param size 조회할 메시지 개수
-     * @param session 세션
      * @return 메시지 객체 리스트
      */
     @GetMapping("/api/v1/chat/sent")
     public DefaultResponse<PaginationWrapper> listSentPersonalChat(
                 @RequestParam(required = false) Integer prevId,
-                @RequestParam(required = false, defaultValue = "3") Integer size,
-                HttpSession session) {
+                @RequestParam(required = false, defaultValue = "3") Integer size) {
 
         List<Chat> list = chatService.listPersonalChatBySender(prevId, size);
         return DefaultResponse.ofSuccess(new PaginationWrapper(list));
