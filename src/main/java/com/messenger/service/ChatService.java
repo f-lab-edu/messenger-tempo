@@ -21,6 +21,10 @@ public class ChatService {
         this.personalChatRepository = personalChatRepository;
     }
 
+    public Optional<Chat> getPersonalChat(long chatId) {
+        return personalChatRepository.findById(chatId);
+    }
+
     public Chat sendPersonalChat(String receiverUserId, String content) {
         String userId = SpringSecurityUtil.getAuthenticationName();
         if (userId == null) {
