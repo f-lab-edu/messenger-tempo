@@ -64,11 +64,13 @@ public class ChatController {
     }
 
     /**
+     * @deprecated
      * 자신이 전송한 모든 1:1 메시지의 목록 (최신순으로 조회)
      * @param prevId 이전 조회한 마지막 메시지 id
      * @param size 조회할 메시지 개수
      * @return 메시지 객체 리스트
      */
+    @Deprecated(forRemoval = true)
     @GetMapping("/api/v1/chat/sent")
     public DefaultResponse<PaginationWrapper> listSentPersonalChat(
                 @RequestParam(required = false) Integer prevId,
