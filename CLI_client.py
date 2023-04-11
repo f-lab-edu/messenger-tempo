@@ -52,14 +52,32 @@ def injection_pathvariable(url, param = None):
 	return url.format(**param)
 
 
+def prompt_command_list():
+	print('-' * 30)
+	for i, command in enumerate(command_list):
+		print(f'{i}) {command}')
+	print('-' * 30)
+
+
 if __name__ == "__main__":
-	print('Press \'q\' to exit.')
+	print('커맨드를 번호로 입력')
+	print('종료할 때는 q 입력')
 	while True:
+		prompt_command_list()
 		line = input('> ').rstrip().lower()
 		if line == 'q':
 			break
-		if line not in url_mapping:
+		try:
+			command_idx = int(line)
+		except:
 			continue
+		
+		if not 1 <= command_idx <= len(command_list):
+			continue
+		
+		if command_idx == 5:
+		
+		else:
 		
 		url, method, param_li = url_mapping[line]
 		payload = dict()
