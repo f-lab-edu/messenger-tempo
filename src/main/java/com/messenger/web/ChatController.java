@@ -59,48 +59,48 @@ public class ChatController {
 
     /**
      * (개발자용) 전체 1:1 메시지 목록 (최신순으로 조회)
-     * @param prevId 이전 조회한 마지막 메시지 id
+     * @param nextId 이전 조회한 마지막 메시지 id
      * @param size 조회할 메시지 개수
      * @return 메시지 객체 리스트
      */
     @GetMapping("/api/v1/chat")
     public DefaultResponse<PaginationWrapper> listAllPersonalChat(
-                @RequestParam(required = false) Integer prevId,
+                @RequestParam(required = false) Integer nextId,
                 @RequestParam(required = false, defaultValue = "3") Integer size) {
 
-        List<Chat> list = chatService.listAllPersonalChat(prevId, size);
+        List<Chat> list = chatService.listAllPersonalChat(nextId, size);
         return DefaultResponse.ofSuccess(new PaginationWrapper(list));
     }
 
     /**
      * @deprecated
      * 자신이 전송한 모든 1:1 메시지의 목록 (최신순으로 조회)
-     * @param prevId 이전 조회한 마지막 메시지 id
+     * @param nextId 이전 조회한 마지막 메시지 id
      * @param size 조회할 메시지 개수
      * @return 메시지 객체 리스트
      */
     @Deprecated(forRemoval = true)
     @GetMapping("/api/v1/chat/sent")
     public DefaultResponse<PaginationWrapper> listSentPersonalChat(
-                @RequestParam(required = false) Integer prevId,
+                @RequestParam(required = false) Integer nextId,
                 @RequestParam(required = false, defaultValue = "3") Integer size) {
 
-        List<Chat> list = chatService.listPersonalChatBySender(prevId, size);
+        List<Chat> list = chatService.listPersonalChatBySender(nextId, size);
         return DefaultResponse.ofSuccess(new PaginationWrapper(list));
     }
 
     /**
      * 자신이 수신한 모든 1:1 메시지 목록 (최신순으로 조회)
-     * @param prevId 이전 조회한 마지막 메시지 id
+     * @param nextId 이전 조회한 마지막 메시지 id
      * @param size 조회할 메시지 개수
      * @return 메시지 객체 리스트
      */
     @GetMapping("/api/v1/chat/received")
     public DefaultResponse<PaginationWrapper> listReceivedPersonalChat(
-                @RequestParam(required = false) Integer prevId,
+                @RequestParam(required = false) Integer nextId,
                 @RequestParam(required = false, defaultValue = "3") Integer size) {
 
-        List<Chat> list = chatService.listPersonalChatByReceiver(prevId, size);
+        List<Chat> list = chatService.listPersonalChatByReceiver(nextId, size);
         return DefaultResponse.ofSuccess(new PaginationWrapper(list));
     }
 
@@ -124,17 +124,17 @@ public class ChatController {
      * 특정 1:1 채팅 그룹의 메시지 목록 (최신순으로 조회)
      * 자신과 상대방의 사용자 id를 기준으로 검색한다
      * @param oppositeUserId 상대방 사용자 id
-     * @param prevId 이전 조회한 마지막 메시지 id
+     * @param nextId 이전 조회한 마지막 메시지 id
      * @param size 조회할 메시지 개수
      * @return 메시지 객체 리스트
      */
     @GetMapping("/api/v1/chat/personal_chat/{oppositeUserId}")
     public DefaultResponse<PaginationWrapper> listPersonalChatByGroup(
                 @PathVariable String oppositeUserId,
-                @RequestParam(required = false) Integer prevId,
+                @RequestParam(required = false) Integer nextId,
                 @RequestParam(required = false, defaultValue = "3") Integer size) {
 
-        List<Chat> chatList = chatService.listPersonalChatByGroup(oppositeUserId, prevId, size);
+        List<Chat> chatList = chatService.listPersonalChatByGroup(oppositeUserId, nextId, size);
         return DefaultResponse.ofSuccess(new PaginationWrapper(chatList));
     }
 
