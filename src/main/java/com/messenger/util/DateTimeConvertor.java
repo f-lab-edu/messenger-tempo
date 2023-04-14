@@ -5,6 +5,8 @@ import java.util.Date;
 
 public class DateTimeConvertor {
 
+    private DateTimeConvertor() {}
+
     public static String convertTimestampMillis2String(long timestamp_ms) {
         return convertTimestampMillis2String(timestamp_ms, "yyyy-MM-dd kk:mm:ss.SSS");
     }

@@ -1,6 +1,7 @@
 package com.messenger.repository;
 
 import com.messenger.domain.Member;
+import com.messenger.domain.MemberRole;
 import com.messenger.exception.ErrorCode;
 import com.messenger.exception.MyException;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,7 @@ public class JdbcTemplateMemberRepository implements MemberRepository {
                 .password(rs.getString("pw"))
                 .name(rs.getString("display_name"))
                 .statusMessage(rs.getString("status_message"))
+                .role(MemberRole.valueOf(rs.getString("role")))
                 .build();
     }
 
