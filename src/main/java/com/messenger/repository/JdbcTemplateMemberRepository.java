@@ -45,17 +45,10 @@ public class JdbcTemplateMemberRepository implements MemberRepository {
                 member.getName(),
                 member.getStatusMessage()
         };
-        int update = 0;
         try {
-            update = jdbcTemplate.update(sql, args);
+            jdbcTemplate.update(sql, args);
         } catch (DuplicateKeyException e) {
             throw new MyException(ErrorCode.ALREADY_EXIST_ID);
-        } catch (Exception e) {
-            throw new MyException(ErrorCode.INTERNAL_SERVER_ERROR);
-        }
-        log.debug("update={}", update);
-        if (update == 0) {
-            throw new MyException(ErrorCode.NOT_MODIFIED);
         }
         return member;
     }
@@ -95,12 +88,7 @@ public class JdbcTemplateMemberRepository implements MemberRepository {
                 paramMember.getStatusMessage(),
                 paramMember.getId()
         };
-        int update = 0;
-        try {
-            update = jdbcTemplate.update(sql, args);
-        } catch (Exception e) {
-            throw new MyException(ErrorCode.INTERNAL_SERVER_ERROR);
-        }
+        int update = jdbcTemplate.update(sql, args);
         log.debug("update={}", update);
         if (update == 0) {
             throw new MyException(ErrorCode.NOT_MODIFIED);
