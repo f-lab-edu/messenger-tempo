@@ -1,10 +1,17 @@
 package com.messenger.dto;
 
+import com.messenger.domain.Chat;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.List;
 
+@Getter
+@Setter
 public class PaginationWrapper<T extends Pageable> {
 
     long nextId = -1;
+    Chat latestReceivedChat;
     int size;
     List<T> list;
 

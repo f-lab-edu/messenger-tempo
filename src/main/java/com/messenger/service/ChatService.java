@@ -118,7 +118,7 @@ public class ChatService {
         // 가장 최근 수신한 메시지를 읽음 표시
         Optional<Chat> markedChat = markPersonalChatAsReadByGroup(userId, oppositeUserId);
 
-        result.put("latest received chat", markedChat.orElse(null));
+        result.setLatestReceivedChat(markedChat.orElse(null));
         return result;
     }
 
