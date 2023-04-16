@@ -14,17 +14,20 @@ public class MemberDTO {
     private final String name;
     private final String statusMessage;
 
-    private MemberDTO(@NonNull Member member) {
-        this.id = member.getId();
-        this.name = member.getName();
-        this.statusMessage = member.getStatusMessage();
+    private MemberDTO(String id, String name, String statusMessage) {
+        this.id = id;
+        this.name = name;
+        this.statusMessage = statusMessage;
     }
 
     public static MemberDTO of(@NonNull Member member) {
-        return new MemberDTO(member);
+        return new MemberDTO(
+                member.getId(),
+                member.getName(),
+                member.getStatusMessage());
     }
 
     public static List<MemberDTO> of(@NonNull List<Member> members) {
-        return members.stream().map(MemberDTO::new).collect(Collectors.toList());
+        return members.stream().map(MemberDTO::of).collect(Collectors.toList());
     }
 }
