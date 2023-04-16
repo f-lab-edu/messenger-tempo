@@ -1,4 +1,4 @@
-package com.messenger.domain;
+package com.messenger.dto;
 
 import java.util.HashMap;
 import java.util.List;
@@ -13,7 +13,8 @@ public class PaginationWrapper extends HashMap<String, Object> {
         if (length > 0) {
             prevId = list.get(length - 1).getId();
         }
-        put("prevId", prevId);
+        put("nextId", prevId);
+        put("size", length);
         put("list", list);
     }
 }

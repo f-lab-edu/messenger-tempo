@@ -42,15 +42,9 @@ public class MemberService implements UserDetailsService {
         this.tokenProvider = tokenProvider;
     }
 
-    public Member signup(Member member) throws MyException {
-        Member result;
-        try {
-            member.updatePassword(passwordEncoder.encode(member.getPassword()));
-            result = memberRepository.save(member);
-        } catch (MyException e) {
-            throw new MyException(ErrorCode.FAIL_SIGNUP);
-        }
-        return result;
+    public Member signup(Member member) {
+        member.updatePassword(passwordEncoder.encode(member.getPassword()));
+        return memberRepository.save(member);
     }
 
     public List<Member> listAll() {
@@ -77,7 +71,7 @@ public class MemberService implements UserDetailsService {
         return members;
     }
 
-    public Member updateInfo(Member paramMember) throws MyException {
+    public Member updateInfo(Member paramMember) {
         Member findMember = findById(paramMember.getId());
 
         if (paramMember.getPassword() != null) {
@@ -103,7 +97,7 @@ public class MemberService implements UserDetailsService {
         return ret;
     }
 
-    public Pair<Member, HttpHeaders> login(String id, String password) throws MyException {
+    public Pair<Member, HttpHeaders> login(String id, String password) {
 
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(id, password);
         log.debug("authenticationToken = {}", authenticationToken);
