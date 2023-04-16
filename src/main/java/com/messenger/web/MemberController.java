@@ -4,6 +4,9 @@ import com.messenger.domain.Member;
 import com.messenger.dto.DefaultResponse;
 import com.messenger.dto.MemberDTO;
 import com.messenger.service.MemberService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
 import com.messenger.util.Pair;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -33,6 +36,7 @@ public class MemberController {
      * @return 전체회원 객체를 List로 반환
      */
     @GetMapping("/api/v1/members")
+    @Operation(summary = "전체 회원 목록")
     public DefaultResponse<List<MemberDTO>> members() {
         return DefaultResponse.ofSuccess(MemberDTO.of(memberService.listAll()));
     }
@@ -46,6 +50,12 @@ public class MemberController {
      *          그 외 : null
      */
     @PostMapping(value = "/api/v1/members")
+    @Operation(summary = "회원 가입")
+    @Parameters({
+            @Parameter(name = "id", description = "회원 id", required = true),
+            @Parameter(name = "password", description = "회원 비밀번호", required = true),
+            @Parameter(name = "name", description = "회원 이름")
+    })
     public DefaultResponse<MemberDTO> signup(@RequestParam String id,
                                          @RequestParam String password,
                                          @RequestParam(required = false) String name) {
@@ -66,6 +76,10 @@ public class MemberController {
      *          그 외 : null
      */
     @GetMapping("/api/v1/members/{memberId}")
+    @Operation(summary = "id로 회원 조회")
+    @Parameters({
+            @Parameter(name = "memberId", description = "회원 id", required = true)
+    })
     public DefaultResponse<MemberDTO> findById(@PathVariable String memberId) {
         Member findMember = memberService.findById(memberId);
         return DefaultResponse.ofSuccess(MemberDTO.of(findMember));
@@ -78,6 +92,10 @@ public class MemberController {
      *          그 외 : null
      */
     @GetMapping("/api/v1/members/name/{memberName}")
+    @Operation(summary = "이름으로 회원 조회")
+    @Parameters({
+            @Parameter(name = "memberName", description = "회원 이름", required = true)
+    })
     public DefaultResponse<List<MemberDTO>> findByName(@PathVariable String memberName) {
         List<Member> findMemberList = memberService.findByName(memberName);
         return DefaultResponse.ofSuccess(MemberDTO.of(findMemberList));
@@ -93,6 +111,13 @@ public class MemberController {
      *          그 외 : null
      */
     @PutMapping(value = "/api/v1/members/{memberId}")
+    @Operation(summary = "회원 정보 변경")
+    @Parameters({
+            @Parameter(name = "memberId", description = "회원 id", required = true),
+            @Parameter(name = "name", description = "변경할 이름"),
+            @Parameter(name = "password", description = "변경할 비밀번호"),
+            @Parameter(name = "content", description = "변경할 상태 메시지")
+    })
     public DefaultResponse<MemberDTO> updateInfo(@PathVariable String memberId,
                                              @RequestParam(required = false) String name,
                                              @RequestParam(required = false) String password,
@@ -110,6 +135,11 @@ public class MemberController {
     }
 
     @PostMapping(value = "/api/v1/members/login")
+    @Operation(summary = "회원 로그인")
+    @Parameters({
+            @Parameter(name = "id", description = "회원 id", required = true),
+            @Parameter(name = "password", description = "변경할 비밀번호", required = true)
+    })
     public ResponseEntity<DefaultResponse<MemberDTO>> login(@RequestParam String id,
                                                             @RequestParam String password,
                                                             HttpSession session) {
@@ -124,6 +154,7 @@ public class MemberController {
     }
 
     @PostMapping(value = "/api/v1/members/logout")
+    @Operation(summary = "회원 로그아웃")
     public DefaultResponse<Void> logout(HttpSession session) {
         logForSession(session);
 
