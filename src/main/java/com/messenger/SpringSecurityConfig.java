@@ -54,8 +54,6 @@ public class SpringSecurityConfig {
                                         "/v3/api-docs/**", "/swagger-resources/**"
                                 ).permitAll()
 
-                                // 모든 유저 조회
-                                .antMatchers(HttpMethod.GET, "/api/v1/members").hasRole("ADMIN")
                                 // 모든 1:1 채팅 메시지 조회
                                 .antMatchers(HttpMethod.GET, "/api/v1/chat").hasRole("ADMIN")
                                 .anyRequest().authenticated()
