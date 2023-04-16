@@ -3,7 +3,9 @@ package com.messenger.web;
 import com.messenger.domain.Member;
 import com.messenger.exception.MyException;
 import com.messenger.service.MemberService;
-import io.swagger.annotations.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +18,6 @@ import java.util.Optional;
 
 import static com.messenger.util.DateTimeConvertor.convertTimestampMillis2String;
 
-@Api(tags = {"멤버 컨트롤러"})
 @Slf4j
 @RestController
 public class MemberController {
@@ -32,9 +33,8 @@ public class MemberController {
      * 전체회원 목록
      * @return 전체회원 객체를 List로 반환
      */
-    @ApiOperation(value = "전체 회원 목록", notes = "전체 회원 객체를 List로 반환")
-    @ApiResponse(code = 200, message = "ok")
     @GetMapping("/api/v1/members")
+    @Operation(summary = "전체 회원 목록")
     public List<Member> members() {
         return memberService.listAll();
     }
@@ -47,16 +47,16 @@ public class MemberController {
      * @return  정상적으로 가입된 경우 : 가입된 회원 객체
      *          그 외 : null
      */
-    @ApiOperation(value = "회원 가입")
     @PostMapping(value = "/api/v1/members", consumes = "application/x-www-form-urlencoded")
-//    @ApiImplicitParams({
-//            @ApiImplicitParam(name = "id", value = "회원 id", paramType = "query", required = true),
-//            @ApiImplicitParam(name = "password", value = "회원 비밀번호", paramType = "query", required = true),
-//            @ApiImplicitParam(name = "name", value = "회원 이름", paramType = "query")
-//    })
-    public ResponseEntity<Member> signup(@ApiParam(value = "회원 id") @RequestParam String id,
-                                         @ApiParam(value = "회원 id") @RequestParam String password,
-                                         @ApiParam(value = "회원 id") @RequestParam(required = false) String name) {
+    @Operation(summary = "회원 가입")
+    @Parameters({
+            @Parameter(name = "id", description = "회원 id", required = true),
+            @Parameter(name = "password", description = "회원 비밀번호", required = true),
+            @Parameter(name = "name", description = "회원 이름")
+    })
+    public ResponseEntity<Member> signup(@RequestParam String id,
+                                         @RequestParam String password,
+                                         @RequestParam(required = false) String name) {
         Member member = Member.builder()
                                 .id(id)
                                 .password(password)
@@ -78,6 +78,10 @@ public class MemberController {
      *          그 외 : null
      */
     @GetMapping("/api/v1/members/{memberId}")
+    @Operation(summary = "id로 회원 조회")
+    @Parameters({
+            @Parameter(name = "memberId", description = "회원 id", required = true)
+    })
     public ResponseEntity<Member> findById(@PathVariable String memberId) {
         Optional<Member> findMember = memberService.findById(memberId);
         return new ResponseEntity<>(findMember.orElse(null), HttpStatus.OK);
@@ -90,6 +94,10 @@ public class MemberController {
      *          그 외 : null
      */
     @GetMapping("/api/v1/members/name/{memberName}")
+    @Operation(summary = "이름으로 회원 조회")
+    @Parameters({
+            @Parameter(name = "memberName", description = "회원 이름", required = true)
+    })
     public ResponseEntity<List<Member>> findByName(@PathVariable String memberName) {
         List<Member> findMember = memberService.findByName(memberName);
         return new ResponseEntity<>(findMember, HttpStatus.OK);
@@ -105,6 +113,13 @@ public class MemberController {
      *          그 외 : null
      */
     @PutMapping(value = "/api/v1/members/{memberId}", consumes = "application/x-www-form-urlencoded")
+    @Operation(summary = "회원 정보 변경")
+    @Parameters({
+            @Parameter(name = "memberId", description = "회원 id", required = true),
+            @Parameter(name = "name", description = "변경할 이름"),
+            @Parameter(name = "password", description = "변경할 비밀번호"),
+            @Parameter(name = "content", description = "변경할 상태 메시지")
+    })
     public ResponseEntity<Member> updateInfo(@PathVariable String memberId,
                                              @RequestParam(required = false) String name,
                                              @RequestParam(required = false) String password,
@@ -126,6 +141,11 @@ public class MemberController {
     }
 
     @PostMapping(value = "/api/v1/members/login", consumes = "application/x-www-form-urlencoded")
+    @Operation(summary = "회원 로그인")
+    @Parameters({
+            @Parameter(name = "id", description = "회원 id", required = true),
+            @Parameter(name = "password", description = "변경할 비밀번호", required = true)
+    })
     public ResponseEntity<Member> login(@RequestParam String id,
                                         @RequestParam String password,
                                         HttpSession session) {
@@ -141,6 +161,7 @@ public class MemberController {
     }
 
     @PostMapping(value = "/api/v1/members/logout")
+    @Operation(summary = "회원 로그아웃")
     public ResponseEntity<Void> logout(HttpSession session) {
         logForSession(session);
         session.removeAttribute(SESSION_KEY_USER_ID);
