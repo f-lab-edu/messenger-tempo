@@ -1,20 +1,19 @@
 package com.messenger.dto;
 
-import java.util.HashMap;
 import java.util.List;
 
-public class PaginationWrapper extends HashMap<String, Object> {
+public class PaginationWrapper<T extends Pageable> {
 
-    public <T extends Pageable> PaginationWrapper(List<T> list) {
-        super();
-        long prevId = -1;
+    long nextId = -1;
+    int size;
+    List<T> list;
 
+    public PaginationWrapper(List<T> list) {
+        this.list = list;
         int length = list.size();
         if (length > 0) {
-            prevId = list.get(length - 1).getId();
+            nextId = list.get(length - 1).getId();
         }
-        put("nextId", prevId);
-        put("size", length);
-        put("list", list);
+        this.size = length;
     }
 }
