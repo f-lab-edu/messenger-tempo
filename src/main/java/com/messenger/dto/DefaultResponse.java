@@ -25,18 +25,18 @@ public class DefaultResponse<T> {
     }
 
     public static <T> DefaultResponse<T> ofFail(String message) {
-        return new DefaultResponse<>(HttpStatus.INTERNAL_SERVER_ERROR, message, null);
+        return of(HttpStatus.INTERNAL_SERVER_ERROR, message, null);
     }
 
     public static <T> DefaultResponse<T> ofFail(ErrorCode errorCode) {
-        return new DefaultResponse<>(errorCode.httpStatusCode, errorCode.message, null);
+        return of(errorCode.httpStatusCode, errorCode.message, null);
     }
 
     public static <T> DefaultResponse<T> ofSuccess() {
-        return new DefaultResponse<>(HttpStatus.OK, "success", null);
+        return of(HttpStatus.OK, "success", null);
     }
 
     public static <T> DefaultResponse<T> ofSuccess(T data) {
-        return new DefaultResponse<>(HttpStatus.OK, "success", data);
+        return of(HttpStatus.OK, "success", data);
     }
 }

@@ -2,7 +2,7 @@ package com.messenger.web;
 
 import com.messenger.domain.Member;
 import com.messenger.dto.DefaultResponse;
-import com.messenger.dto.MemberDTO;
+import com.messenger.dto.MemberResponse;
 import com.messenger.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -37,8 +37,8 @@ public class MemberController {
      */
     @GetMapping("/api/v1/members")
     @Operation(summary = "전체 회원 목록")
-    public DefaultResponse<List<MemberDTO>> members() {
-        return DefaultResponse.ofSuccess(MemberDTO.of(memberService.listAll()));
+    public DefaultResponse<List<MemberResponse>> members() {
+        return DefaultResponse.ofSuccess(MemberResponse.of(memberService.listAll()));
     }
 
     /**
@@ -56,9 +56,9 @@ public class MemberController {
             @Parameter(name = "password", description = "회원 비밀번호", required = true),
             @Parameter(name = "name", description = "회원 이름")
     })
-    public DefaultResponse<MemberDTO> signup(@RequestParam String id,
-                                         @RequestParam String password,
-                                         @RequestParam(required = false) String name) {
+    public DefaultResponse<MemberResponse> signup(@RequestParam String id,
+                                                  @RequestParam String password,
+                                                  @RequestParam(required = false) String name) {
         Member member = Member.builder()
                                 .id(id)
                                 .password(password)
@@ -66,7 +66,7 @@ public class MemberController {
                                 .build();
         Member result = memberService.signup(member);
 
-        return DefaultResponse.ofSuccess(MemberDTO.of(result));
+        return DefaultResponse.ofSuccess(MemberResponse.of(result));
     }
 
     /**
@@ -80,9 +80,9 @@ public class MemberController {
     @Parameters({
             @Parameter(name = "memberId", description = "회원 id", required = true)
     })
-    public DefaultResponse<MemberDTO> findById(@PathVariable String memberId) {
+    public DefaultResponse<MemberResponse> findById(@PathVariable String memberId) {
         Member findMember = memberService.findById(memberId);
-        return DefaultResponse.ofSuccess(MemberDTO.of(findMember));
+        return DefaultResponse.ofSuccess(MemberResponse.of(findMember));
     }
 
     /**
@@ -96,9 +96,9 @@ public class MemberController {
     @Parameters({
             @Parameter(name = "memberName", description = "회원 이름", required = true)
     })
-    public DefaultResponse<List<MemberDTO>> findByName(@PathVariable String memberName) {
+    public DefaultResponse<List<MemberResponse>> findByName(@PathVariable String memberName) {
         List<Member> findMemberList = memberService.findByName(memberName);
-        return DefaultResponse.ofSuccess(MemberDTO.of(findMemberList));
+        return DefaultResponse.ofSuccess(MemberResponse.of(findMemberList));
     }
 
     /**
@@ -118,10 +118,10 @@ public class MemberController {
             @Parameter(name = "password", description = "변경할 비밀번호"),
             @Parameter(name = "content", description = "변경할 상태 메시지")
     })
-    public DefaultResponse<MemberDTO> updateInfo(@PathVariable String memberId,
-                                             @RequestParam(required = false) String name,
-                                             @RequestParam(required = false) String password,
-                                             @RequestParam(required = false) String content) {
+    public DefaultResponse<MemberResponse> updateInfo(@PathVariable String memberId,
+                                                      @RequestParam(required = false) String name,
+                                                      @RequestParam(required = false) String password,
+                                                      @RequestParam(required = false) String content) {
         log.debug("memberId={}, name={}, password={}", memberId, name, password);
         Member result;
         result = memberService.updateInfo(
@@ -131,7 +131,7 @@ public class MemberController {
                         .name(name)
                         .statusMessage(content)
                         .build());
-        return DefaultResponse.ofSuccess(MemberDTO.of(result));
+        return DefaultResponse.ofSuccess(MemberResponse.of(result));
     }
 
     @PostMapping(value = "/api/v1/members/login")
@@ -140,9 +140,9 @@ public class MemberController {
             @Parameter(name = "id", description = "회원 id", required = true),
             @Parameter(name = "password", description = "변경할 비밀번호", required = true)
     })
-    public ResponseEntity<DefaultResponse<MemberDTO>> login(@RequestParam String id,
-                                                            @RequestParam String password,
-                                                            HttpSession session) {
+    public ResponseEntity<DefaultResponse<MemberResponse>> login(@RequestParam String id,
+                                                                 @RequestParam String password,
+                                                                 HttpSession session) {
 
         logForSession(session);
         Pair<Member, HttpHeaders> pair = memberService.login(id, password);
@@ -150,7 +150,7 @@ public class MemberController {
         HttpHeaders httpHeaders = pair.getSecond();
 
         // 헤더에 jwt 토큰을 넣어주기 위해서 ResponseEntity 사용
-        return new ResponseEntity<>(DefaultResponse.ofSuccess(MemberDTO.of(findMember)), httpHeaders, HttpStatus.OK);
+        return new ResponseEntity<>(DefaultResponse.ofSuccess(MemberResponse.of(findMember)), httpHeaders, HttpStatus.OK);
     }
 
     @PostMapping(value = "/api/v1/members/logout")
