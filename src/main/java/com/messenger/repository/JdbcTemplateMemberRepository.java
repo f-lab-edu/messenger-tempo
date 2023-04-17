@@ -5,7 +5,6 @@ import com.messenger.domain.MemberRole;
 import com.messenger.exception.ErrorCode;
 import com.messenger.exception.MyException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Primary;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -15,7 +14,6 @@ import javax.sql.DataSource;
 import java.util.List;
 import java.util.Optional;
 
-@Primary
 @Repository
 @Slf4j
 public class JdbcTemplateMemberRepository implements MemberRepository {
