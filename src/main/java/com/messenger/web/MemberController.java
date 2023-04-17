@@ -15,11 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpSession;
-import java.util.Enumeration;
 import java.util.List;
-
-import static com.messenger.util.DateTimeConvertor.convertTimestampMillis2String;
 
 @Slf4j
 @RestController
@@ -142,10 +138,8 @@ public class MemberController {
             @Parameter(name = "password", description = "비밀번호", required = true)
     })
     public ResponseEntity<DefaultResponse<MemberResponse>> login(@RequestParam String id,
-                                                                 @RequestParam String password,
-                                                                 HttpSession session) {
+                                                                 @RequestParam String password) {
 
-        logForSession(session);
         Pair<Member, HttpHeaders> pair = memberService.login(id, password);
         Member findMember = pair.getFirst();
         HttpHeaders httpHeaders = pair.getSecond();
@@ -156,24 +150,9 @@ public class MemberController {
 
     @PostMapping(value = "/api/v1/members/logout")
     @Operation(summary = "회원 로그아웃", security = {@SecurityRequirement(name = "authorization")})
-    public DefaultResponse<Void> logout(HttpSession session) {
-        logForSession(session);
+    public DefaultResponse<Void> logout() {
 
         // TODO: 로그아웃 한 경우, 기존 jwt 토큰 처리 필요
         return DefaultResponse.ofSuccess();
     }
-
-
-    private static void logForSession(HttpSession session) {
-        log.debug("session id={}", session.getId());
-        log.debug("session CreationTime={}", convertTimestampMillis2String(session.getCreationTime()));
-        log.debug("session LastAccessedTime={}", convertTimestampMillis2String(session.getLastAccessedTime()));
-
-        Enumeration<String> sessionNames = session.getAttributeNames();
-        while (sessionNames.hasMoreElements()) {
-            String sessionName = sessionNames.nextElement();
-            log.debug("session key={}, value={}", sessionName, session.getAttribute(sessionName));
-        }
-    }
-
 }
