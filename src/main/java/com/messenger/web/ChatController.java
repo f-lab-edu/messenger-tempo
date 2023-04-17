@@ -88,12 +88,12 @@ public class ChatController {
     @Parameters({
             @Parameter(name = "prevId", description = "이전 조회한 마지막 메시지 id"),
             @Parameter(name = "size", description = "조회할 메시지 개수")})
-    public DefaultResponse<PaginationWrapper> listAllPersonalChat(
+    public DefaultResponse<PaginationWrapper<Chat>> listAllPersonalChat(
                 @RequestParam(required = false) Integer nextId,
                 @RequestParam(required = false, defaultValue = "3") Integer size) {
 
         List<Chat> list = chatService.listAllPersonalChat(nextId, size);
-        return DefaultResponse.ofSuccess(new PaginationWrapper(list));
+        return DefaultResponse.ofSuccess(new PaginationWrapper<>(list));
     }
 
     /**
@@ -109,12 +109,12 @@ public class ChatController {
     @Parameters({
             @Parameter(name = "prevId", description = "이전 조회한 마지막 메시지 id"),
             @Parameter(name = "size", description = "조회할 메시지 개수")})
-    public DefaultResponse<PaginationWrapper> listSentPersonalChat(
+    public DefaultResponse<PaginationWrapper<Chat>> listSentPersonalChat(
                 @RequestParam(required = false) Integer nextId,
                 @RequestParam(required = false, defaultValue = "3") Integer size) {
 
         List<Chat> list = chatService.listPersonalChatBySender(nextId, size);
-        return DefaultResponse.ofSuccess(new PaginationWrapper(list));
+        return DefaultResponse.ofSuccess(new PaginationWrapper<>(list));
     }
 
     /**
@@ -128,12 +128,12 @@ public class ChatController {
     @Parameters({
             @Parameter(name = "prevId", description = "이전 조회한 마지막 메시지 id"),
             @Parameter(name = "size", description = "조회할 메시지 개수")})
-    public DefaultResponse<PaginationWrapper> listReceivedPersonalChat(
+    public DefaultResponse<PaginationWrapper<Chat>> listReceivedPersonalChat(
                 @RequestParam(required = false) Integer nextId,
                 @RequestParam(required = false, defaultValue = "3") Integer size) {
 
         List<Chat> list = chatService.listPersonalChatByReceiver(nextId, size);
-        return DefaultResponse.ofSuccess(new PaginationWrapper(list));
+        return DefaultResponse.ofSuccess(new PaginationWrapper<>(list));
     }
 
     /**
@@ -150,11 +150,11 @@ public class ChatController {
     @Parameters({
             @Parameter(name = "oppositeUserId", description = "상대방 사용자 id", required = true),
             @Parameter(name = "size", description = "조회할 메시지 개수")})
-    public DefaultResponse<PaginationWrapper> enterPersonalChatGroup(
+    public DefaultResponse<PaginationWrapper<Chat>> enterPersonalChatGroup(
                 @PathVariable String oppositeUserId,
                 @RequestParam(required = false, defaultValue = "3") Integer size) {
 
-        PaginationWrapper result = chatService.enterPersonalChatGroup(oppositeUserId, size);
+        PaginationWrapper<Chat> result = chatService.enterPersonalChatGroup(oppositeUserId, size);
         return DefaultResponse.ofSuccess(result);
     }
 
@@ -174,13 +174,13 @@ public class ChatController {
             @Parameter(name = "oppositeUserId", description = "상대방 사용자 id", required = true),
             @Parameter(name = "prevId", description = "이전 조회한 마지막 메시지 id"),
             @Parameter(name = "size", description = "조회할 메시지 개수")})
-    public DefaultResponse<PaginationWrapper> listPersonalChatByGroup(
+    public DefaultResponse<PaginationWrapper<Chat>> listPersonalChatByGroup(
                 @PathVariable String oppositeUserId,
                 @RequestParam(required = false) Integer nextId,
                 @RequestParam(required = false, defaultValue = "3") Integer size) {
 
         List<Chat> chatList = chatService.listPersonalChatByGroup(oppositeUserId, nextId, size);
-        return DefaultResponse.ofSuccess(new PaginationWrapper(chatList));
+        return DefaultResponse.ofSuccess(new PaginationWrapper<>(chatList));
     }
 
     /**

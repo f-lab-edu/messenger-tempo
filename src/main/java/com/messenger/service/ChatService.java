@@ -105,7 +105,7 @@ public class ChatService {
         return personalChatRepository.markReadById(chatId);
     }
 
-    public PaginationWrapper enterPersonalChatGroup(String oppositeUserId, Integer size) {
+    public PaginationWrapper<Chat> enterPersonalChatGroup(String oppositeUserId, Integer size) {
         String userId = SpringSecurityUtil.getAuthenticationName();
         if (userId == null) {
             throw new MyException(ErrorCode.UNAUTHORIZED);
@@ -113,7 +113,7 @@ public class ChatService {
 
         // 해당 그룹의 메시지 목록을 가져옴
         List<Chat> chatList = listPersonalChatByGroup(oppositeUserId, null, size);
-        PaginationWrapper result = new PaginationWrapper(chatList);
+        PaginationWrapper<Chat> result = new PaginationWrapper<>(chatList);
 
         // 가장 최근 수신한 메시지를 읽음 표시
         Optional<Chat> markedChat = markPersonalChatAsReadByGroup(userId, oppositeUserId);
