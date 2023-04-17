@@ -7,7 +7,6 @@ import com.messenger.service.MemberService;
 import com.messenger.util.Pair;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -48,11 +47,9 @@ public class MemberController {
      */
     @PostMapping(value = "/api/v1/members")
     @Operation(summary = "회원 가입", security = {@SecurityRequirement(name = "authorization")})
-    @Parameters({
-            @Parameter(name = "id", description = "회원 id", required = true),
-            @Parameter(name = "password", description = "회원 비밀번호", required = true),
-            @Parameter(name = "name", description = "회원 이름")
-    })
+    @Parameter(name = "id", description = "회원 id", required = true)
+    @Parameter(name = "password", description = "회원 비밀번호", required = true)
+    @Parameter(name = "name", description = "회원 이름")
     public DefaultResponse<MemberResponse> signup(@RequestParam String id,
                                                   @RequestParam String password,
                                                   @RequestParam(required = false) String name) {
@@ -74,9 +71,7 @@ public class MemberController {
      */
     @GetMapping("/api/v1/members/{memberId}")
     @Operation(summary = "id로 회원 조회", security = {@SecurityRequirement(name = "authorization")})
-    @Parameters({
-            @Parameter(name = "memberId", description = "회원 id", required = true)
-    })
+    @Parameter(name = "memberId", description = "회원 id", required = true)
     public DefaultResponse<MemberResponse> findById(@PathVariable String memberId) {
         Member findMember = memberService.findById(memberId);
         return DefaultResponse.ofSuccess(MemberResponse.of(findMember));
@@ -90,9 +85,7 @@ public class MemberController {
      */
     @GetMapping("/api/v1/members/name/{memberName}")
     @Operation(summary = "이름으로 회원 조회", security = {@SecurityRequirement(name = "authorization")})
-    @Parameters({
-            @Parameter(name = "memberName", description = "회원 이름", required = true)
-    })
+    @Parameter(name = "memberName", description = "회원 이름", required = true)
     public DefaultResponse<List<MemberResponse>> findByName(@PathVariable String memberName) {
         List<Member> findMemberList = memberService.findByName(memberName);
         return DefaultResponse.ofSuccess(MemberResponse.of(findMemberList));
@@ -109,12 +102,10 @@ public class MemberController {
      */
     @PutMapping(value = "/api/v1/members/{memberId}")
     @Operation(summary = "회원 정보 변경", security = {@SecurityRequirement(name = "authorization")})
-    @Parameters({
-            @Parameter(name = "memberId", description = "회원 id", required = true),
-            @Parameter(name = "name", description = "변경할 이름"),
-            @Parameter(name = "password", description = "변경할 비밀번호"),
-            @Parameter(name = "content", description = "변경할 상태 메시지")
-    })
+    @Parameter(name = "memberId", description = "회원 id", required = true)
+    @Parameter(name = "name", description = "변경할 이름")
+    @Parameter(name = "password", description = "변경할 비밀번호")
+    @Parameter(name = "content", description = "변경할 상태 메시지")
     public DefaultResponse<MemberResponse> updateInfo(@PathVariable String memberId,
                                                       @RequestParam(required = false) String name,
                                                       @RequestParam(required = false) String password,
@@ -133,10 +124,8 @@ public class MemberController {
 
     @PostMapping(value = "/api/v1/members/login")
     @Operation(summary = "회원 로그인", security = {@SecurityRequirement(name = "authorization")})
-    @Parameters({
-            @Parameter(name = "id", description = "회원 id", required = true),
-            @Parameter(name = "password", description = "비밀번호", required = true)
-    })
+    @Parameter(name = "id", description = "회원 id", required = true)
+    @Parameter(name = "password", description = "비밀번호", required = true)
     public ResponseEntity<DefaultResponse<MemberResponse>> login(@RequestParam String id,
                                                                  @RequestParam String password) {
 
