@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -29,11 +28,10 @@ public class ChatController {
             description = "채팅 메시지 id 기반으로 1:1 채팅 메시지 하나를 조회",
             security = {@SecurityRequirement(name = "authorization")})
     @Parameter(name = "chatId", description = "채팅 메시지 id", required = true)
-    public DefaultResponse<Chat> getPersonalChat(
+    public Chat getPersonalChat(
             @PathVariable long chatId) {
 
-        Optional<Chat> chat = chatService.getPersonalChat(chatId);
-        return DefaultResponse.ofSuccess(chat.orElse(null));
+        return chatService.getPersonalChat(chatId).orElse(null);
     }
 
     /**
@@ -46,12 +44,11 @@ public class ChatController {
     @Operation(summary = "1:1 메시지 전송", security = {@SecurityRequirement(name = "authorization")})
     @Parameter(name = "receiverUserId", description = "수신 사용자 id", required = true)
     @Parameter(name = "content", description = "메시지 내용", required = true)
-    public DefaultResponse<Chat> sendPersonalChat(
-                @RequestParam String receiverUserId,
-                @RequestParam String content) {
+    public Chat sendPersonalChat(
+            @RequestParam String receiverUserId,
+            @RequestParam String content) {
 
-        Chat result = chatService.sendPersonalChat(receiverUserId, content);
-        return DefaultResponse.ofSuccess(result);
+        return chatService.sendPersonalChat(receiverUserId, content);
     }
 
     /**
@@ -65,7 +62,7 @@ public class ChatController {
             security = {@SecurityRequirement(name = "authorization")})
     @Parameter(name = "chatId", description = "메시지 id", required = true)
     public DefaultResponse<Void> deletePersonalChat(
-                @PathVariable long chatId) {
+            @PathVariable long chatId) {
 
         chatService.deletePersonalChat(chatId);
         return DefaultResponse.ofSuccess();
@@ -81,12 +78,12 @@ public class ChatController {
     @Operation(summary = "(개발자용) 전체 1:1 메시지 목록", security = {@SecurityRequirement(name = "authorization")})
     @Parameter(name = "prevId", description = "이전 조회한 마지막 메시지 id")
     @Parameter(name = "size", description = "조회할 메시지 개수")
-    public DefaultResponse<PaginationWrapper<Chat>> listAllPersonalChat(
-                @RequestParam(required = false) Integer nextId,
-                @RequestParam(required = false, defaultValue = "3") Integer size) {
+    public PaginationWrapper<Chat> listAllPersonalChat(
+            @RequestParam(required = false) Integer nextId,
+            @RequestParam(required = false, defaultValue = "3") Integer size) {
 
         List<Chat> list = chatService.listAllPersonalChat(nextId, size);
-        return DefaultResponse.ofSuccess(new PaginationWrapper<>(list));
+        return new PaginationWrapper<>(list);
     }
 
     /**
@@ -101,12 +98,12 @@ public class ChatController {
     @Operation(summary = "자신이 전송한 모든 1:1 메시지의 목록", security = {@SecurityRequirement(name = "authorization")})
     @Parameter(name = "prevId", description = "이전 조회한 마지막 메시지 id")
     @Parameter(name = "size", description = "조회할 메시지 개수")
-    public DefaultResponse<PaginationWrapper<Chat>> listSentPersonalChat(
-                @RequestParam(required = false) Integer nextId,
-                @RequestParam(required = false, defaultValue = "3") Integer size) {
+    public PaginationWrapper<Chat> listSentPersonalChat(
+            @RequestParam(required = false) Integer nextId,
+            @RequestParam(required = false, defaultValue = "3") Integer size) {
 
         List<Chat> list = chatService.listPersonalChatBySender(nextId, size);
-        return DefaultResponse.ofSuccess(new PaginationWrapper<>(list));
+        return new PaginationWrapper<>(list);
     }
 
     /**
@@ -119,12 +116,12 @@ public class ChatController {
     @Operation(summary = "자신이 수신한 모든 1:1 메시지 목록", security = {@SecurityRequirement(name = "authorization")})
     @Parameter(name = "prevId", description = "이전 조회한 마지막 메시지 id")
     @Parameter(name = "size", description = "조회할 메시지 개수")
-    public DefaultResponse<PaginationWrapper<Chat>> listReceivedPersonalChat(
-                @RequestParam(required = false) Integer nextId,
-                @RequestParam(required = false, defaultValue = "3") Integer size) {
+    public PaginationWrapper<Chat> listReceivedPersonalChat(
+            @RequestParam(required = false) Integer nextId,
+            @RequestParam(required = false, defaultValue = "3") Integer size) {
 
         List<Chat> list = chatService.listPersonalChatByReceiver(nextId, size);
-        return DefaultResponse.ofSuccess(new PaginationWrapper<>(list));
+        return new PaginationWrapper<>(list);
     }
 
     /**
@@ -140,12 +137,11 @@ public class ChatController {
             security = {@SecurityRequirement(name = "authorization")})
     @Parameter(name = "oppositeUserId", description = "상대방 사용자 id", required = true)
     @Parameter(name = "size", description = "조회할 메시지 개수")
-    public DefaultResponse<PaginationWrapper<Chat>> enterPersonalChatGroup(
-                @PathVariable String oppositeUserId,
-                @RequestParam(required = false, defaultValue = "3") Integer size) {
+    public PaginationWrapper<Chat> enterPersonalChatGroup(
+            @PathVariable String oppositeUserId,
+            @RequestParam(required = false, defaultValue = "3") Integer size) {
 
-        PaginationWrapper<Chat> result = chatService.enterPersonalChatGroup(oppositeUserId, size);
-        return DefaultResponse.ofSuccess(result);
+        return chatService.enterPersonalChatGroup(oppositeUserId, size);
     }
 
     /**
@@ -163,13 +159,13 @@ public class ChatController {
     @Parameter(name = "oppositeUserId", description = "상대방 사용자 id", required = true)
     @Parameter(name = "prevId", description = "이전 조회한 마지막 메시지 id")
     @Parameter(name = "size", description = "조회할 메시지 개수")
-    public DefaultResponse<PaginationWrapper<Chat>> listPersonalChatByGroup(
-                @PathVariable String oppositeUserId,
-                @RequestParam(required = false) Integer nextId,
-                @RequestParam(required = false, defaultValue = "3") Integer size) {
+    public PaginationWrapper<Chat> listPersonalChatByGroup(
+            @PathVariable String oppositeUserId,
+            @RequestParam(required = false) Integer nextId,
+            @RequestParam(required = false, defaultValue = "3") Integer size) {
 
         List<Chat> chatList = chatService.listPersonalChatByGroup(oppositeUserId, nextId, size);
-        return DefaultResponse.ofSuccess(new PaginationWrapper<>(chatList));
+        return new PaginationWrapper<>(chatList);
     }
 
     /**
@@ -180,18 +176,18 @@ public class ChatController {
             description = "특정 유저가 포함되어 있는 모든 채팅방을 검색한다",
             security = {@SecurityRequirement(name = "authorization")})
     @Parameter(name = "userId", description = "사용자 id", required = true)
-    public DefaultResponse<List<Pair<String, Long>>> listGroupByUser(
-                @PathVariable String userId) {
-        List<Pair<String, Long>> result = chatService.listGroupByUser(userId);
-        return DefaultResponse.ofSuccess(result);
+    public List<Pair<String, Long>> listGroupByUser(
+            @PathVariable String userId) {
+
+        return chatService.listGroupByUser(userId);
     }
 
     @GetMapping("/api/v1/chat/room")
     @Operation(summary = "1:1 채팅방 목록",
             description = "자신이 포함되어 있는 모든 채팅방을 검색한다",
             security = {@SecurityRequirement(name = "authorization")})
-    public DefaultResponse<List<Pair<String, Long>>> listGroupByUser() {
-        List<Pair<String, Long>> result = chatService.listGroupByUser();
-        return DefaultResponse.ofSuccess(result);
+    public List<Pair<String, Long>> listGroupByUser() {
+
+        return chatService.listGroupByUser();
     }
 }

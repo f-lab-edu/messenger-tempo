@@ -8,6 +8,7 @@ import com.messenger.jwt.JwtSecurityConfig;
 import com.messenger.jwt.TokenProvider;
 import com.messenger.repository.MemberRepository;
 import com.messenger.util.Pair;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.DisabledException;
@@ -42,8 +43,12 @@ public class MemberService implements UserDetailsService {
         this.tokenProvider = tokenProvider;
     }
 
-    public Member signup(Member member) {
-        member.updatePassword(passwordEncoder.encode(member.getPassword()));
+    public Member signup(@NonNull String id, @NonNull String password, String name) {
+        Member member = Member.builder()
+                .id(id)
+                .password(passwordEncoder.encode(password))
+                .name(name)
+                .build();
         return memberRepository.save(member);
     }
 
@@ -55,7 +60,7 @@ public class MemberService implements UserDetailsService {
         return members;
     }
 
-    public Member findById(String id) {
+    public Member findById(@NonNull String id) {
         Optional<Member> member = memberRepository.findById(id);
         if (member.isEmpty()) {
             throw new MyException(ErrorCode.NOT_FOUND_MEMBER);
@@ -63,7 +68,7 @@ public class MemberService implements UserDetailsService {
         return member.get();
     }
 
-    public List<Member> findByName(String name) {
+    public List<Member> findByName(@NonNull String name) {
         List<Member> members = memberRepository.findByName(name);
         if (members.isEmpty()) {
             throw new MyException(ErrorCode.NOT_FOUND_MEMBER);
@@ -71,33 +76,24 @@ public class MemberService implements UserDetailsService {
         return members;
     }
 
-    public Member updateInfo(Member paramMember) {
-        Member findMember = findById(paramMember.getId());
+    public Member updateInfo(@NonNull String memberId, String name, String password, String content) {
+        log.debug("memberId={}, name={}, password={}, content={}", memberId, name, password, content);
 
-        if (paramMember.getPassword() != null) {
-            findMember.updatePassword(paramMember.getPassword());
+        Member findMember = findById(memberId);
+        if (password != null) {
+            findMember.updatePassword(password);
         }
-        if (paramMember.getName() != null) {
-            findMember.updateName(paramMember.getName());
+        if (name != null) {
+            findMember.updateName(name);
         }
-        if (paramMember.getStatusMessage() != null) {
-            findMember.updateStatusMessage(paramMember.getStatusMessage());
-        }
-
-        Member ret;
-        try {
-            ret = memberRepository.updateMember(findMember);
-        } catch (MyException e) {
-            if(!e.errorCode.equals(ErrorCode.NOT_MODIFIED)) {
-                throw new MyException(ErrorCode.FAIL_UPDATE_MEMBER);
-            }
-            throw e;
+        if (content != null) {
+            findMember.updateStatusMessage(content);
         }
 
-        return ret;
+        return memberRepository.updateMember(findMember);
     }
 
-    public Pair<Member, HttpHeaders> login(String id, String password) {
+    public Pair<Member, HttpHeaders> login(@NonNull String id, @NonNull String password) {
 
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(id, password);
         log.debug("authenticationToken = {}", authenticationToken);

@@ -7,6 +7,7 @@ import com.messenger.exception.MyException;
 import com.messenger.repository.PersonalChatRepository;
 import com.messenger.util.Pair;
 import com.messenger.util.SpringSecurityUtil;
+import lombok.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,11 +22,11 @@ public class ChatService {
         this.personalChatRepository = personalChatRepository;
     }
 
-    public Optional<Chat> getPersonalChat(long chatId) {
+    public Optional<Chat> getPersonalChat(@NonNull long chatId) {
         return personalChatRepository.findById(chatId);
     }
 
-    public Chat sendPersonalChat(String receiverUserId, String content) {
+    public Chat sendPersonalChat(@NonNull String receiverUserId, @NonNull String content) {
         String userId = SpringSecurityUtil.getAuthenticationName();
         if (userId == null) {
             throw new MyException(ErrorCode.UNAUTHORIZED);
@@ -45,7 +46,7 @@ public class ChatService {
         return result;
     }
 
-    public void deletePersonalChat(long chatId) {
+    public void deletePersonalChat(@NonNull long chatId) {
         String userId = SpringSecurityUtil.getAuthenticationName();
         if (userId == null) {
             throw new MyException(ErrorCode.UNAUTHORIZED);
@@ -78,7 +79,7 @@ public class ChatService {
         return personalChatRepository.findByReceiver(userId, prevId, size);
     }
 
-    public List<Chat> listPersonalChatByGroup(String oppositeUserId, Integer prevId, Integer size) {
+    public List<Chat> listPersonalChatByGroup(@NonNull String oppositeUserId, Integer prevId, Integer size) {
         String userId = SpringSecurityUtil.getAuthenticationName();
         if (userId == null) {
             throw new MyException(ErrorCode.UNAUTHORIZED);
@@ -86,7 +87,7 @@ public class ChatService {
         return personalChatRepository.findByGroup(userId, oppositeUserId, prevId, size);
     }
 
-    public Optional<Chat> markPersonalChatAsReadByGroup(String userId, String oppositeUserId) {
+    public Optional<Chat> markPersonalChatAsReadByGroup(@NonNull String userId, @NonNull String oppositeUserId) {
         // 1:1 채팅 그룹 안에서 자신이 받은 마지막 메시지를 찾는다
         Optional<Chat> foundChat = personalChatRepository.findLastReceivedByGroup(userId, oppositeUserId);
 
@@ -105,7 +106,7 @@ public class ChatService {
         return personalChatRepository.markReadById(chatId);
     }
 
-    public PaginationWrapper<Chat> enterPersonalChatGroup(String oppositeUserId, Integer size) {
+    public PaginationWrapper<Chat> enterPersonalChatGroup(@NonNull String oppositeUserId, Integer size) {
         String userId = SpringSecurityUtil.getAuthenticationName();
         if (userId == null) {
             throw new MyException(ErrorCode.UNAUTHORIZED);
@@ -125,7 +126,7 @@ public class ChatService {
     /**
      * 테스트용
      */
-    public List<Pair<String, Long>> listGroupByUser(String userId) {
+    public List<Pair<String, Long>> listGroupByUser(@NonNull String userId) {
         return personalChatRepository.listGroupByUser(userId);
     }
 

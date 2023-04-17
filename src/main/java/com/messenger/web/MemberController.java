@@ -20,7 +20,6 @@ import java.util.List;
 @RestController
 public class MemberController {
 
-    public static final String SESSION_KEY_USER_ID = "USER_ID";
     private final MemberService memberService;
 
     public MemberController(MemberService memberService) {
@@ -33,8 +32,8 @@ public class MemberController {
      */
     @GetMapping("/api/v1/members")
     @Operation(summary = "전체 회원 목록", security = {@SecurityRequirement(name = "authorization")})
-    public DefaultResponse<List<MemberResponse>> members() {
-        return DefaultResponse.ofSuccess(MemberResponse.of(memberService.listAll()));
+    public List<MemberResponse> members() {
+        return MemberResponse.of(memberService.listAll());
     }
 
     /**
@@ -50,17 +49,12 @@ public class MemberController {
     @Parameter(name = "id", description = "회원 id", required = true)
     @Parameter(name = "password", description = "회원 비밀번호", required = true)
     @Parameter(name = "name", description = "회원 이름")
-    public DefaultResponse<MemberResponse> signup(@RequestParam String id,
-                                                  @RequestParam String password,
-                                                  @RequestParam(required = false) String name) {
-        Member member = Member.builder()
-                                .id(id)
-                                .password(password)
-                                .name(name)
-                                .build();
-        Member result = memberService.signup(member);
+    public MemberResponse signup(@RequestParam String id,
+                                 @RequestParam String password,
+                                 @RequestParam(required = false) String name) {
 
-        return DefaultResponse.ofSuccess(MemberResponse.of(result));
+        Member result = memberService.signup(id, password, name);
+        return MemberResponse.of(result);
     }
 
     /**
@@ -72,9 +66,10 @@ public class MemberController {
     @GetMapping("/api/v1/members/{memberId}")
     @Operation(summary = "id로 회원 조회", security = {@SecurityRequirement(name = "authorization")})
     @Parameter(name = "memberId", description = "회원 id", required = true)
-    public DefaultResponse<MemberResponse> findById(@PathVariable String memberId) {
+    public MemberResponse findById(@PathVariable String memberId) {
+
         Member findMember = memberService.findById(memberId);
-        return DefaultResponse.ofSuccess(MemberResponse.of(findMember));
+        return MemberResponse.of(findMember);
     }
 
     /**
@@ -86,9 +81,10 @@ public class MemberController {
     @GetMapping("/api/v1/members/name/{memberName}")
     @Operation(summary = "이름으로 회원 조회", security = {@SecurityRequirement(name = "authorization")})
     @Parameter(name = "memberName", description = "회원 이름", required = true)
-    public DefaultResponse<List<MemberResponse>> findByName(@PathVariable String memberName) {
+    public List<MemberResponse> findByName(@PathVariable String memberName) {
+
         List<Member> findMemberList = memberService.findByName(memberName);
-        return DefaultResponse.ofSuccess(MemberResponse.of(findMemberList));
+        return MemberResponse.of(findMemberList);
     }
 
     /**
@@ -106,35 +102,28 @@ public class MemberController {
     @Parameter(name = "name", description = "변경할 이름")
     @Parameter(name = "password", description = "변경할 비밀번호")
     @Parameter(name = "content", description = "변경할 상태 메시지")
-    public DefaultResponse<MemberResponse> updateInfo(@PathVariable String memberId,
-                                                      @RequestParam(required = false) String name,
-                                                      @RequestParam(required = false) String password,
-                                                      @RequestParam(required = false) String content) {
-        log.debug("memberId={}, name={}, password={}", memberId, name, password);
-        Member result;
-        result = memberService.updateInfo(
-                Member.builder()
-                        .id(memberId)
-                        .password(password)
-                        .name(name)
-                        .statusMessage(content)
-                        .build());
-        return DefaultResponse.ofSuccess(MemberResponse.of(result));
+    public MemberResponse updateInfo(@PathVariable String memberId,
+                                     @RequestParam(required = false) String name,
+                                     @RequestParam(required = false) String password,
+                                     @RequestParam(required = false) String content) {
+
+        Member result = memberService.updateInfo(memberId, name, password, content);
+        return MemberResponse.of(result);
     }
 
     @PostMapping(value = "/api/v1/members/login")
     @Operation(summary = "회원 로그인", security = {@SecurityRequirement(name = "authorization")})
     @Parameter(name = "id", description = "회원 id", required = true)
     @Parameter(name = "password", description = "비밀번호", required = true)
-    public ResponseEntity<DefaultResponse<MemberResponse>> login(@RequestParam String id,
-                                                                 @RequestParam String password) {
+    public ResponseEntity<MemberResponse> login(@RequestParam String id,
+                                                @RequestParam String password) {
 
         Pair<Member, HttpHeaders> pair = memberService.login(id, password);
         Member findMember = pair.getFirst();
         HttpHeaders httpHeaders = pair.getSecond();
 
         // 헤더에 jwt 토큰을 넣어주기 위해서 ResponseEntity 사용
-        return new ResponseEntity<>(DefaultResponse.ofSuccess(MemberResponse.of(findMember)), httpHeaders, HttpStatus.OK);
+        return new ResponseEntity<>(MemberResponse.of(findMember), httpHeaders, HttpStatus.OK);
     }
 
     @PostMapping(value = "/api/v1/members/logout")
