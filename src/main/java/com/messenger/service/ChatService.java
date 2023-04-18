@@ -34,9 +34,6 @@ public class ChatService {
         String content = request.getContent();
 
         String userId = SpringSecurityUtil.getAuthenticationName();
-        if (userId == null) {
-            throw new MyException(ErrorCode.UNAUTHORIZED);
-        }
 
         Chat chat = Chat.builder()
                 .senderUserId(userId)
@@ -53,10 +50,8 @@ public class ChatService {
     }
 
     public void deletePersonalChat(@NonNull long chatId) {
+
         String userId = SpringSecurityUtil.getAuthenticationName();
-        if (userId == null) {
-            throw new MyException(ErrorCode.UNAUTHORIZED);
-        }
 
         try {
             personalChatRepository.deleteOne(chatId, userId);
@@ -70,34 +65,30 @@ public class ChatService {
     }
 
     public List<Chat> listPersonalChatBySender(PaginationRequest request) {
+
         String userId = SpringSecurityUtil.getAuthenticationName();
-        if (userId == null) {
-            throw new MyException(ErrorCode.UNAUTHORIZED);
-        }
+
         return personalChatRepository.findBySender(userId, request.getNextId(), request.getSize());
     }
 
     public List<Chat> listPersonalChatByReceiver(PaginationRequest request) {
+
         String userId = SpringSecurityUtil.getAuthenticationName();
-        if (userId == null) {
-            throw new MyException(ErrorCode.UNAUTHORIZED);
-        }
+
         return personalChatRepository.findByReceiver(userId, request.getNextId(), request.getSize());
     }
 
     public List<Chat> listPersonalChatByGroup(@NonNull String oppositeUserId, PaginationRequest request) {
+
         String userId = SpringSecurityUtil.getAuthenticationName();
-        if (userId == null) {
-            throw new MyException(ErrorCode.UNAUTHORIZED);
-        }
+
         return personalChatRepository.findByGroup(userId, oppositeUserId, request.getNextId(), request.getSize());
     }
 
     public List<Chat> listPersonalChatByGroup(@NonNull String oppositeUserId, Integer size) {
+
         String userId = SpringSecurityUtil.getAuthenticationName();
-        if (userId == null) {
-            throw new MyException(ErrorCode.UNAUTHORIZED);
-        }
+
         return personalChatRepository.findByGroup(userId, oppositeUserId, null, size);
     }
 
@@ -121,10 +112,8 @@ public class ChatService {
     }
 
     public PaginationWrapper<Chat> enterPersonalChatGroup(@NonNull String oppositeUserId, Integer size) {
+
         String userId = SpringSecurityUtil.getAuthenticationName();
-        if (userId == null) {
-            throw new MyException(ErrorCode.UNAUTHORIZED);
-        }
 
         // 해당 그룹의 메시지 목록을 가져옴
         List<Chat> chatList = listPersonalChatByGroup(oppositeUserId, size);
@@ -141,14 +130,13 @@ public class ChatService {
      * 테스트용
      */
     public List<Pair<String, Long>> listGroupByUser(@NonNull String userId) {
+
         return personalChatRepository.listGroupByUser(userId);
     }
 
     public List<Pair<String, Long>> listGroupByUser() {
+
         String userId = SpringSecurityUtil.getAuthenticationName();
-        if (userId == null) {
-            throw new MyException(ErrorCode.UNAUTHORIZED);
-        }
 
         return personalChatRepository.listGroupByUser(userId);
     }
