@@ -2,21 +2,17 @@ package com.messenger.web;
 
 import com.messenger.domain.Member;
 import com.messenger.dto.DefaultResponse;
-import com.messenger.dto.member.MemberRequestLogin;
-import com.messenger.dto.member.MemberRequestUpdateInfo;
-import com.messenger.dto.member.MemberResponse;
-import com.messenger.dto.member.MemberRequestSignup;
+import com.messenger.dto.member.*;
 import com.messenger.service.MemberService;
 import com.messenger.util.Pair;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @Slf4j
@@ -71,21 +67,25 @@ public class MemberController {
 
     @PostMapping(value = "/api/v1/members/login")
     @Operation(summary = "회원 로그인", security = {@SecurityRequirement(name = "authorization")})
-    public ResponseEntity<MemberResponse> login(@RequestBody MemberRequestLogin request) {
+    public MemberResponseLogin login(@RequestBody MemberRequestLogin request,
+                                HttpServletResponse response) {
 
-        Pair<Member, HttpHeaders> pair = memberService.login(request);
-        Member findMember = pair.getFirst();
-        HttpHeaders httpHeaders = pair.getSecond();
+        Pair<MemberResponseLogin, Cookie> pair = memberService.login(request);
+        MemberResponseLogin memberResponse = pair.getFirst();
 
-        // 헤더에 jwt 토큰을 넣어주기 위해서 ResponseEntity 사용
-        return new ResponseEntity<>(MemberResponse.of(findMember), httpHeaders, HttpStatus.OK);
+        Cookie cookie = pair.getSecond();
+        response.addCookie(cookie);
+
+        return memberResponse;
     }
 
     @PostMapping(value = "/api/v1/members/logout")
     @Operation(summary = "회원 로그아웃", security = {@SecurityRequirement(name = "authorization")})
-    public DefaultResponse logout() {
+    public DefaultResponse logout(HttpServletResponse response) {
 
-        // TODO: 로그아웃 한 경우, 기존 jwt 토큰 처리 필요
+        Cookie cookie = memberService.logout();
+        response.addCookie(cookie);
+
         return DefaultResponse.ofSuccess();
     }
 }
