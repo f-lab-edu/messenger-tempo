@@ -1,6 +1,5 @@
 package com.messenger.dto.member;
 
-import com.messenger.domain.Member;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -20,11 +19,4 @@ public class MemberRequestLogin {
     @NotBlank
     @Schema(description = "비밀번호", defaultValue = "password")
     String password;
-
-    public Member toMember() {
-        return Member.builder()
-                .id(id)
-                .password(password)
-                .build();
-    }
 }
