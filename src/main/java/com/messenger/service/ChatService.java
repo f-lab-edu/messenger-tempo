@@ -2,7 +2,7 @@ package com.messenger.service;
 
 import com.messenger.domain.Chat;
 import com.messenger.dto.pagination.PaginationRequest;
-import com.messenger.dto.pagination.PaginationWrapper;
+import com.messenger.dto.pagination.PaginationResponse;
 import com.messenger.dto.chat.ChatRequestSendPersonalChat;
 import com.messenger.exception.ErrorCode;
 import com.messenger.exception.MyException;
@@ -111,13 +111,13 @@ public class ChatService {
         return personalChatRepository.markReadById(chatId);
     }
 
-    public PaginationWrapper<Chat> enterPersonalChatGroup(@NonNull String oppositeUserId, Integer size) {
+    public PaginationResponse<Chat> enterPersonalChatGroup(@NonNull String oppositeUserId, Integer size) {
 
         String userId = SpringSecurityUtil.getAuthenticationName();
 
         // 해당 그룹의 메시지 목록을 가져옴
         List<Chat> chatList = listPersonalChatByGroup(oppositeUserId, size);
-        PaginationWrapper<Chat> result = PaginationWrapper.of(chatList);
+        PaginationResponse<Chat> result = PaginationResponse.of(chatList);
 
         // 가장 최근 수신한 메시지를 읽음 표시
         Optional<Chat> markedChat = markPersonalChatAsReadByGroup(userId, oppositeUserId);
