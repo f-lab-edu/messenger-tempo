@@ -1,4 +1,4 @@
-package com.messenger.dto;
+package com.messenger.dto.pagination;
 
 public interface Pageable {
 
