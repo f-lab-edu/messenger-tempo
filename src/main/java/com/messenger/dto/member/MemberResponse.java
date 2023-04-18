@@ -1,4 +1,4 @@
-package com.messenger.dto;
+package com.messenger.dto.member;
 
 import com.messenger.domain.Member;
 import lombok.Getter;
