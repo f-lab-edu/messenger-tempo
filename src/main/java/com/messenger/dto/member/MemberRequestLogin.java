@@ -14,11 +14,11 @@ import javax.validation.constraints.NotBlank;
 public class MemberRequestLogin {
 
     @NotBlank
-    @Schema(description = "id")
+    @Schema(description = "id", defaultValue = "memberId")
     String id;
 
     @NotBlank
-    @Schema(description = "비밀번호")
+    @Schema(description = "비밀번호", defaultValue = "password")
     String password;
 
     public Member toMember() {

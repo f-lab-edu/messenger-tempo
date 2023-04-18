@@ -13,6 +13,6 @@ public class PaginationRequest {
     @Schema(description = "이전 조회한 마지막 메시지 id")
     Integer nextId;
 
-    @Schema(description = "조회할 메시지 개수")
+    @Schema(description = "조회할 메시지 개수", defaultValue = "3")
     Integer size = 3;
 }

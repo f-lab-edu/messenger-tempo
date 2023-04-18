@@ -14,14 +14,14 @@ import javax.validation.constraints.NotBlank;
 public class MemberRequestSignup {
 
     @NotBlank
-    @Schema(description = "id")
+    @Schema(description = "id", defaultValue = "memberId")
     String id;
 
     @NotBlank
-    @Schema(description = "비밀번호")
+    @Schema(description = "비밀번호", defaultValue = "password")
     String password;
 
-    @Schema(description = "이름")
+    @Schema(description = "이름", defaultValue = "memberName")
     String name;
 
     public Member toMember() {

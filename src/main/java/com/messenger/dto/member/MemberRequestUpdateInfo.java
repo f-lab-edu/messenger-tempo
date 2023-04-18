@@ -10,12 +10,12 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MemberRequestUpdateInfo {
 
-    @Schema(description = "비밀번호")
+    @Schema(description = "비밀번호", defaultValue = "password")
     String password;
 
-    @Schema(description = "이름")
+    @Schema(description = "이름", defaultValue = "memberName")
     String name;
     
-    @Schema(description = "상태 메시지")
+    @Schema(description = "상태 메시지", defaultValue = "memberStatusMessage")
     String statusMessage;
 }

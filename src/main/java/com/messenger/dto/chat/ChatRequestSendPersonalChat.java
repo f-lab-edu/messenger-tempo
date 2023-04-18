@@ -13,10 +13,10 @@ import javax.validation.constraints.NotBlank;
 public class ChatRequestSendPersonalChat {
 
     @NotBlank
-    @Schema(description = "수신 사용자 id")
+    @Schema(description = "수신 사용자 id", defaultValue = "oppositeUserId")
     String receiverUserId;
 
     @NotBlank
-    @Schema(description = "메시지 내용")
+    @Schema(description = "메시지 내용", defaultValue = "messageContent")
     String content;
 }
