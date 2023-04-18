@@ -2,12 +2,16 @@ package com.messenger.service;
 
 import com.messenger.domain.Member;
 import com.messenger.domain.TokenInfo;
+import com.messenger.dto.member.MemberRequestLogin;
+import com.messenger.dto.member.MemberRequestSignup;
+import com.messenger.dto.member.MemberRequestUpdateInfo;
 import com.messenger.exception.ErrorCode;
 import com.messenger.exception.MyException;
 import com.messenger.jwt.JwtSecurityConfig;
 import com.messenger.jwt.TokenProvider;
 import com.messenger.repository.MemberRepository;
 import com.messenger.util.Pair;
+import com.messenger.util.SpringSecurityUtil;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -43,12 +47,9 @@ public class MemberService implements UserDetailsService {
         this.tokenProvider = tokenProvider;
     }
 
-    public Member signup(@NonNull String id, @NonNull String password, String name) {
-        Member member = Member.builder()
-                .id(id)
-                .password(passwordEncoder.encode(password))
-                .name(name)
-                .build();
+    public Member signup(MemberRequestSignup request) {
+        Member member = request.toMember();
+        member.updatePassword(passwordEncoder.encode(member.getPassword()));
         return memberRepository.save(member);
     }
 
@@ -76,24 +77,33 @@ public class MemberService implements UserDetailsService {
         return members;
     }
 
-    public Member updateInfo(@NonNull String memberId, String name, String password, String content) {
-        log.debug("memberId={}, name={}, password={}, content={}", memberId, name, password, content);
+    public Member updateInfo(MemberRequestUpdateInfo request) {
 
-        Member findMember = findById(memberId);
-        if (password != null) {
-            findMember.updatePassword(password);
+        log.debug("request = {}", request);
+
+        String userId = SpringSecurityUtil.getAuthenticationName();
+        if (userId == null) {
+            throw new MyException(ErrorCode.UNAUTHORIZED);
         }
-        if (name != null) {
-            findMember.updateName(name);
+
+        Member findMember = findById(userId);
+        if (request.getPassword() != null) {
+            findMember.updatePassword(request.getPassword());
         }
-        if (content != null) {
-            findMember.updateStatusMessage(content);
+        if (request.getName() != null) {
+            findMember.updateName(request.getName());
+        }
+        if (request.getStatusMessage() != null) {
+            findMember.updateStatusMessage(request.getStatusMessage());
         }
 
         return memberRepository.updateMember(findMember);
     }
 
-    public Pair<Member, HttpHeaders> login(@NonNull String id, @NonNull String password) {
+    public Pair<Member, HttpHeaders> login(MemberRequestLogin request) {
+
+        String id = request.getId();
+        String password = request.getPassword();
 
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(id, password);
         log.debug("authenticationToken = {}", authenticationToken);

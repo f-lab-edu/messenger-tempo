@@ -1,7 +1,9 @@
 package com.messenger.service;
 
 import com.messenger.domain.Chat;
-import com.messenger.dto.PaginationWrapper;
+import com.messenger.dto.pagination.PaginationRequest;
+import com.messenger.dto.pagination.PaginationWrapper;
+import com.messenger.dto.chat.ChatRequestSendPersonalChat;
 import com.messenger.exception.ErrorCode;
 import com.messenger.exception.MyException;
 import com.messenger.repository.PersonalChatRepository;
@@ -26,7 +28,11 @@ public class ChatService {
         return personalChatRepository.findById(chatId);
     }
 
-    public Chat sendPersonalChat(@NonNull String receiverUserId, @NonNull String content) {
+    public Chat sendPersonalChat(ChatRequestSendPersonalChat request) {
+
+        String receiverUserId = request.getReceiverUserId();
+        String content = request.getContent();
+
         String userId = SpringSecurityUtil.getAuthenticationName();
         if (userId == null) {
             throw new MyException(ErrorCode.UNAUTHORIZED);
@@ -59,32 +65,40 @@ public class ChatService {
         }
     }
 
-    public List<Chat> listAllPersonalChat(Integer prevId, Integer size) {
-        return personalChatRepository.findAll(prevId, size);
+    public List<Chat> listAllPersonalChat(PaginationRequest request) {
+        return personalChatRepository.findAll(request.getNextId(), request.getSize());
     }
 
-    public List<Chat> listPersonalChatBySender(Integer prevId, Integer size) {
+    public List<Chat> listPersonalChatBySender(PaginationRequest request) {
         String userId = SpringSecurityUtil.getAuthenticationName();
         if (userId == null) {
             throw new MyException(ErrorCode.UNAUTHORIZED);
         }
-        return personalChatRepository.findBySender(userId, prevId, size);
+        return personalChatRepository.findBySender(userId, request.getNextId(), request.getSize());
     }
 
-    public List<Chat> listPersonalChatByReceiver(Integer prevId, Integer size) {
+    public List<Chat> listPersonalChatByReceiver(PaginationRequest request) {
         String userId = SpringSecurityUtil.getAuthenticationName();
         if (userId == null) {
             throw new MyException(ErrorCode.UNAUTHORIZED);
         }
-        return personalChatRepository.findByReceiver(userId, prevId, size);
+        return personalChatRepository.findByReceiver(userId, request.getNextId(), request.getSize());
     }
 
-    public List<Chat> listPersonalChatByGroup(@NonNull String oppositeUserId, Integer prevId, Integer size) {
+    public List<Chat> listPersonalChatByGroup(@NonNull String oppositeUserId, PaginationRequest request) {
         String userId = SpringSecurityUtil.getAuthenticationName();
         if (userId == null) {
             throw new MyException(ErrorCode.UNAUTHORIZED);
         }
-        return personalChatRepository.findByGroup(userId, oppositeUserId, prevId, size);
+        return personalChatRepository.findByGroup(userId, oppositeUserId, request.getNextId(), request.getSize());
+    }
+
+    public List<Chat> listPersonalChatByGroup(@NonNull String oppositeUserId, Integer size) {
+        String userId = SpringSecurityUtil.getAuthenticationName();
+        if (userId == null) {
+            throw new MyException(ErrorCode.UNAUTHORIZED);
+        }
+        return personalChatRepository.findByGroup(userId, oppositeUserId, null, size);
     }
 
     public Optional<Chat> markPersonalChatAsReadByGroup(@NonNull String userId, @NonNull String oppositeUserId) {
@@ -113,8 +127,8 @@ public class ChatService {
         }
 
         // 해당 그룹의 메시지 목록을 가져옴
-        List<Chat> chatList = listPersonalChatByGroup(oppositeUserId, null, size);
-        PaginationWrapper<Chat> result = new PaginationWrapper<>(chatList);
+        List<Chat> chatList = listPersonalChatByGroup(oppositeUserId, size);
+        PaginationWrapper<Chat> result = PaginationWrapper.of(chatList);
 
         // 가장 최근 수신한 메시지를 읽음 표시
         Optional<Chat> markedChat = markPersonalChatAsReadByGroup(userId, oppositeUserId);
