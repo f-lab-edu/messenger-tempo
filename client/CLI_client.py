@@ -6,6 +6,7 @@ URL_MAPPING = {
 	'signup': ('/api/v1/members', 'POST', ['id', 'password', '-name']),
 	'login': ('/api/v1/members/login', 'POST', ['id', 'password']),
 	'list member': ('/api/v1/members', 'GET', []),
+	'update member info': ('/api/v1/members', 'PUT', ['-name', '-statusMessage', '-password']),
 	
 	
 	'list chat by room': ('/api/v1/chat/personal_chat/{oppositeUserId}', 'GET', ['oppositeUserId', '-nextId', '-size']),
@@ -27,6 +28,8 @@ global_next_chat_id = None
 COMMAND_LIST = {
 	'signup': 		('회원 가입', 'signup'),
 	'login': 		('로그인', 'login'),
+	'list member': 	('전체 유저 목록', 'list member'),
+	'update member': 	('유저 정보 변경', 'update member info'),
 	'list room': 	('방 목록', 'list room'),
 	'enter room': 	('방 입장', 'enter room'),
 	'new room': 	('방 만들고 입장', None),
@@ -47,7 +50,7 @@ def request_api(url, method = 'GET', payload = None):
 	if method.upper() == 'GET':
 		r = requests.request(method, full_url, params=payload, cookies=global_cookie, headers=global_header)
 	else:
-		r = requests.request(method, full_url, data=payload, cookies=global_cookie, headers=global_header)
+		r = requests.request(method, full_url, json=payload, cookies=global_cookie, headers=global_header)
 	if not 200 <= r.status_code < 300:
 		print(f'[{r.status_code}] message={r.text}')
 		return None, dict(r.headers)
@@ -66,14 +69,14 @@ def get_chat_by_id(chat_id):
 	if not 200 <= r.status_code < 300:
 		print(f'[{r.status_code}] message={r.text}')
 		return None
-	return json.loads(r.text).get('data')
+	return json.loads(r.text)
 
 
 def prompt_command_list(candidate):
-	print('-' * 30)
+	print('-' * 60)
 	for i, t in enumerate(candidate):
 		print(f'{i+1}) {COMMAND_LIST[t][0]}')
-	print('-' * 30)
+	print('-' * 60)
 	while True:
 		line = input('> ').rstrip().lower()
 		if line == 'q':
@@ -114,7 +117,7 @@ def run_command(command, payload = None, show = True):
 	url = injection_pathvariable(url, payload)
 	body_json, header = request_api(url, method, payload)
 	# 헤더 출력
-	# if show:
+	#if show:
 	#	print(json.dumps(header, indent=2))
 	
 	# 결과가 에러인 경우
@@ -128,37 +131,42 @@ def run_command(command, payload = None, show = True):
 	
 	if command == 'enter room':
 		global_opposite_user_id = payload['oppositeUserId']
-		print("global_opposite_user_id=" + global_opposite_user_id)
+		#print("global_opposite_user_id=" + global_opposite_user_id)
 	
 	if 'Set-Cookie' in header:
 		temp = header['Set-Cookie']
 		temp = temp.split(';')[0]
 		k, v = temp.split('=')
-		#print(k, v)
+		print(f'Set-Cookie: key={k}, value={v}')
 		global_cookie[k] = v
-	if 'Authorization' in header:
-		token = header['Authorization']
-		print(token)
-		global_header['Authorization'] = token
+		if k == 'jwt-access-token':
+			global_header['Authorization'] = 'Bearer '+v
+	#if 'Authorization' in header:
+	#	token = header['Authorization']
+	#	print(token)
+	#	global_header['Authorization'] = token
 	return True
 
 
 def pretty_print(js, command):
 	global global_next_chat_id
-	print('=' * 30)
+	print('=' * 60)
 	if command == 'list room':
-		for t in js['data']:
+		for t in js:
 			opposite_user_id = t['first']
 			chat_id = t['second']
 			chat = get_chat_by_id(chat_id)
 			print(f"[1:1 채팅방] {opposite_user_id} 와(과)의 대화 / {chat['senderUserId']} : {chat['content']} (보낸 시간 : {chat['created_at']}, 읽은 시간 : {chat['read_at']})")
 	elif command in ['enter room', 'list chat by room', 'list all received chat']:
-		for chat in js['data']['list']:
+		for chat in js['list']:
 			print(f"[id={chat['id']}] {chat['senderUserId']} : {chat['content']} (보낸 시간 : {chat['created_at']}, 읽은 시간 : {chat['read_at']})")
-		global_next_chat_id = js['data']['nextId']
+		global_next_chat_id = js['nextId']
 	elif command == 'list member':
-		for member in js['data']:
+		for member in js:
 			print(f"id={member['id']}, name={member['name']}, status message={member['statusMessage']}")
+	elif command in ['login', 'update member info']:
+		member = js
+		print(f"id={member['id']}, name={member['name']}, status message={member['statusMessage']}")
 	return
 
 
@@ -173,7 +181,7 @@ if __name__ == "__main__":
 		if status is None:
 			candidate = ['signup', 'login', 'quit']
 		elif status == 'room list':
-			candidate = ['list room', 'enter room', 'new room', 'logout']
+			candidate = ['list room', 'enter room', 'new room', 'list member', 'update member', 'logout']
 		elif status == 'in room':
 			candidate = ['list chat', 'list more chat', 'send chat', 'delete chat', 'exit room']
 		
@@ -199,6 +207,7 @@ if __name__ == "__main__":
 		else:
 			ret = True
 		
+		#print(command, ret)
 		if not ret:
 			continue
 		
