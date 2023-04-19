@@ -2,14 +2,20 @@ package com.messenger.service;
 
 import com.messenger.domain.Member;
 import com.messenger.domain.TokenInfo;
+import com.messenger.dto.member.MemberRequestLogin;
+import com.messenger.dto.member.MemberRequestSignup;
+import com.messenger.dto.member.MemberRequestUpdateInfo;
+import com.messenger.dto.member.MemberResponseLogin;
 import com.messenger.exception.ErrorCode;
 import com.messenger.exception.MyException;
 import com.messenger.jwt.JwtSecurityConfig;
 import com.messenger.jwt.TokenProvider;
 import com.messenger.repository.MemberRepository;
 import com.messenger.util.Pair;
+import com.messenger.util.SpringSecurityUtil;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,6 +29,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.Cookie;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,15 +41,18 @@ public class MemberService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final TokenProvider tokenProvider;
+    private final Environment env;
 
-    public MemberService(MemberRepository memberRepository, PasswordEncoder passwordEncoder, AuthenticationManagerBuilder authenticationManagerBuilder, TokenProvider tokenProvider) {
+    public MemberService(MemberRepository memberRepository, PasswordEncoder passwordEncoder, AuthenticationManagerBuilder authenticationManagerBuilder, TokenProvider tokenProvider, Environment env) {
         this.memberRepository = memberRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.tokenProvider = tokenProvider;
+        this.env = env;
     }
 
-    public Member signup(Member member) {
+    public Member signup(MemberRequestSignup request) {
+        Member member = request.toMember();
         member.updatePassword(passwordEncoder.encode(member.getPassword()));
         return memberRepository.save(member);
     }
@@ -55,7 +65,7 @@ public class MemberService implements UserDetailsService {
         return members;
     }
 
-    public Member findById(String id) {
+    public Member findById(@NonNull String id) {
         Optional<Member> member = memberRepository.findById(id);
         if (member.isEmpty()) {
             throw new MyException(ErrorCode.NOT_FOUND_MEMBER);
@@ -63,7 +73,7 @@ public class MemberService implements UserDetailsService {
         return member.get();
     }
 
-    public List<Member> findByName(String name) {
+    public List<Member> findByName(@NonNull String name) {
         List<Member> members = memberRepository.findByName(name);
         if (members.isEmpty()) {
             throw new MyException(ErrorCode.NOT_FOUND_MEMBER);
@@ -71,33 +81,33 @@ public class MemberService implements UserDetailsService {
         return members;
     }
 
-    public Member updateInfo(Member paramMember) {
-        Member findMember = findById(paramMember.getId());
+    public Member updateInfo(MemberRequestUpdateInfo request) {
 
-        if (paramMember.getPassword() != null) {
-            findMember.updatePassword(paramMember.getPassword());
-        }
-        if (paramMember.getName() != null) {
-            findMember.updateName(paramMember.getName());
-        }
-        if (paramMember.getStatusMessage() != null) {
-            findMember.updateStatusMessage(paramMember.getStatusMessage());
+        log.debug("request = {}", request);
+
+        String userId = SpringSecurityUtil.getAuthenticationName();
+        if (userId == null) {
+            throw new MyException(ErrorCode.UNAUTHORIZED);
         }
 
-        Member ret;
-        try {
-            ret = memberRepository.updateMember(findMember);
-        } catch (MyException e) {
-            if(!e.errorCode.equals(ErrorCode.NOT_MODIFIED)) {
-                throw new MyException(ErrorCode.FAIL_UPDATE_MEMBER);
-            }
-            throw e;
+        Member findMember = findById(userId);
+        if (request.getPassword() != null) {
+            findMember.updatePassword(request.getPassword());
+        }
+        if (request.getName() != null) {
+            findMember.updateName(request.getName());
+        }
+        if (request.getStatusMessage() != null) {
+            findMember.updateStatusMessage(request.getStatusMessage());
         }
 
-        return ret;
+        return memberRepository.updateMember(findMember);
     }
 
-    public Pair<Member, HttpHeaders> login(String id, String password) {
+    public Pair<MemberResponseLogin, Cookie> login(MemberRequestLogin request) {
+
+        String id = request.getId();
+        String password = request.getPassword();
 
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(id, password);
         log.debug("authenticationToken = {}", authenticationToken);
@@ -126,10 +136,23 @@ public class MemberService implements UserDetailsService {
         }
 
         Member findMember = memberRepository.findById(id).orElseThrow(() -> new MyException(ErrorCode.NOT_FOUND_MEMBER));
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add(JwtSecurityConfig.AUTHORIZATION_HEADER, JwtSecurityConfig.TOKEN_PREFIX + tokenInfo.getAccessToken());
+        MemberResponseLogin memberResponse = MemberResponseLogin.of(findMember);
+        memberResponse.setToken(tokenInfo.getAccessToken());
 
-        return new Pair<>(findMember, httpHeaders);
+        Cookie cookie = new Cookie(JwtSecurityConfig.AUTHORIZATION_COOKIE, tokenInfo.getAccessToken());
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(env.getProperty("jwt.token-validity-in-seconds", Integer.class));
+
+        return new Pair<>(memberResponse, cookie);
+    }
+
+    public Cookie logout() {
+        // 쿠키를 삭제
+        Cookie cookie = new Cookie(JwtSecurityConfig.AUTHORIZATION_COOKIE, null);
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        return cookie;
     }
 
     @Override

@@ -48,8 +48,12 @@ public class SpringSecurityConfig {
                                 .antMatchers("/").permitAll()
                                 // 로그인, 회원가입
                                 .antMatchers(HttpMethod.POST, "/api/v1/members/login", "/api/v1/members").permitAll()
-                                // 모든 유저 조회
-                                .antMatchers(HttpMethod.GET, "/api/v1/members").hasRole("ADMIN")
+                                // swagger-ui
+                                .antMatchers(
+                                        "/swagger-ui.html", "/swagger-ui/**",
+                                        "/v3/api-docs/**", "/swagger-resources/**"
+                                ).permitAll()
+
                                 // 모든 1:1 채팅 메시지 조회
                                 .antMatchers(HttpMethod.GET, "/api/v1/chat").hasRole("ADMIN")
                                 .anyRequest().authenticated()
