@@ -153,8 +153,8 @@ def pretty_print(js, command):
 	print('=' * 60)
 	if command == 'list room':
 		for t in js:
-			opposite_user_id = t['first']
-			chat_id = t['second']
+			opposite_user_id = t['oppositeUserId']
+			chat_id = t['lastChatId']
 			chat = get_chat_by_id(chat_id)
 			print(f"[1:1 채팅방] {opposite_user_id} 와(과)의 대화 / {chat['senderUserId']} : {chat['content']} (보낸 시간 : {chat['created_at']}, 읽은 시간 : {chat['read_at']})")
 	elif command in ['enter room', 'list chat by room', 'list all received chat']:
