@@ -204,7 +204,7 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
 
     @Override
     public List<Pair<String, Long>> listGroupByUser(String userId) {
-        log.debug("====================");
+        // TODO: 성능 개선 필요
         String sqlSelect =
                 "SELECT sender_user_id, max(id) max_id " +
                 "FROM " +
