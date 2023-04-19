@@ -10,10 +10,10 @@ import lombok.ToString;
 @ToString
 public class ChatResponsePersonalChatRoom {
 
-    @Schema(description = "상대방 유저 id")
+    @Schema(description = "상대방 유저 id", defaultValue = "oppositeUserId")
     private final String oppositeUserId;
 
-    @Schema(description = "마지막 채팅 id")
+    @Schema(description = "마지막 채팅 id", defaultValue = "1")
     private final Long lastChatId;
 
     public ChatResponsePersonalChatRoom(String oppositeUserId, Long lastChatId) {
