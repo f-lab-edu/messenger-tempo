@@ -55,7 +55,7 @@ public class ChatController {
 
     @GetMapping("/api/v1/chat")
     @Operation(summary = "(개발자용) 전체 1:1 메시지 목록", security = {@SecurityRequirement(name = "authorization")})
-    public PaginationResponse<Chat> listAllPersonalChat(@RequestBody PaginationRequest request) {
+    public PaginationResponse<Chat> listAllPersonalChat(@ModelAttribute PaginationRequest request) {
 
         List<Chat> list = chatService.listAllPersonalChat(request);
         return PaginationResponse.of(list);
@@ -67,7 +67,7 @@ public class ChatController {
     @Deprecated(forRemoval = true)
     @GetMapping("/api/v1/chat/sent")
     @Operation(summary = "자신이 전송한 모든 1:1 메시지의 목록", security = {@SecurityRequirement(name = "authorization")})
-    public PaginationResponse<Chat> listSentPersonalChat(@RequestBody PaginationRequest request) {
+    public PaginationResponse<Chat> listSentPersonalChat(@ModelAttribute PaginationRequest request) {
 
         List<Chat> list = chatService.listPersonalChatBySender(request);
         return PaginationResponse.of(list);
@@ -75,7 +75,7 @@ public class ChatController {
 
     @GetMapping("/api/v1/chat/received")
     @Operation(summary = "자신이 수신한 모든 1:1 메시지 목록", security = {@SecurityRequirement(name = "authorization")})
-    public PaginationResponse<Chat> listReceivedPersonalChat(@RequestBody PaginationRequest request) {
+    public PaginationResponse<Chat> listReceivedPersonalChat(@ModelAttribute PaginationRequest request) {
 
         List<Chat> list = chatService.listPersonalChatByReceiver(request);
         return PaginationResponse.of(list);
@@ -101,7 +101,7 @@ public class ChatController {
     @Parameter(name = "oppositeUserId", description = "상대방 사용자 id", required = true)
     public PaginationResponse<Chat> listPersonalChatByGroup(
             @PathVariable String oppositeUserId,
-            @RequestBody PaginationRequest request) {
+            @ModelAttribute PaginationRequest request) {
 
         List<Chat> chatList = chatService.listPersonalChatByGroup(oppositeUserId, request);
         return PaginationResponse.of(chatList);
