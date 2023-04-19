@@ -68,7 +68,7 @@ public class MemberController {
     @PostMapping(value = "/api/v1/members/login")
     @Operation(summary = "회원 로그인", security = {@SecurityRequirement(name = "authorization")})
     public MemberResponseLogin login(@RequestBody MemberRequestLogin request,
-                                HttpServletResponse response) {
+                                     HttpServletResponse response) {
 
         Pair<MemberResponseLogin, Cookie> pair = memberService.login(request);
         MemberResponseLogin memberResponse = pair.getFirst();
