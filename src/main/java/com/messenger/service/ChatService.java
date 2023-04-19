@@ -1,6 +1,7 @@
 package com.messenger.service;
 
 import com.messenger.domain.Chat;
+import com.messenger.dto.chat.ChatResponsePersonalChatRoom;
 import com.messenger.dto.pagination.PaginationRequest;
 import com.messenger.dto.pagination.PaginationResponse;
 import com.messenger.dto.chat.ChatRequestSendPersonalChat;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ChatService {
@@ -129,15 +131,17 @@ public class ChatService {
     /**
      * 테스트용
      */
-    public List<Pair<String, Long>> listGroupByUser(@NonNull String userId) {
+    public List<ChatResponsePersonalChatRoom> listGroupByUser(@NonNull String userId) {
 
-        return personalChatRepository.listGroupByUser(userId);
+        List<Pair<String, Long>> list = personalChatRepository.listGroupByUser(userId);
+        return list.stream().map(ChatResponsePersonalChatRoom::of).collect(Collectors.toList());
     }
 
-    public List<Pair<String, Long>> listGroupByUser() {
+    public List<ChatResponsePersonalChatRoom> listGroupByUser() {
 
         String userId = SpringSecurityUtil.getAuthenticationName();
 
-        return personalChatRepository.listGroupByUser(userId);
+        List<Pair<String, Long>> list = personalChatRepository.listGroupByUser(userId);
+        return list.stream().map(ChatResponsePersonalChatRoom::of).collect(Collectors.toList());
     }
 }

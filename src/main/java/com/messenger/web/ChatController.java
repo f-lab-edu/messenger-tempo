@@ -2,11 +2,11 @@ package com.messenger.web;
 
 import com.messenger.domain.Chat;
 import com.messenger.dto.DefaultResponse;
+import com.messenger.dto.chat.ChatRequestSendPersonalChat;
+import com.messenger.dto.chat.ChatResponsePersonalChatRoom;
 import com.messenger.dto.pagination.PaginationRequest;
 import com.messenger.dto.pagination.PaginationResponse;
-import com.messenger.dto.chat.ChatRequestSendPersonalChat;
 import com.messenger.service.ChatService;
-import com.messenger.util.Pair;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -112,7 +112,7 @@ public class ChatController {
             description = "특정 유저가 포함되어 있는 모든 채팅방을 검색한다",
             security = {@SecurityRequirement(name = "authorization")})
     @Parameter(name = "userId", description = "사용자 id", required = true)
-    public List<Pair<String, Long>> listGroupByUser(@PathVariable String userId) {
+    public List<ChatResponsePersonalChatRoom> listGroupByUser(@PathVariable String userId) {
 
         return chatService.listGroupByUser(userId);
     }
@@ -121,7 +121,7 @@ public class ChatController {
     @Operation(summary = "1:1 채팅방 목록",
             description = "자신이 포함되어 있는 모든 채팅방을 검색한다",
             security = {@SecurityRequirement(name = "authorization")})
-    public List<Pair<String, Long>> listGroupByUser() {
+    public List<ChatResponsePersonalChatRoom> listGroupByUser() {
 
         return chatService.listGroupByUser();
     }
