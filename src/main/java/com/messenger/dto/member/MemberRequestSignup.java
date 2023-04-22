@@ -15,14 +15,14 @@ public class MemberRequestSignup {
 
     @NotBlank
     @Schema(description = "id", defaultValue = "memberId")
-    String id;
+    private String id;
 
     @NotBlank
     @Schema(description = "비밀번호", defaultValue = "password")
-    String password;
+    private String password;
 
     @Schema(description = "이름", defaultValue = "memberName")
-    String name;
+    private String name;
 
     public Member toMember() {
         return Member.builder()

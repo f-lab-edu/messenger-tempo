@@ -11,11 +11,11 @@ import lombok.*;
 public class MemberRequestUpdateInfo {
 
     @Schema(description = "비밀번호", defaultValue = "password")
-    String password;
+    private String password;
 
     @Schema(description = "이름", defaultValue = "memberName")
-    String name;
+    private String name;
     
     @Schema(description = "상태 메시지", defaultValue = "memberStatusMessage")
-    String statusMessage;
+    private String statusMessage;
 }
