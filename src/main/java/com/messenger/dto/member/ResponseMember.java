@@ -36,7 +36,7 @@ public class ResponseMember {
                 member.getStatusMessage());
     }
 
-    public static List<ResponseMember> of(@NonNull List<Member> members) {
+    public static List<ResponseMember> newList(@NonNull List<Member> members) {
         return members.stream().map(ResponseMember::of).collect(Collectors.toList());
     }
 }

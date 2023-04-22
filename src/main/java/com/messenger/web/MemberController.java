@@ -28,7 +28,7 @@ public class MemberController {
     @GetMapping("/api/v1/members")
     @Operation(summary = "전체 회원 목록", security = {@SecurityRequirement(name = "authorization")})
     public List<ResponseMember> members() {
-        return ResponseMember.of(memberService.listAll());
+        return ResponseMember.newList(memberService.listAll());
     }
 
     @PostMapping(value = "/api/v1/members")
@@ -54,7 +54,7 @@ public class MemberController {
     public List<ResponseMember> findByName(@PathVariable String memberName) {
 
         List<Member> findMemberList = memberService.findByName(memberName);
-        return ResponseMember.of(findMemberList);
+        return ResponseMember.newList(findMemberList);
     }
 
     @PutMapping(value = "/api/v1/members")
