@@ -1,6 +1,7 @@
 package com.messenger.repository;
 
 import com.messenger.domain.Chat;
+import com.messenger.util.Pair;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,4 +17,5 @@ public interface PersonalChatRepository {
      List<Chat> findByGroup(String userId, String oppositeUserId, Integer prevId, Integer size);
      Optional<Chat> findLastReceivedByGroup(String userId, String oppositeUserId);
      Optional<Chat> markReadById(long chatId);
+     List<Pair<String, Long>> listGroupByUser(String userId);
 }

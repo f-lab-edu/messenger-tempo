@@ -3,6 +3,7 @@ package com.messenger.repository;
 import com.messenger.domain.Chat;
 import com.messenger.exception.ErrorCode;
 import com.messenger.exception.MyException;
+import com.messenger.util.Pair;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -13,7 +14,9 @@ import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Repository
 @Slf4j
@@ -37,13 +40,19 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
                 .build();
     }
 
+    private RowMapper<Pair<String, Long>> groupLastMessageRowMapper() {
+        return (rs, rowNum) -> new Pair<>(
+                rs.getString("sender_user_id"),
+                rs.getLong("max_id"));
+    }
+
     /**
      * 1:1 메시지를 저장소에 저장
      * @param chat 저장할 메시지 객체
      * @return 저장한 메시지 객체
      */
     @Override
-    public Chat save(Chat chat) throws DuplicateKeyException {
+    public Chat save(Chat chat) {
         String sql = "INSERT INTO personal_chat(sender_user_id, receiver_user_id, content, group_id) values(?, ?, ?, FUNC_CONCAT_ID(sender_user_id, receiver_user_id))";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -191,5 +200,19 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
             throw new NullPointerException("cannot update chat");
         }
         return findById(chatId);
+    }
+
+    @Override
+    public List<Pair<String, Long>> listGroupByUser(String userId) {
+        // TODO: 성능 개선 필요
+        String sqlSelect =
+                "SELECT sender_user_id, max(id) max_id " +
+                "FROM " +
+                "(SELECT sender_user_id, max(id) id FROM personal_chat WHERE receiver_user_id = ? GROUP BY sender_user_id " +
+                "UNION ALL " +
+                "SELECT receiver_user_id, max(id) id FROM personal_chat WHERE sender_user_id = ? GROUP BY receiver_user_id) temp_table " +
+                "GROUP BY sender_user_id " +
+                "ORDER BY max_id DESC";
+        return jdbcTemplate.query(sqlSelect, groupLastMessageRowMapper(), userId, userId);
     }
 }
