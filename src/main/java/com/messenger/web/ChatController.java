@@ -2,10 +2,10 @@ package com.messenger.web;
 
 import com.messenger.domain.Chat;
 import com.messenger.dto.DefaultResponse;
-import com.messenger.dto.chat.ChatRequestSendPersonalChat;
-import com.messenger.dto.chat.ChatResponsePersonalChatRoom;
-import com.messenger.dto.pagination.PaginationRequest;
-import com.messenger.dto.pagination.PaginationResponse;
+import com.messenger.dto.chat.RequestSendPersonalChat;
+import com.messenger.dto.chat.ResponsePersonalChatRoom;
+import com.messenger.dto.pagination.RequestPagination;
+import com.messenger.dto.pagination.ResponsePagination;
 import com.messenger.service.ChatService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -37,7 +37,7 @@ public class ChatController {
 
     @PostMapping("/api/v1/chat")
     @Operation(summary = "1:1 메시지 전송", security = {@SecurityRequirement(name = "authorization")})
-    public Chat sendPersonalChat(@RequestBody ChatRequestSendPersonalChat request) {
+    public Chat sendPersonalChat(@RequestBody RequestSendPersonalChat request) {
 
         return chatService.sendPersonalChat(request);
     }
@@ -55,10 +55,10 @@ public class ChatController {
 
     @GetMapping("/api/v1/chat")
     @Operation(summary = "(개발자용) 전체 1:1 메시지 목록", security = {@SecurityRequirement(name = "authorization")})
-    public PaginationResponse<Chat> listAllPersonalChat(@ModelAttribute PaginationRequest request) {
+    public ResponsePagination<Chat> listAllPersonalChat(@ModelAttribute RequestPagination request) {
 
         List<Chat> list = chatService.listAllPersonalChat(request);
-        return PaginationResponse.of(list);
+        return ResponsePagination.of(list);
     }
 
     /**
@@ -67,18 +67,18 @@ public class ChatController {
     @Deprecated(forRemoval = true)
     @GetMapping("/api/v1/chat/sent")
     @Operation(summary = "자신이 전송한 모든 1:1 메시지의 목록", security = {@SecurityRequirement(name = "authorization")})
-    public PaginationResponse<Chat> listSentPersonalChat(@ModelAttribute PaginationRequest request) {
+    public ResponsePagination<Chat> listSentPersonalChat(@ModelAttribute RequestPagination request) {
 
         List<Chat> list = chatService.listPersonalChatBySender(request);
-        return PaginationResponse.of(list);
+        return ResponsePagination.of(list);
     }
 
     @GetMapping("/api/v1/chat/received")
     @Operation(summary = "자신이 수신한 모든 1:1 메시지 목록", security = {@SecurityRequirement(name = "authorization")})
-    public PaginationResponse<Chat> listReceivedPersonalChat(@ModelAttribute PaginationRequest request) {
+    public ResponsePagination<Chat> listReceivedPersonalChat(@ModelAttribute RequestPagination request) {
 
         List<Chat> list = chatService.listPersonalChatByReceiver(request);
-        return PaginationResponse.of(list);
+        return ResponsePagination.of(list);
     }
 
     @GetMapping("/api/v1/chat/personal_chat/{oppositeUserId}/enter")
@@ -87,7 +87,7 @@ public class ChatController {
             security = {@SecurityRequirement(name = "authorization")})
     @Parameter(name = "oppositeUserId", description = "상대방 사용자 id", required = true)
     @Parameter(name = "size", description = "조회할 메시지 개수")
-    public PaginationResponse<Chat> enterPersonalChatGroup(
+    public ResponsePagination<Chat> enterPersonalChatGroup(
             @PathVariable String oppositeUserId,
             @RequestParam(required = false, defaultValue = "3") Integer size) {
 
@@ -99,12 +99,12 @@ public class ChatController {
             description = "자신과 상대방의 사용자 id를 기준으로 최신순으로 검색한다",
             security = {@SecurityRequirement(name = "authorization")})
     @Parameter(name = "oppositeUserId", description = "상대방 사용자 id", required = true)
-    public PaginationResponse<Chat> listPersonalChatByGroup(
+    public ResponsePagination<Chat> listPersonalChatByGroup(
             @PathVariable String oppositeUserId,
-            @ModelAttribute PaginationRequest request) {
+            @ModelAttribute RequestPagination request) {
 
         List<Chat> chatList = chatService.listPersonalChatByGroup(oppositeUserId, request);
-        return PaginationResponse.of(chatList);
+        return ResponsePagination.of(chatList);
     }
 
     @GetMapping("/api/v1/chat/room/{userId}")
@@ -112,7 +112,7 @@ public class ChatController {
             description = "특정 유저가 포함되어 있는 모든 채팅방을 검색한다",
             security = {@SecurityRequirement(name = "authorization")})
     @Parameter(name = "userId", description = "사용자 id", required = true)
-    public List<ChatResponsePersonalChatRoom> listGroupByUser(@PathVariable String userId) {
+    public List<ResponsePersonalChatRoom> listGroupByUser(@PathVariable String userId) {
 
         return chatService.listGroupByUser(userId);
     }
@@ -121,7 +121,7 @@ public class ChatController {
     @Operation(summary = "1:1 채팅방 목록",
             description = "자신이 포함되어 있는 모든 채팅방을 검색한다",
             security = {@SecurityRequirement(name = "authorization")})
-    public List<ChatResponsePersonalChatRoom> listGroupByUser() {
+    public List<ResponsePersonalChatRoom> listGroupByUser() {
 
         return chatService.listGroupByUser();
     }

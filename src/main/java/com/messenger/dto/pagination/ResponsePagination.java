@@ -11,7 +11,7 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
-public class PaginationResponse<T extends Pageable> {
+public class ResponsePagination<T extends Pageable> {
 
     @Schema(description = "이전 조회한 마지막 메시지 id")
     long nextId = -1;
@@ -25,7 +25,7 @@ public class PaginationResponse<T extends Pageable> {
     @Schema(description = "Pagination List")
     List<T> list;
 
-    private PaginationResponse(List<T> list) {
+    private ResponsePagination(List<T> list) {
         this.list = list;
         int length = list.size();
         if (length > 0) {
@@ -34,7 +34,7 @@ public class PaginationResponse<T extends Pageable> {
         this.size = length;
     }
 
-    public static <T extends Pageable> PaginationResponse<T> of(List<T> list) {
-        return new PaginationResponse<>(list);
+    public static <T extends Pageable> ResponsePagination<T> of(List<T> list) {
+        return new ResponsePagination<>(list);
     }
 }

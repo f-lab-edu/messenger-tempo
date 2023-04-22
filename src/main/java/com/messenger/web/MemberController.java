@@ -27,51 +27,51 @@ public class MemberController {
 
     @GetMapping("/api/v1/members")
     @Operation(summary = "전체 회원 목록", security = {@SecurityRequirement(name = "authorization")})
-    public List<MemberResponse> members() {
-        return MemberResponse.of(memberService.listAll());
+    public List<ResponseMember> members() {
+        return ResponseMember.of(memberService.listAll());
     }
 
     @PostMapping(value = "/api/v1/members")
     @Operation(summary = "회원 가입", security = {@SecurityRequirement(name = "authorization")})
-    public MemberResponse signup(@RequestBody MemberRequestSignup request) {
+    public ResponseMember signup(@RequestBody RequestMemberSignup request) {
 
         Member result = memberService.signup(request);
-        return MemberResponse.of(result);
+        return ResponseMember.of(result);
     }
 
     @GetMapping("/api/v1/members/{memberId}")
     @Operation(summary = "id로 회원 조회", security = {@SecurityRequirement(name = "authorization")})
     @Parameter(name = "memberId", description = "회원 id", required = true)
-    public MemberResponse findById(@PathVariable String memberId) {
+    public ResponseMember findById(@PathVariable String memberId) {
 
         Member findMember = memberService.findById(memberId);
-        return MemberResponse.of(findMember);
+        return ResponseMember.of(findMember);
     }
 
     @GetMapping("/api/v1/members/name/{memberName}")
     @Operation(summary = "이름으로 회원 조회", security = {@SecurityRequirement(name = "authorization")})
     @Parameter(name = "memberName", description = "회원 이름", required = true)
-    public List<MemberResponse> findByName(@PathVariable String memberName) {
+    public List<ResponseMember> findByName(@PathVariable String memberName) {
 
         List<Member> findMemberList = memberService.findByName(memberName);
-        return MemberResponse.of(findMemberList);
+        return ResponseMember.of(findMemberList);
     }
 
     @PutMapping(value = "/api/v1/members")
     @Operation(summary = "회원 정보 변경", security = {@SecurityRequirement(name = "authorization")})
-    public MemberResponse updateInfo(@RequestBody MemberRequestUpdateInfo request) {
+    public ResponseMember updateInfo(@RequestBody RequestMemberUpdateInfo request) {
 
         Member result = memberService.updateInfo(request);
-        return MemberResponse.of(result);
+        return ResponseMember.of(result);
     }
 
     @PostMapping(value = "/api/v1/members/login")
     @Operation(summary = "회원 로그인", security = {@SecurityRequirement(name = "authorization")})
-    public MemberResponseLogin login(@RequestBody MemberRequestLogin request,
+    public ResponseMemberLogin login(@RequestBody RequestMemberLogin request,
                                      HttpServletResponse response) {
 
-        Pair<MemberResponseLogin, Cookie> pair = memberService.login(request);
-        MemberResponseLogin memberResponse = pair.getFirst();
+        Pair<ResponseMemberLogin, Cookie> pair = memberService.login(request);
+        ResponseMemberLogin memberResponse = pair.getFirst();
 
         Cookie cookie = pair.getSecond();
         response.addCookie(cookie);

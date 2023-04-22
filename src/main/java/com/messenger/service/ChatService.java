@@ -1,10 +1,10 @@
 package com.messenger.service;
 
 import com.messenger.domain.Chat;
-import com.messenger.dto.chat.ChatResponsePersonalChatRoom;
-import com.messenger.dto.pagination.PaginationRequest;
-import com.messenger.dto.pagination.PaginationResponse;
-import com.messenger.dto.chat.ChatRequestSendPersonalChat;
+import com.messenger.dto.chat.ResponsePersonalChatRoom;
+import com.messenger.dto.pagination.RequestPagination;
+import com.messenger.dto.pagination.ResponsePagination;
+import com.messenger.dto.chat.RequestSendPersonalChat;
 import com.messenger.exception.ErrorCode;
 import com.messenger.exception.MyException;
 import com.messenger.repository.PersonalChatRepository;
@@ -30,7 +30,7 @@ public class ChatService {
         return personalChatRepository.findById(chatId);
     }
 
-    public Chat sendPersonalChat(ChatRequestSendPersonalChat request) {
+    public Chat sendPersonalChat(RequestSendPersonalChat request) {
 
         String receiverUserId = request.getReceiverUserId();
         String content = request.getContent();
@@ -62,25 +62,25 @@ public class ChatService {
         }
     }
 
-    public List<Chat> listAllPersonalChat(PaginationRequest request) {
+    public List<Chat> listAllPersonalChat(RequestPagination request) {
         return personalChatRepository.findAll(request.getNextId(), request.getSize());
     }
 
-    public List<Chat> listPersonalChatBySender(PaginationRequest request) {
+    public List<Chat> listPersonalChatBySender(RequestPagination request) {
 
         String userId = SpringSecurityUtil.getAuthenticationName();
 
         return personalChatRepository.findBySender(userId, request.getNextId(), request.getSize());
     }
 
-    public List<Chat> listPersonalChatByReceiver(PaginationRequest request) {
+    public List<Chat> listPersonalChatByReceiver(RequestPagination request) {
 
         String userId = SpringSecurityUtil.getAuthenticationName();
 
         return personalChatRepository.findByReceiver(userId, request.getNextId(), request.getSize());
     }
 
-    public List<Chat> listPersonalChatByGroup(@NonNull String oppositeUserId, PaginationRequest request) {
+    public List<Chat> listPersonalChatByGroup(@NonNull String oppositeUserId, RequestPagination request) {
 
         String userId = SpringSecurityUtil.getAuthenticationName();
 
@@ -113,13 +113,13 @@ public class ChatService {
         return personalChatRepository.markReadById(chatId);
     }
 
-    public PaginationResponse<Chat> enterPersonalChatGroup(@NonNull String oppositeUserId, Integer size) {
+    public ResponsePagination<Chat> enterPersonalChatGroup(@NonNull String oppositeUserId, Integer size) {
 
         String userId = SpringSecurityUtil.getAuthenticationName();
 
         // 해당 그룹의 메시지 목록을 가져옴
         List<Chat> chatList = listPersonalChatByGroup(oppositeUserId, size);
-        PaginationResponse<Chat> result = PaginationResponse.of(chatList);
+        ResponsePagination<Chat> result = ResponsePagination.of(chatList);
 
         // 가장 최근 수신한 메시지를 읽음 표시
         Optional<Chat> markedChat = markPersonalChatAsReadByGroup(userId, oppositeUserId);
@@ -131,17 +131,17 @@ public class ChatService {
     /**
      * 테스트용
      */
-    public List<ChatResponsePersonalChatRoom> listGroupByUser(@NonNull String userId) {
+    public List<ResponsePersonalChatRoom> listGroupByUser(@NonNull String userId) {
 
         List<Pair<String, Long>> list = personalChatRepository.listGroupByUser(userId);
-        return list.stream().map(ChatResponsePersonalChatRoom::of).collect(Collectors.toList());
+        return list.stream().map(ResponsePersonalChatRoom::of).collect(Collectors.toList());
     }
 
-    public List<ChatResponsePersonalChatRoom> listGroupByUser() {
+    public List<ResponsePersonalChatRoom> listGroupByUser() {
 
         String userId = SpringSecurityUtil.getAuthenticationName();
 
         List<Pair<String, Long>> list = personalChatRepository.listGroupByUser(userId);
-        return list.stream().map(ChatResponsePersonalChatRoom::of).collect(Collectors.toList());
+        return list.stream().map(ResponsePersonalChatRoom::of).collect(Collectors.toList());
     }
 }

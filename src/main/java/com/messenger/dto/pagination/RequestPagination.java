@@ -8,7 +8,7 @@ import lombok.*;
 @Setter
 @ToString
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class PaginationRequest {
+public class RequestPagination {
 
     @Schema(description = "이전 조회한 마지막 메시지 id")
     Integer nextId;
