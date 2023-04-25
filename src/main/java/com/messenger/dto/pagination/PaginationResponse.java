@@ -1,6 +1,5 @@
 package com.messenger.dto.pagination;
 
-import com.messenger.domain.Chat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,7 +16,7 @@ public class PaginationResponse<T extends Pageable> {
     long nextId = -1;
 
     @Schema(description = "마지막 수신한 메시지")
-    Chat latestReceivedChat;
+    T latestReceivedChat;
 
     @Schema(description = "Pagination List의 크기")
     int size;
