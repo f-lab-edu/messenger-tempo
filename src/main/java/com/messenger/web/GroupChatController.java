@@ -7,11 +7,17 @@ import com.messenger.dto.chat.SendGroupChatRequest;
 import com.messenger.dto.chat.GroupChatRoomResponse;
 import com.messenger.dto.pagination.PaginationRequest;
 import com.messenger.dto.pagination.PaginationResponse;
+import com.messenger.exception.ErrorCode;
+import com.messenger.exception.MyException;
 import com.messenger.service.GroupChatService;
+import com.messenger.validator.GroupChatValidator;
+import com.messenger.validator.MemberValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,9 +27,16 @@ import java.util.List;
 public class GroupChatController {
 
     private final GroupChatService groupChatService;
+    private final GroupChatValidator groupChatValidator;
 
-    public GroupChatController(GroupChatService groupChatService) {
+    @InitBinder
+    public void init(WebDataBinder webDataBinder) {
+        webDataBinder.addValidators(groupChatValidator);
+    }
+
+    public GroupChatController(GroupChatService groupChatService, GroupChatValidator groupChatValidator) {
         this.groupChatService = groupChatService;
+        this.groupChatValidator = groupChatValidator;
     }
 
     @GetMapping("/api/v1/groupchat/{chatId}")
@@ -38,7 +51,14 @@ public class GroupChatController {
 
     @PostMapping("/api/v1/groupchat")
     @Operation(summary = "그룹 메시지 전송", security = {@SecurityRequirement(name = "authorization")})
-    public GroupChat sendPersonalChat(@RequestBody SendGroupChatRequest request) {
+    public GroupChat sendGroupChat(@RequestBody SendGroupChatRequest request,
+                                   BindingResult bindingResult) {
+
+        groupChatValidator.validate(request, bindingResult);
+        if (bindingResult.hasErrors()) {
+            log.error("GroupChat sendGroupChat validation error: {}", bindingResult.getFieldError());
+            throw new MyException(ErrorCode.VALIDATION_FAIL);
+        }
 
         return groupChatService.sendGroupChat(request);
     }
@@ -95,6 +115,10 @@ public class GroupChatController {
     @Parameter(name = "userId", description = "사용자 id", required = true)
     public List<GroupChatRoomResponse> listGroupByUser(@PathVariable String userId) {
 
+        if (!MemberValidator.validateId(userId)) {
+            throw new MyException(ErrorCode.VALIDATION_FAIL);
+        }
+
         return groupChatService.listGroupByUser(userId);
     }
 
@@ -110,7 +134,14 @@ public class GroupChatController {
     @PostMapping("/api/v1/groupchat/rooms")
     @Operation(summary = "그룹 채팅방 만들기",
             security = {@SecurityRequirement(name = "authorization")})
-    public List<String> makeNewGroup(@RequestBody MakeNewGroupRequest request) {
+    public List<String> makeNewGroup(@RequestBody MakeNewGroupRequest request,
+                                     BindingResult bindingResult) {
+
+        groupChatValidator.validate(request, bindingResult);
+        if (bindingResult.hasErrors()) {
+            log.error("GroupChat makeNewGroup validation error: {}", bindingResult.getFieldError());
+            throw new MyException(ErrorCode.VALIDATION_FAIL);
+        }
 
         return groupChatService.makeNewGroup(request);
     }
