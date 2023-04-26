@@ -5,7 +5,6 @@ import lombok.*;
 
 @Schema(description = "회원 정보 변경 RequestDTO")
 @Getter
-@Setter
 @ToString
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MemberUpdateInfoRequest {

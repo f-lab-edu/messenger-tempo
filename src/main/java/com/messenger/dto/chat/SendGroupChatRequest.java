@@ -7,7 +7,6 @@ import javax.validation.constraints.NotBlank;
 
 @Schema(description = "1:1 메시지 전송 RequestDTO")
 @Getter
-@Setter
 @ToString
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SendGroupChatRequest {
