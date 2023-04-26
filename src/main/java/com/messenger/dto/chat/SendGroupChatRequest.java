@@ -13,9 +13,9 @@ public class SendGroupChatRequest {
 
     @NotBlank
     @Schema(description = "채팅방 id", defaultValue = "roomId")
-    Long roomId;
+    private Long roomId;
 
     @NotBlank
     @Schema(description = "메시지 내용", defaultValue = "messageContent")
-    String content;
+    private String content;
 }
