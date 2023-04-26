@@ -8,7 +8,7 @@ import lombok.*;
 @Setter
 @ToString
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class RequestMemberUpdateInfo {
+public class MemberUpdateInfoRequest {
 
     @Schema(description = "비밀번호", defaultValue = "password")
     private String password;

@@ -11,7 +11,7 @@ import javax.validation.constraints.NotBlank;
 @Setter
 @ToString
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class RequestMemberSignup {
+public class MemberSignupRequest {
 
     @NotBlank
     @Schema(description = "id", defaultValue = "memberId")

@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 @Schema(description = "회원 ResponseDTO")
 @Getter
 @ToString
-public class ResponseMember {
+public class MemberResponse {
 
     @Schema(description = "id", defaultValue = "memberId")
     private final String id;
@@ -23,20 +23,20 @@ public class ResponseMember {
     @Schema(description = "상태 메시지", defaultValue = "memberStatusMessage")
     private final String statusMessage;
 
-    private ResponseMember(String id, String name, String statusMessage) {
+    private MemberResponse(String id, String name, String statusMessage) {
         this.id = id;
         this.name = name;
         this.statusMessage = statusMessage;
     }
 
-    public static ResponseMember of(@NonNull Member member) {
-        return new ResponseMember(
+    public static MemberResponse of(@NonNull Member member) {
+        return new MemberResponse(
                 member.getId(),
                 member.getName(),
                 member.getStatusMessage());
     }
 
-    public static List<ResponseMember> newList(@NonNull List<Member> members) {
-        return members.stream().map(ResponseMember::of).collect(Collectors.toList());
+    public static List<MemberResponse> newList(@NonNull List<Member> members) {
+        return members.stream().map(MemberResponse::of).collect(Collectors.toList());
     }
 }

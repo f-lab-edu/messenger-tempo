@@ -11,7 +11,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class ResponseMemberLogin {
+public class MemberLoginResponse {
 
     @Schema(description = "id", defaultValue = "memberId")
     private final String id;
@@ -25,14 +25,14 @@ public class ResponseMemberLogin {
     @Schema(description = "jwt 토큰", defaultValue = "token")
     private String token;
 
-    private ResponseMemberLogin(String id, String name, String statusMessage) {
+    private MemberLoginResponse(String id, String name, String statusMessage) {
         this.id = id;
         this.name = name;
         this.statusMessage = statusMessage;
     }
 
-    public static ResponseMemberLogin of(@NonNull Member member) {
-        return new ResponseMemberLogin(
+    public static MemberLoginResponse of(@NonNull Member member) {
+        return new MemberLoginResponse(
                 member.getId(),
                 member.getName(),
                 member.getStatusMessage());
