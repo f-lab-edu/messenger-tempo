@@ -1,10 +1,10 @@
 package com.messenger.service;
 
 import com.messenger.domain.Chat;
-import com.messenger.dto.chat.ChatResponsePersonalChatRoom;
+import com.messenger.dto.chat.PersonalChatRoomResponse;
 import com.messenger.dto.pagination.PaginationRequest;
 import com.messenger.dto.pagination.PaginationResponse;
-import com.messenger.dto.chat.ChatRequestSendPersonalChat;
+import com.messenger.dto.chat.SendPersonalChatRequest;
 import com.messenger.exception.ErrorCode;
 import com.messenger.exception.MyException;
 import com.messenger.repository.PersonalChatRepository;
@@ -30,7 +30,7 @@ public class ChatService {
         return personalChatRepository.findById(chatId);
     }
 
-    public Chat sendPersonalChat(ChatRequestSendPersonalChat request) {
+    public Chat sendPersonalChat(SendPersonalChatRequest request) {
 
         String receiverUserId = request.getReceiverUserId();
         String content = request.getContent();
@@ -131,17 +131,17 @@ public class ChatService {
     /**
      * 테스트용
      */
-    public List<ChatResponsePersonalChatRoom> listGroupByUser(@NonNull String userId) {
+    public List<PersonalChatRoomResponse> listGroupByUser(@NonNull String userId) {
 
         List<Pair<String, Long>> list = personalChatRepository.listGroupByUser(userId);
-        return list.stream().map(ChatResponsePersonalChatRoom::of).collect(Collectors.toList());
+        return list.stream().map(PersonalChatRoomResponse::of).collect(Collectors.toList());
     }
 
-    public List<ChatResponsePersonalChatRoom> listGroupByUser() {
+    public List<PersonalChatRoomResponse> listGroupByUser() {
 
         String userId = SpringSecurityUtil.getAuthenticationName();
 
         List<Pair<String, Long>> list = personalChatRepository.listGroupByUser(userId);
-        return list.stream().map(ChatResponsePersonalChatRoom::of).collect(Collectors.toList());
+        return list.stream().map(PersonalChatRoomResponse::of).collect(Collectors.toList());
     }
 }

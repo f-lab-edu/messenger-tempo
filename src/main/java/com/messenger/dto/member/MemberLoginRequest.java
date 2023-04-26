@@ -10,13 +10,13 @@ import javax.validation.constraints.NotBlank;
 @Setter
 @ToString
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class MemberRequestLogin {
+public class MemberLoginRequest {
 
     @NotBlank
     @Schema(description = "id", defaultValue = "memberId")
-    String id;
+    private String id;
 
     @NotBlank
     @Schema(description = "비밀번호", defaultValue = "password")
-    String password;
+    private String password;
 }
