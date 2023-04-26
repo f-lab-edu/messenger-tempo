@@ -10,7 +10,7 @@ import javax.validation.constraints.NotBlank;
 @Setter
 @ToString
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class ChatRequestSendGroupChat {
+public class SendGroupChatRequest {
 
     @NotBlank
     @Schema(description = "채팅방 id", defaultValue = "roomId")

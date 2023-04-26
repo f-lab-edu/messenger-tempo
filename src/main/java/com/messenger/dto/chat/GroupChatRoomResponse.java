@@ -8,7 +8,7 @@ import lombok.ToString;
 @Schema(description = "그룹 채팅방 ResponseDTO")
 @Getter
 @ToString
-public class ChatResponseGroupChatRoom {
+public class GroupChatRoomResponse {
 
     @Schema(description = "그룹 채팅방 id", defaultValue = "0")
     private final Long roomId;
@@ -16,12 +16,12 @@ public class ChatResponseGroupChatRoom {
     @Schema(description = "마지막 채팅 id", defaultValue = "0")
     private final Long lastChatId;
 
-    public ChatResponseGroupChatRoom(Long roomId, Long lastChatId) {
+    public GroupChatRoomResponse(Long roomId, Long lastChatId) {
         this.roomId = roomId;
         this.lastChatId = lastChatId;
     }
 
-    public static ChatResponseGroupChatRoom of(Pair<Long, Long> pair) {
-        return new ChatResponseGroupChatRoom(pair.getFirst(), pair.getSecond());
+    public static GroupChatRoomResponse of(Pair<Long, Long> pair) {
+        return new GroupChatRoomResponse(pair.getFirst(), pair.getSecond());
     }
 }

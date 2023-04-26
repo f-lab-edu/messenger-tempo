@@ -18,11 +18,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class ChatService {
+public class PersonalChatService {
 
     private final PersonalChatRepository personalChatRepository;
 
-    public ChatService(PersonalChatRepository personalChatRepository) {
+    public PersonalChatService(PersonalChatRepository personalChatRepository) {
         this.personalChatRepository = personalChatRepository;
     }
 

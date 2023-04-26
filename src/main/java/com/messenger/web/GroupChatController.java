@@ -2,9 +2,9 @@ package com.messenger.web;
 
 import com.messenger.domain.GroupChat;
 import com.messenger.dto.DefaultResponse;
-import com.messenger.dto.chat.ChatRequestMakeNewGroup;
-import com.messenger.dto.chat.ChatRequestSendGroupChat;
-import com.messenger.dto.chat.ChatResponseGroupChatRoom;
+import com.messenger.dto.chat.MakeNewGroupRequest;
+import com.messenger.dto.chat.SendGroupChatRequest;
+import com.messenger.dto.chat.GroupChatRoomResponse;
 import com.messenger.dto.pagination.PaginationRequest;
 import com.messenger.dto.pagination.PaginationResponse;
 import com.messenger.service.GroupChatService;
@@ -38,7 +38,7 @@ public class GroupChatController {
 
     @PostMapping("/api/v1/groupchat")
     @Operation(summary = "그룹 메시지 전송", security = {@SecurityRequirement(name = "authorization")})
-    public GroupChat sendPersonalChat(@RequestBody ChatRequestSendGroupChat request) {
+    public GroupChat sendPersonalChat(@RequestBody SendGroupChatRequest request) {
 
         return groupChatService.sendGroupChat(request);
     }
@@ -93,7 +93,7 @@ public class GroupChatController {
             description = "특정 유저가 포함되어 있는 모든 채팅방을 검색한다",
             security = {@SecurityRequirement(name = "authorization")})
     @Parameter(name = "userId", description = "사용자 id", required = true)
-    public List<ChatResponseGroupChatRoom> listGroupByUser(@PathVariable String userId) {
+    public List<GroupChatRoomResponse> listGroupByUser(@PathVariable String userId) {
 
         return groupChatService.listGroupByUser(userId);
     }
@@ -102,7 +102,7 @@ public class GroupChatController {
     @Operation(summary = "그룹 채팅방 목록",
             description = "자신이 포함되어 있는 모든 채팅방을 검색한다",
             security = {@SecurityRequirement(name = "authorization")})
-    public List<ChatResponseGroupChatRoom> listGroupByUser() {
+    public List<GroupChatRoomResponse> listGroupByUser() {
 
         return groupChatService.listGroupByUser();
     }
@@ -110,7 +110,7 @@ public class GroupChatController {
     @PostMapping("/api/v1/groupchat/rooms")
     @Operation(summary = "그룹 채팅방 만들기",
             security = {@SecurityRequirement(name = "authorization")})
-    public List<String> makeNewGroup(@RequestBody ChatRequestMakeNewGroup request) {
+    public List<String> makeNewGroup(@RequestBody MakeNewGroupRequest request) {
 
         return groupChatService.makeNewGroup(request);
     }

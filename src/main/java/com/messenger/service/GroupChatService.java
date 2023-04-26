@@ -1,9 +1,9 @@
 package com.messenger.service;
 
 import com.messenger.domain.GroupChat;
-import com.messenger.dto.chat.ChatRequestMakeNewGroup;
-import com.messenger.dto.chat.ChatRequestSendGroupChat;
-import com.messenger.dto.chat.ChatResponseGroupChatRoom;
+import com.messenger.dto.chat.MakeNewGroupRequest;
+import com.messenger.dto.chat.SendGroupChatRequest;
+import com.messenger.dto.chat.GroupChatRoomResponse;
 import com.messenger.dto.pagination.PaginationRequest;
 import com.messenger.dto.pagination.PaginationResponse;
 import com.messenger.exception.ErrorCode;
@@ -36,7 +36,7 @@ public class GroupChatService {
         return groupChatRepository.findById(chatId);
     }
 
-    public GroupChat sendGroupChat(ChatRequestSendGroupChat request) {
+    public GroupChat sendGroupChat(SendGroupChatRequest request) {
 
         Long roomId = request.getRoomId();
         String content = request.getContent();
@@ -138,20 +138,20 @@ public class GroupChatService {
     /**
      * 테스트용
      */
-    public List<ChatResponseGroupChatRoom> listGroupByUser(@NonNull String userId) {
+    public List<GroupChatRoomResponse> listGroupByUser(@NonNull String userId) {
 
         List<Pair<Long, Long>> list = groupChatRepository.listGroupByUser(userId);
-        return list.stream().map(ChatResponseGroupChatRoom::of).collect(Collectors.toList());
+        return list.stream().map(GroupChatRoomResponse::of).collect(Collectors.toList());
     }
 
-    public List<ChatResponseGroupChatRoom> listGroupByUser() {
+    public List<GroupChatRoomResponse> listGroupByUser() {
 
         String userId = SpringSecurityUtil.getAuthenticationName();
 
         return listGroupByUser(userId);
     }
 
-    public List<String> makeNewGroup(ChatRequestMakeNewGroup request) {
+    public List<String> makeNewGroup(MakeNewGroupRequest request) {
 
         String userId = SpringSecurityUtil.getAuthenticationName();
 

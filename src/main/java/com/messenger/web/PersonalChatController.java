@@ -8,7 +8,7 @@ import com.messenger.dto.pagination.PaginationRequest;
 import com.messenger.dto.pagination.PaginationResponse;
 import com.messenger.exception.ErrorCode;
 import com.messenger.exception.MyException;
-import com.messenger.service.ChatService;
+import com.messenger.service.PersonalChatService;
 import com.messenger.validator.MemberValidator;
 import com.messenger.validator.PersonalChatValidator;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,9 +23,9 @@ import java.util.List;
 
 @Slf4j
 @RestController
-public class ChatController {
+public class PersonalChatController {
 
-    private final ChatService chatService;
+    private final PersonalChatService chatService;
     private final PersonalChatValidator personalChatValidator;
 
     @InitBinder
@@ -33,7 +33,7 @@ public class ChatController {
         webDataBinder.addValidators(personalChatValidator);
     }
 
-    public ChatController(ChatService chatService, PersonalChatValidator personalChatValidator) {
+    public PersonalChatController(PersonalChatService chatService, PersonalChatValidator personalChatValidator) {
         this.chatService = chatService;
         this.personalChatValidator = personalChatValidator;
     }

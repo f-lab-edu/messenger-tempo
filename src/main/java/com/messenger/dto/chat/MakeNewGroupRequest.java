@@ -10,7 +10,7 @@ import java.util.List;
 @Setter
 @ToString
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class ChatRequestMakeNewGroup {
+public class MakeNewGroupRequest {
 
     @Schema(description = "", defaultValue = "")
     private List<String> memberList;
