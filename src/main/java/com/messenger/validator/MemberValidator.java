@@ -32,17 +32,24 @@ public class MemberValidator implements Validator {
             MemberSignupRequest request = (MemberSignupRequest) target;
             validateId(request.getId(), errors);
             validatePassword(request.getPassword(), errors);
-            validateName(request.getName(), errors);
+            if (request.getName() != null) {
+                validateName(request.getName(), errors);
+            }
         } else if (target instanceof MemberLoginRequest) {
             MemberLoginRequest request = (MemberLoginRequest) target;
             validateId(request.getId(), errors);
             validatePassword(request.getPassword(), errors);
         } else if (target instanceof MemberUpdateInfoRequest) {
             MemberUpdateInfoRequest request = (MemberUpdateInfoRequest) target;
-            validateId(request.getPassword(), errors);
-            validatePassword(request.getPassword(), errors);
-            validateName(request.getName(), errors);
-            validateStatusMessage(request.getStatusMessage(), errors);
+            if (request.getPassword() != null) {
+                validatePassword(request.getPassword(), errors);
+            }
+            if (request.getName() != null) {
+                validateName(request.getName(), errors);
+            }
+            if (request.getStatusMessage() != null) {
+                validateStatusMessage(request.getStatusMessage(), errors);
+            }
         }
     }
 
