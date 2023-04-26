@@ -2,10 +2,10 @@ package com.messenger.service;
 
 import com.messenger.domain.Member;
 import com.messenger.domain.TokenInfo;
-import com.messenger.dto.member.RequestMemberLogin;
-import com.messenger.dto.member.RequestMemberSignup;
-import com.messenger.dto.member.RequestMemberUpdateInfo;
-import com.messenger.dto.member.ResponseMemberLogin;
+import com.messenger.dto.member.MemberLoginRequest;
+import com.messenger.dto.member.MemberSignupRequest;
+import com.messenger.dto.member.MemberUpdateInfoRequest;
+import com.messenger.dto.member.MemberLoginResponse;
 import com.messenger.exception.ErrorCode;
 import com.messenger.exception.MyException;
 import com.messenger.jwt.JwtSecurityConfig;
@@ -51,7 +51,7 @@ public class MemberService implements UserDetailsService {
         this.env = env;
     }
 
-    public Member signup(RequestMemberSignup request) {
+    public Member signup(MemberSignupRequest request) {
         Member member = request.toMember();
         member.updatePassword(passwordEncoder.encode(member.getPassword()));
         return memberRepository.save(member);
@@ -81,7 +81,7 @@ public class MemberService implements UserDetailsService {
         return members;
     }
 
-    public Member updateInfo(RequestMemberUpdateInfo request) {
+    public Member updateInfo(MemberUpdateInfoRequest request) {
 
         log.debug("request = {}", request);
 
@@ -104,7 +104,7 @@ public class MemberService implements UserDetailsService {
         return memberRepository.updateMember(findMember);
     }
 
-    public Pair<ResponseMemberLogin, Cookie> login(RequestMemberLogin request) {
+    public Pair<MemberLoginResponse, Cookie> login(MemberLoginRequest request) {
 
         String id = request.getId();
         String password = request.getPassword();
@@ -136,7 +136,7 @@ public class MemberService implements UserDetailsService {
         }
 
         Member findMember = memberRepository.findById(id).orElseThrow(() -> new MyException(ErrorCode.NOT_FOUND_MEMBER));
-        ResponseMemberLogin memberResponse = ResponseMemberLogin.of(findMember);
+        MemberLoginResponse memberResponse = MemberLoginResponse.of(findMember);
         memberResponse.setToken(tokenInfo.getAccessToken());
 
         Cookie cookie = new Cookie(JwtSecurityConfig.AUTHORIZATION_COOKIE, tokenInfo.getAccessToken());

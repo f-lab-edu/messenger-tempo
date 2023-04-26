@@ -1,10 +1,10 @@
 package com.messenger.service;
 
 import com.messenger.domain.Chat;
-import com.messenger.dto.chat.ResponsePersonalChatRoom;
-import com.messenger.dto.pagination.RequestPagination;
-import com.messenger.dto.pagination.ResponsePagination;
-import com.messenger.dto.chat.RequestSendPersonalChat;
+import com.messenger.dto.chat.PersonalChatRoomResponse;
+import com.messenger.dto.pagination.PaginationRequest;
+import com.messenger.dto.pagination.PaginationResponse;
+import com.messenger.dto.chat.SendPersonalChatRequest;
 import com.messenger.exception.ErrorCode;
 import com.messenger.exception.MyException;
 import com.messenger.repository.PersonalChatRepository;
@@ -30,7 +30,7 @@ public class ChatService {
         return personalChatRepository.findById(chatId);
     }
 
-    public Chat sendPersonalChat(RequestSendPersonalChat request) {
+    public Chat sendPersonalChat(SendPersonalChatRequest request) {
 
         String receiverUserId = request.getReceiverUserId();
         String content = request.getContent();
@@ -62,25 +62,25 @@ public class ChatService {
         }
     }
 
-    public List<Chat> listAllPersonalChat(RequestPagination request) {
+    public List<Chat> listAllPersonalChat(PaginationRequest request) {
         return personalChatRepository.findAll(request.getNextId(), request.getSize());
     }
 
-    public List<Chat> listPersonalChatBySender(RequestPagination request) {
+    public List<Chat> listPersonalChatBySender(PaginationRequest request) {
 
         String userId = SpringSecurityUtil.getAuthenticationName();
 
         return personalChatRepository.findBySender(userId, request.getNextId(), request.getSize());
     }
 
-    public List<Chat> listPersonalChatByReceiver(RequestPagination request) {
+    public List<Chat> listPersonalChatByReceiver(PaginationRequest request) {
 
         String userId = SpringSecurityUtil.getAuthenticationName();
 
         return personalChatRepository.findByReceiver(userId, request.getNextId(), request.getSize());
     }
 
-    public List<Chat> listPersonalChatByGroup(@NonNull String oppositeUserId, RequestPagination request) {
+    public List<Chat> listPersonalChatByGroup(@NonNull String oppositeUserId, PaginationRequest request) {
 
         String userId = SpringSecurityUtil.getAuthenticationName();
 
@@ -113,13 +113,13 @@ public class ChatService {
         return personalChatRepository.markReadById(chatId);
     }
 
-    public ResponsePagination<Chat> enterPersonalChatGroup(@NonNull String oppositeUserId, Integer size) {
+    public PaginationResponse<Chat> enterPersonalChatGroup(@NonNull String oppositeUserId, Integer size) {
 
         String userId = SpringSecurityUtil.getAuthenticationName();
 
         // 해당 그룹의 메시지 목록을 가져옴
         List<Chat> chatList = listPersonalChatByGroup(oppositeUserId, size);
-        ResponsePagination<Chat> result = ResponsePagination.of(chatList);
+        PaginationResponse<Chat> result = PaginationResponse.of(chatList);
 
         // 가장 최근 수신한 메시지를 읽음 표시
         Optional<Chat> markedChat = markPersonalChatAsReadByGroup(userId, oppositeUserId);
@@ -131,17 +131,17 @@ public class ChatService {
     /**
      * 테스트용
      */
-    public List<ResponsePersonalChatRoom> listGroupByUser(@NonNull String userId) {
+    public List<PersonalChatRoomResponse> listGroupByUser(@NonNull String userId) {
 
         List<Pair<String, Long>> list = personalChatRepository.listGroupByUser(userId);
-        return list.stream().map(ResponsePersonalChatRoom::of).collect(Collectors.toList());
+        return list.stream().map(PersonalChatRoomResponse::of).collect(Collectors.toList());
     }
 
-    public List<ResponsePersonalChatRoom> listGroupByUser() {
+    public List<PersonalChatRoomResponse> listGroupByUser() {
 
         String userId = SpringSecurityUtil.getAuthenticationName();
 
         List<Pair<String, Long>> list = personalChatRepository.listGroupByUser(userId);
-        return list.stream().map(ResponsePersonalChatRoom::of).collect(Collectors.toList());
+        return list.stream().map(PersonalChatRoomResponse::of).collect(Collectors.toList());
     }
 }
