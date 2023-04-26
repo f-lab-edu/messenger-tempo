@@ -3,7 +3,6 @@ USE mydb;
 
 
 -- ##################### 유저 #####################
-
 create table member(
     id VARCHAR(30) NOT NULL UNIQUE,
     pw VARCHAR(150) NOT NULL,
@@ -16,7 +15,6 @@ create table member(
 
 
 -- ##################### 1:1 채팅 #####################
-
 CREATE TABLE personal_chat (
     id BIGINT NOT NULL AUTO_INCREMENT,
     sender_user_id VARCHAR(30) NOT NULL,
@@ -42,7 +40,6 @@ CREATE TABLE personal_chat_backup (
 
 
 -- ##################### 그룹 채팅 #####################
-
 CREATE TABLE group_room (
     id BIGINT NOT NULL UNIQUE AUTO_INCREMENT,
     PRIMARY KEY (id)
@@ -85,3 +82,25 @@ CREATE TABLE group_chat_backup (
     deleted_at     DATETIME               DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id)
 );
+
+
+-- ##################### Index #####################
+CREATE INDEX idx_group_id ON personal_chat (group_id, id);
+CREATE INDEX idx_receiver_id ON personal_chat (receiver_user_id, id);
+CREATE INDEX idx_sender_id ON personal_chat (sender_user_id, id);
+CREATE INDEX idx_receiver_sender_id ON personal_chat (receiver_user_id, sender_user_id, id);
+
+
+-- ##################### Trigger #####################
+DELIMITER $$
+
+DROP TRIGGER IF EXISTS `BACKUP_DELETED_PERSONAL_CHAT`;
+CREATE TRIGGER `BACKUP_DELETED_PERSONAL_CHAT`
+    BEFORE DELETE ON personal_chat
+    FOR EACH ROW
+BEGIN
+    INSERT INTO personal_chat_backup(id, sender_user_id, receiver_user_id, group_id, content, read_at, created_at)
+        VALUE (OLD.id, OLD.sender_user_id, OLD.receiver_user_id, OLD.group_id, OLD.content, OLD.read_at, OLD.created_at);
+END $$
+
+DELIMITER ;
