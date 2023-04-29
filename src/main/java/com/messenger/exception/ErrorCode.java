@@ -3,6 +3,7 @@ package com.messenger.exception;
 import org.springframework.http.HttpStatus;
 
 public enum ErrorCode {
+    VALIDATION_FAIL("요청 파타미터가 올바르지 않음", HttpStatus.BAD_REQUEST),
     NOT_FOUND_MEMBER("사용자를 찾을 수 없음", HttpStatus.NOT_FOUND),
     NOT_MATCH_PASSWORD("비밀번호가 일치하지 않음", HttpStatus.UNAUTHORIZED),
     NOT_MODIFIED("변경사항 없음", HttpStatus.NOT_MODIFIED),

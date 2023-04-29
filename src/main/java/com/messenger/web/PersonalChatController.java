@@ -2,27 +2,40 @@ package com.messenger.web;
 
 import com.messenger.domain.Chat;
 import com.messenger.dto.DefaultResponse;
-import com.messenger.dto.chat.ChatRequestSendPersonalChat;
-import com.messenger.dto.chat.ChatResponsePersonalChatRoom;
+import com.messenger.dto.chat.SendPersonalChatRequest;
+import com.messenger.dto.chat.PersonalChatRoomResponse;
 import com.messenger.dto.pagination.PaginationRequest;
 import com.messenger.dto.pagination.PaginationResponse;
-import com.messenger.service.ChatService;
+import com.messenger.exception.ErrorCode;
+import com.messenger.exception.MyException;
+import com.messenger.service.PersonalChatService;
+import com.messenger.validator.MemberValidator;
+import com.messenger.validator.PersonalChatValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @Slf4j
 @RestController
-public class ChatController {
+public class PersonalChatController {
 
-    private final ChatService chatService;
+    private final PersonalChatService chatService;
+    private final PersonalChatValidator personalChatValidator;
 
-    public ChatController(ChatService chatService) {
+    @InitBinder
+    public void init(WebDataBinder webDataBinder) {
+        webDataBinder.addValidators(personalChatValidator);
+    }
+
+    public PersonalChatController(PersonalChatService chatService, PersonalChatValidator personalChatValidator) {
         this.chatService = chatService;
+        this.personalChatValidator = personalChatValidator;
     }
 
     @GetMapping("/api/v1/chat/{chatId}")
@@ -37,7 +50,14 @@ public class ChatController {
 
     @PostMapping("/api/v1/chat")
     @Operation(summary = "1:1 메시지 전송", security = {@SecurityRequirement(name = "authorization")})
-    public Chat sendPersonalChat(@RequestBody ChatRequestSendPersonalChat request) {
+    public Chat sendPersonalChat(@RequestBody SendPersonalChatRequest request,
+                                 BindingResult bindingResult) {
+
+        personalChatValidator.validate(request, bindingResult);
+        if (bindingResult.hasErrors()) {
+            log.error("PersonalChat sendPersonalChat validation error: {}", bindingResult.getFieldError());
+            throw new MyException(ErrorCode.VALIDATION_FAIL);
+        }
 
         return chatService.sendPersonalChat(request);
     }
@@ -91,6 +111,11 @@ public class ChatController {
             @PathVariable String oppositeUserId,
             @RequestParam(required = false, defaultValue = "3") Integer size) {
 
+        if (!MemberValidator.validateId(oppositeUserId)) {
+            log.error("PersonalChat enterPersonalChatGroup validation error: id = {}", oppositeUserId);
+            throw new MyException(ErrorCode.VALIDATION_FAIL);
+        }
+
         return chatService.enterPersonalChatGroup(oppositeUserId, size);
     }
 
@@ -103,6 +128,11 @@ public class ChatController {
             @PathVariable String oppositeUserId,
             @ModelAttribute PaginationRequest request) {
 
+        if (!MemberValidator.validateId(oppositeUserId)) {
+            log.error("PersonalChat listPersonalChatByGroup validation error: id = {}", oppositeUserId);
+            throw new MyException(ErrorCode.VALIDATION_FAIL);
+        }
+
         List<Chat> chatList = chatService.listPersonalChatByGroup(oppositeUserId, request);
         return PaginationResponse.of(chatList);
     }
@@ -112,7 +142,12 @@ public class ChatController {
             description = "특정 유저가 포함되어 있는 모든 채팅방을 검색한다",
             security = {@SecurityRequirement(name = "authorization")})
     @Parameter(name = "userId", description = "사용자 id", required = true)
-    public List<ChatResponsePersonalChatRoom> listGroupByUser(@PathVariable String userId) {
+    public List<PersonalChatRoomResponse> listGroupByUser(@PathVariable String userId, BindingResult bindingResult) {
+
+        if (!MemberValidator.validateId(userId)) {
+            log.error("PersonalChat listGroupByUser validation error: id = {}", userId);
+            throw new MyException(ErrorCode.VALIDATION_FAIL);
+        }
 
         return chatService.listGroupByUser(userId);
     }
@@ -121,7 +156,7 @@ public class ChatController {
     @Operation(summary = "1:1 채팅방 목록",
             description = "자신이 포함되어 있는 모든 채팅방을 검색한다",
             security = {@SecurityRequirement(name = "authorization")})
-    public List<ChatResponsePersonalChatRoom> listGroupByUser() {
+    public List<PersonalChatRoomResponse> listGroupByUser() {
 
         return chatService.listGroupByUser();
     }
