@@ -14,14 +14,14 @@ public class GroupChat implements Pageable {
     String senderUserId;
     Long roomId;
     String content;
-    Timestamp created_at;
+    Timestamp createdAt;
 
     @Builder
-    private GroupChat(long id, String senderUserId, Long roomId, String content, Timestamp created_at) {
+    private GroupChat(long id, String senderUserId, Long roomId, String content, Timestamp createdAt) {
         this.id = id;
         this.senderUserId = senderUserId;
         this.roomId = roomId;
         this.content = content;
-        this.created_at = created_at;
+        this.createdAt = createdAt;
     }
 }

@@ -11,9 +11,8 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SendGroupChatRequest {
 
-    @NotBlank
-    @Schema(description = "채팅방 id", defaultValue = "roomId")
-    private Long roomId;
+    @Schema(description = "채팅방 id", defaultValue = "roomId", requiredMode = Schema.RequiredMode.REQUIRED)
+    private long roomId;
 
     @NotBlank
     @Schema(description = "메시지 내용", defaultValue = "messageContent")

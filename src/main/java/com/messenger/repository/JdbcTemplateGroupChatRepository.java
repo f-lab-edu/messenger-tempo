@@ -27,32 +27,6 @@ public class JdbcTemplateGroupChatRepository implements GroupChatRepository {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    private RowMapper<GroupChat> chatRowMapper() {
-        return (rs, rowNum) -> GroupChat.builder()
-                .id(rs.getLong("id"))
-                .senderUserId(rs.getString("sender_user_id"))
-                .roomId(rs.getLong("room_id"))
-                .content(rs.getString("content"))
-                .created_at(rs.getTimestamp("created_at"))
-                .build();
-    }
-
-    private RowMapper<Pair<Long, Long>> groupLastMessageRowMapper() {
-        return (rs, rowNum) -> new Pair<>(
-                rs.getLong("room_id"),
-                rs.getLong("max_id"));
-    }
-
-    private RowMapper<Pair<String, Timestamp>> readStatusRowMapper() {
-        return (rs, rowNum) -> new Pair<>(
-                rs.getString("user_id"),
-                rs.getTimestamp("read_at"));
-    }
-
-    private RowMapper<String> groupMemberRowMapper() {
-        return (rs, rowNum) -> rs.getString("user_id");
-    }
-
     /**
      * 1:1 메시지를 저장소에 저장
      * @param chat 저장할 메시지 객체
@@ -225,5 +199,31 @@ public class JdbcTemplateGroupChatRepository implements GroupChatRepository {
             }
         }
         return resultList;
+    }
+
+    private RowMapper<GroupChat> chatRowMapper() {
+        return (rs, rowNum) -> GroupChat.builder()
+                .id(rs.getLong("id"))
+                .senderUserId(rs.getString("sender_user_id"))
+                .roomId(rs.getLong("room_id"))
+                .content(rs.getString("content"))
+                .createdAt(rs.getTimestamp("created_at"))
+                .build();
+    }
+
+    private RowMapper<Pair<Long, Long>> groupLastMessageRowMapper() {
+        return (rs, rowNum) -> new Pair<>(
+                rs.getLong("room_id"),
+                rs.getLong("max_id"));
+    }
+
+    private RowMapper<Pair<String, Timestamp>> readStatusRowMapper() {
+        return (rs, rowNum) -> new Pair<>(
+                rs.getString("user_id"),
+                rs.getTimestamp("read_at"));
+    }
+
+    private RowMapper<String> groupMemberRowMapper() {
+        return (rs, rowNum) -> rs.getString("user_id");
     }
 }

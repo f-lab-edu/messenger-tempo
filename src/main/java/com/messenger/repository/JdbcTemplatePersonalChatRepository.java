@@ -5,7 +5,6 @@ import com.messenger.exception.ErrorCode;
 import com.messenger.exception.MyException;
 import com.messenger.util.Pair;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -26,24 +25,6 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
 
     public JdbcTemplatePersonalChatRepository(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-    }
-
-    private RowMapper<Chat> chatRowMapper() {
-        return (rs, rowNum) -> Chat.builder()
-                .id(rs.getLong("id"))
-                .senderUserId(rs.getString("sender_user_id"))
-                .receiverUserId(rs.getString("receiver_user_id"))
-                .groupId(rs.getString("group_id"))
-                .content(rs.getString("content"))
-                .read_at(rs.getTimestamp("read_at"))
-                .created_at(rs.getTimestamp("created_at"))
-                .build();
-    }
-
-    private RowMapper<Pair<String, Long>> groupLastMessageRowMapper() {
-        return (rs, rowNum) -> new Pair<>(
-                rs.getString("sender_user_id"),
-                rs.getLong("max_id"));
     }
 
     /**
@@ -214,5 +195,23 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
                 "GROUP BY sender_user_id " +
                 "ORDER BY max_id DESC";
         return jdbcTemplate.query(sqlSelect, groupLastMessageRowMapper(), userId, userId);
+    }
+
+    private RowMapper<Chat> chatRowMapper() {
+        return (rs, rowNum) -> Chat.builder()
+                .id(rs.getLong("id"))
+                .senderUserId(rs.getString("sender_user_id"))
+                .receiverUserId(rs.getString("receiver_user_id"))
+                .groupId(rs.getString("group_id"))
+                .content(rs.getString("content"))
+                .readAt(rs.getTimestamp("read_at"))
+                .createdAt(rs.getTimestamp("created_at"))
+                .build();
+    }
+
+    private RowMapper<Pair<String, Long>> groupLastMessageRowMapper() {
+        return (rs, rowNum) -> new Pair<>(
+                rs.getString("sender_user_id"),
+                rs.getLong("max_id"));
     }
 }

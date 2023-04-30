@@ -12,11 +12,11 @@ import java.util.List;
 @ToString
 public class Member implements UserDetails {
 
-    String id;
-    String password;
-    String name;
-    String statusMessage;  // 상태 메시지
-    MemberRole role;  // 하나의 role만 가진다
+    private final String id;
+    private String password;
+    private String name;
+    private String statusMessage;  // 상태 메시지
+    private final MemberRole role;  // 하나의 role만 가진다
 
     @Builder
     private Member(@NonNull String id, @NonNull String password, String name, String statusMessage, MemberRole role) {

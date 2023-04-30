@@ -21,7 +21,9 @@ public class GroupChatRoomResponse {
         this.lastChatId = lastChatId;
     }
 
-    public static GroupChatRoomResponse of(Pair<Long, Long> pair) {
-        return new GroupChatRoomResponse(pair.getFirst(), pair.getSecond());
+    public static GroupChatRoomResponse of(Pair<Long, Long> pairRoomIdAndLastChatId) {
+        Long roomId = pairRoomIdAndLastChatId.getFirst();
+        Long lastChatId = pairRoomIdAndLastChatId.getSecond();
+        return new GroupChatRoomResponse(roomId, lastChatId);
     }
 }

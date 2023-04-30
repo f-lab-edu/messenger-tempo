@@ -7,6 +7,7 @@ import lombok.ToString;
 @Getter
 @ToString
 public class TokenInfo {
+
     private final String grantType;
     private final String accessToken;
 

@@ -24,16 +24,6 @@ public class JdbcTemplateMemberRepository implements MemberRepository {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    private RowMapper<Member> memberRowMapper() {
-        return (rs, rowNum) -> Member.builder()
-                .id(rs.getString("id"))
-                .password(rs.getString("pw"))
-                .name(rs.getString("display_name"))
-                .statusMessage(rs.getString("status_message"))
-                .role(MemberRole.valueOf(rs.getString("role")))
-                .build();
-    }
-
     public Member save(Member member) {
         String sql = "INSERT INTO member(id, pw, display_name, status_message) values(?, ?, ?, ?)";
         log.debug("member={}", member);
@@ -92,5 +82,15 @@ public class JdbcTemplateMemberRepository implements MemberRepository {
             throw new MyException(ErrorCode.NOT_MODIFIED);
         }
         return findById(paramMember.getId()).orElseThrow(() -> new MyException(ErrorCode.NOT_FOUND_MEMBER));
+    }
+
+    private RowMapper<Member> memberRowMapper() {
+        return (rs, rowNum) -> Member.builder()
+                .id(rs.getString("id"))
+                .password(rs.getString("pw"))
+                .name(rs.getString("display_name"))
+                .statusMessage(rs.getString("status_message"))
+                .role(MemberRole.valueOf(rs.getString("role")))
+                .build();
     }
 }
