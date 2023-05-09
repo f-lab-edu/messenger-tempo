@@ -2,12 +2,14 @@ package com.messenger.validator;
 
 import com.messenger.dto.chat.MakeNewGroupRequest;
 import com.messenger.dto.chat.SendGroupChatRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 import java.util.List;
 
+@Slf4j
 @Component
 public class GroupChatValidator implements Validator {
     @Override
@@ -29,6 +31,7 @@ public class GroupChatValidator implements Validator {
             List<String> memberList = request.getMemberList();
             for (String memberId : memberList) {
                 if (!MemberValidator.validateId(memberId)) {
+                    log.error("memberId = {}", memberId);
                     errors.rejectValue("memberList", "member id pattern is not match");
                     break;
                 }

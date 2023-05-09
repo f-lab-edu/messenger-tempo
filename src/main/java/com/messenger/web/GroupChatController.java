@@ -2,9 +2,7 @@ package com.messenger.web;
 
 import com.messenger.domain.GroupChat;
 import com.messenger.dto.DefaultResponse;
-import com.messenger.dto.chat.MakeNewGroupRequest;
-import com.messenger.dto.chat.SendGroupChatRequest;
-import com.messenger.dto.chat.GroupChatRoomResponse;
+import com.messenger.dto.chat.*;
 import com.messenger.dto.pagination.PaginationRequest;
 import com.messenger.dto.pagination.PaginationResponse;
 import com.messenger.exception.ErrorCode;
@@ -29,7 +27,7 @@ public class GroupChatController {
     private final GroupChatService groupChatService;
     private final GroupChatValidator groupChatValidator;
 
-    @InitBinder
+    @InitBinder("MakeNewGroupRequest")
     public void init(WebDataBinder webDataBinder) {
         webDataBinder.addValidators(groupChatValidator);
     }
@@ -39,19 +37,9 @@ public class GroupChatController {
         this.groupChatValidator = groupChatValidator;
     }
 
-    @GetMapping("/api/v1/groupchat/{chatId}")
-    @Operation(summary = "그룹 채팅 메시지 하나를 조회",
-            description = "채팅 메시지 id 기반으로 그룹 채팅 메시지 하나를 조회",
-            security = {@SecurityRequirement(name = "authorization")})
-    @Parameter(name = "chatId", description = "채팅 메시지 id", required = true)
-    public GroupChat getPersonalChat(@PathVariable long chatId) {
-
-        return groupChatService.getGroupChat(chatId).orElse(null);
-    }
-
     @PostMapping("/api/v1/groupchat")
     @Operation(summary = "그룹 메시지 전송", security = {@SecurityRequirement(name = "authorization")})
-    public GroupChat sendGroupChat(@RequestBody SendGroupChatRequest request,
+    public GroupChatResponse sendGroupChat(@RequestBody SendGroupChatRequest request,
                                    BindingResult bindingResult) {
 
         groupChatValidator.validate(request, bindingResult);
@@ -88,7 +76,7 @@ public class GroupChatController {
             security = {@SecurityRequirement(name = "authorization")})
     @Parameter(name = "oppositeUserId", description = "상대방 사용자 id", required = true)
     @Parameter(name = "size", description = "조회할 메시지 개수")
-    public PaginationResponse<GroupChat> enterGroupChat(
+    public PaginationResponse<GroupChatResponse> enterGroupChat(
             @PathVariable Long roomId,
             @RequestParam(required = false, defaultValue = "3") Integer size) {
 
@@ -99,12 +87,12 @@ public class GroupChatController {
     @Operation(summary = "특정 그룹 채팅방의 메시지 목록",
             description = "자신과 상대방의 사용자 id를 기준으로 최신순으로 검색한다",
             security = {@SecurityRequirement(name = "authorization")})
-    @Parameter(name = "oppositeUserId", description = "상대방 사용자 id", required = true)
-    public PaginationResponse<GroupChat> listPersonalChatByGroup(
+    public PaginationResponse<GroupChatResponse> listChatByGroup(
             @PathVariable Long roomId,
             @ModelAttribute PaginationRequest request) {
 
-        List<GroupChat> chatList = groupChatService.listChatByGroup(roomId, request);
+        log.debug("request = {}", request);
+        List<GroupChatResponse> chatList = groupChatService.listChatByGroup(roomId, request);
         return PaginationResponse.of(chatList);
     }
 
@@ -134,8 +122,8 @@ public class GroupChatController {
     @PostMapping("/api/v1/groupchat/rooms")
     @Operation(summary = "그룹 채팅방 만들기",
             security = {@SecurityRequirement(name = "authorization")})
-    public List<String> makeNewGroup(@RequestBody MakeNewGroupRequest request,
-                                     BindingResult bindingResult) {
+    public MakeNewGroupResponse makeNewGroup(@RequestBody MakeNewGroupRequest request,
+                                             BindingResult bindingResult) {
 
         groupChatValidator.validate(request, bindingResult);
         if (bindingResult.hasErrors()) {

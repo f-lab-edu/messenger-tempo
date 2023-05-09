@@ -1,9 +1,7 @@
 package com.messenger.service;
 
 import com.messenger.domain.GroupChat;
-import com.messenger.dto.chat.MakeNewGroupRequest;
-import com.messenger.dto.chat.SendGroupChatRequest;
-import com.messenger.dto.chat.GroupChatRoomResponse;
+import com.messenger.dto.chat.*;
 import com.messenger.dto.pagination.PaginationRequest;
 import com.messenger.dto.pagination.PaginationResponse;
 import com.messenger.exception.ErrorCode;
@@ -32,11 +30,13 @@ public class GroupChatService {
         this.groupChatRepository = groupChatRepository;
     }
 
-    public Optional<GroupChat> getGroupChat(@NonNull long chatId) {
+    public Optional<GroupChat> getGroupChat(long chatId) {
         return groupChatRepository.findById(chatId);
     }
 
-    public GroupChat sendGroupChat(SendGroupChatRequest request) {
+    public GroupChatResponse sendGroupChat(SendGroupChatRequest request) {
+
+        log.debug("thread id = {}", Thread.currentThread().getId());
 
         Long roomId = request.getRoomId();
         String content = request.getContent();
@@ -48,16 +48,16 @@ public class GroupChatService {
                 .roomId(roomId)
                 .content(content)
                 .build();
-        GroupChat result;
+        GroupChatResponse result;
         try {
-            result = groupChatRepository.save(chat);
+            result = new GroupChatResponse(groupChatRepository.save(chat));
         } catch(Exception e) {
             throw new MyException(ErrorCode.FAIL_SAVE_CHAT);
         }
         return result;
     }
 
-    public void deletePersonalChat(@NonNull long chatId) {
+    public void deletePersonalChat(long chatId) {
 
         String userId = SpringSecurityUtil.getAuthenticationName();
 
@@ -75,7 +75,7 @@ public class GroupChatService {
         return groupChatRepository.findByReceiver(userId, request.getNextId(), request.getSize());
     }
 
-    public List<GroupChat> listChatByGroup(@NonNull Long roomId, PaginationRequest request) {
+    public List<GroupChatResponse> listChatByGroup(@NonNull Long roomId, PaginationRequest request) {
 
         String userId = SpringSecurityUtil.getAuthenticationName();
 
@@ -84,10 +84,11 @@ public class GroupChatService {
             return Collections.emptyList();
         }
 
-        return groupChatRepository.findByGroup(userId, roomId, request.getNextId(), request.getSize());
+        List<GroupChat> chatList = groupChatRepository.findByGroup(userId, roomId, request.getNextId(), request.getSize());
+        return chatList.stream().map(GroupChatResponse::new).collect(Collectors.toList());
     }
 
-    public List<GroupChat> listChatByGroup(@NonNull Long roomId, Integer size) {
+    public List<GroupChatResponse> listChatByGroup(@NonNull Long roomId, Integer size) {
 
         String userId = SpringSecurityUtil.getAuthenticationName();
 
@@ -96,7 +97,8 @@ public class GroupChatService {
             return Collections.emptyList();
         }
 
-        return groupChatRepository.findByGroup(userId, roomId, null, size);
+        List<GroupChat> chatList = groupChatRepository.findByGroup(userId, roomId, null, size);
+        return chatList.stream().map(GroupChatResponse::new).collect(Collectors.toList());
     }
 
     public Optional<GroupChat> markPersonalChatAsReadByGroup(@NonNull String userId, @NonNull Long roomId) {
@@ -120,18 +122,19 @@ public class GroupChatService {
         return groupChatRepository.markReadById(chatId, userId);
     }
 
-    public PaginationResponse<GroupChat> enterGroupChat(@NonNull Long roomId, Integer size) {
+    public PaginationResponse<GroupChatResponse> enterGroupChat(@NonNull Long roomId, Integer size) {
 
         String userId = SpringSecurityUtil.getAuthenticationName();
 
         // 해당 그룹의 메시지 목록을 가져옴
-        List<GroupChat> chatList = listChatByGroup(roomId, size);
-        PaginationResponse<GroupChat> result = PaginationResponse.of(chatList);
+        List<GroupChatResponse> chatList = listChatByGroup(roomId, size);
+        PaginationResponse<GroupChatResponse> result = PaginationResponse.of(chatList);
 
         // 가장 최근 수신한 메시지를 읽음 표시
         Optional<GroupChat> markedChat = markPersonalChatAsReadByGroup(userId, roomId);
+        Optional<GroupChatResponse> markedChatResponse = markedChat.map(GroupChatResponse.class::cast);
 
-        result.setLatestReceivedChat(markedChat.orElse(null));
+        result.setLatestReceivedChat(markedChatResponse.orElse(null));
         return result;
     }
 
@@ -140,8 +143,23 @@ public class GroupChatService {
      */
     public List<GroupChatRoomResponse> listGroupByUser(@NonNull String userId) {
 
-        List<Pair<Long, Long>> list = groupChatRepository.listGroupByUser(userId);
-        return list.stream().map(GroupChatRoomResponse::of).collect(Collectors.toList());
+        List<Pair<Long, Long>> listRoomIdAndChatId = groupChatRepository.listGroupByUser(userId);
+        return listRoomIdAndChatId
+                .stream()
+                .map(
+                        x -> GroupChatRoomResponse.of(
+                                x.getFirst(),
+                                getGroupChat(x.getSecond()).orElse(
+                                        GroupChat.builder()
+                                                .roomId(x.getFirst())
+                                                .id(-1)
+                                                .content("")
+                                                .senderUserId("")
+                                                .createdAt(new Timestamp(0))
+                                                .build()
+                                ))
+                )
+                .collect(Collectors.toList());
     }
 
     public List<GroupChatRoomResponse> listGroupByUser() {
@@ -151,7 +169,7 @@ public class GroupChatService {
         return listGroupByUser(userId);
     }
 
-    public List<String> makeNewGroup(MakeNewGroupRequest request) {
+    public MakeNewGroupResponse makeNewGroup(MakeNewGroupRequest request) {
 
         String userId = SpringSecurityUtil.getAuthenticationName();
 
@@ -160,5 +178,9 @@ public class GroupChatService {
         memberList.add(userId);
 
         return groupChatRepository.makeNewGroup(memberList);
+    }
+
+    public List<String> listMemberIdByGroup(long roomId) {
+        return groupChatRepository.listMemberIdByGroup(roomId);
     }
 }

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>그룹방 만들기</title>
+    <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/main.css" rel="stylesheet">
+    <script src="/webjars/jquery/jquery.min.js"></script>
+    <script src="/webjars/sockjs-client/sockjs.min.js"></script>
+    <script src="/webjars/stomp-websocket/stomp.min.js"></script>
+    <script src="/js/make-room.js"></script>
+</head>
+<body>
+<noscript>
+    <h2 style="color: #ff0000">Seems your browser doesn't support Javascript! Websocket relies on Javascript being enabled.
+        Please enable Javascript and reload this page!</h2>
+</noscript>
+<div id="main-content" class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>전체 멤버 목록</th>
+                </tr>
+                <input type="button" value="그룹방 만들기" onclick="makeRoom();"/>
+                </thead>
+                <tbody id="greetings">
+                <tr th:each="member : ${memberList}">
+                    <td>
+                        <label class="member-label" th:for="|option_${member.getId()}|">
+                            <input type="checkbox" class="members" th:id="|option_${member.getId()}|" th:value="|${member.getId()}|" />
+                            [[${member.getId()}]]
+                        </label>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

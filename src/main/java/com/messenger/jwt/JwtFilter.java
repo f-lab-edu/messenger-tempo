@@ -10,6 +10,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
@@ -42,11 +43,20 @@ public class JwtFilter extends GenericFilterBean {
         filterChain.doFilter(servletRequest, servletResponse);
     }
 
-    // Header에서 token을 꺼내옴
+    // Header 또는 Cookie 에서 token 을 꺼내옴
     private String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader(JwtSecurityConfig.AUTHORIZATION_HEADER);
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(JwtSecurityConfig.TOKEN_PREFIX)) {
             return bearerToken.substring(JwtSecurityConfig.TOKEN_PREFIX.length());
+        } else {
+            // Header에서 token을 꺼내오는데 실패하면 Cookie에서 꺼내옴
+            Cookie[] cookies = request.getCookies();
+            if (cookies == null) return null;
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("jwt-access-token")) {
+                    return cookie.getValue();
+                }
+            }
         }
         return null;
     }
