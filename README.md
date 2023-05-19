@@ -13,7 +13,17 @@ Spring 기반 채팅 메신저 플랫폼
 
 
 ## 사용 기술, 언어
-- JDK 11
-- Spring 5.3.25
-- Spring Boot 2.7.8
-- MySQL 8.0.32
+- Language
+    - JDK 11
+- Spring Framework
+    - Spring 5.3.27
+    - Spring Boot 2.7.11
+    - Spring Security 5.7.8
+- WebSocket
+    - SockJS
+    - STOMP
+- Database
+    - MySQL 8.0.32
+- Etc
+    - JWT
+    - Swagger
