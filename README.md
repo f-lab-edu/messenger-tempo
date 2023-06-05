@@ -1,5 +1,5 @@
 # messenger-tempo
-Spring 기반 채팅 메신저 플랫폼
+Spring 기반 채팅 메신저
 
 
 ## 구현할 기능 리스트
