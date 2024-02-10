@@ -11,7 +11,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -37,7 +39,16 @@ public class SpringSecurityConfig {
     }
 
     @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return web -> web.ignoring().antMatchers(
+                "/webjars/**", "/js/**", "/css/**",
+                "/gs-guide-websocket/**", "/favicon.ico"
+        );
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_THREADLOCAL);  // default mode
         http
                 .csrf().disable()
                 .httpBasic().disable()
@@ -45,7 +56,7 @@ public class SpringSecurityConfig {
                 .logout().disable()
                 .authorizeHttpRequests(authz ->
                         authz
-                                .antMatchers("/").permitAll()
+                                .antMatchers("/", "/login").permitAll()
                                 // 로그인, 회원가입
                                 .antMatchers(HttpMethod.POST, "/api/v1/members/login", "/api/v1/members").permitAll()
                                 // swagger-ui

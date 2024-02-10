@@ -2,10 +2,7 @@ package com.messenger.service;
 
 import com.messenger.domain.Member;
 import com.messenger.domain.TokenInfo;
-import com.messenger.dto.member.MemberLoginRequest;
-import com.messenger.dto.member.MemberSignupRequest;
-import com.messenger.dto.member.MemberUpdateInfoRequest;
-import com.messenger.dto.member.MemberLoginResponse;
+import com.messenger.dto.member.*;
 import com.messenger.exception.ErrorCode;
 import com.messenger.exception.MyException;
 import com.messenger.jwt.JwtSecurityConfig;
@@ -57,12 +54,12 @@ public class MemberService implements UserDetailsService {
         return memberRepository.save(member);
     }
 
-    public List<Member> listAll() {
+    public List<MemberResponse> listAll() {
         List<Member> members = memberRepository.findAll();
         if (members.isEmpty()) {
             throw new MyException(ErrorCode.NOT_FOUND_MEMBER);
         }
-        return members;
+        return MemberResponse.newList(members);
     }
 
     public Member findById(@NonNull String id) {

@@ -40,7 +40,7 @@ public class MemberController {
     @GetMapping("/api/v1/members")
     @Operation(summary = "전체 회원 목록", security = {@SecurityRequirement(name = "authorization")})
     public List<MemberResponse> members() {
-        return MemberResponse.newList(memberService.listAll());
+        return memberService.listAll();
     }
 
     @PostMapping(value = "/api/v1/members")

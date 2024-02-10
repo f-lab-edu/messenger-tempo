@@ -1,6 +1,7 @@
 package com.messenger.repository;
 
 import com.messenger.domain.GroupChat;
+import com.messenger.dto.chat.MakeNewGroupResponse;
 import com.messenger.exception.ErrorCode;
 import com.messenger.exception.MyException;
 import com.messenger.util.Pair;
@@ -33,7 +34,7 @@ public class JdbcTemplateGroupChatRepository implements GroupChatRepository {
                 .senderUserId(rs.getString("sender_user_id"))
                 .roomId(rs.getLong("room_id"))
                 .content(rs.getString("content"))
-                .created_at(rs.getTimestamp("created_at"))
+                .createdAt(rs.getTimestamp("created_at"))
                 .build();
     }
 
@@ -188,8 +189,11 @@ public class JdbcTemplateGroupChatRepository implements GroupChatRepository {
 
     @Override
     public List<Pair<Long, Long>> listGroupByUser(String userId) {
-        // TODO: 성능 개선 필요
-        String sqlSelect = "SELECT room_id, max(id) max_id FROM group_chat WHERE room_id IN (SELECT room_id FROM group_room_members WHERE user_id = ?) GROUP BY room_id ORDER BY max_id DESC";
+        String sqlSelect = "SELECT sub_table.room_id, IFNULL(max(id), -1) max_id " +
+                "FROM group_chat " +
+                "RIGHT JOIN (SELECT room_id FROM group_room_members WHERE user_id = ?) sub_table " +
+                "ON group_chat.room_id = sub_table.room_id " +
+                "GROUP BY sub_table.room_id ORDER BY max_id DESC";
         return jdbcTemplate.query(sqlSelect, groupLastMessageRowMapper(), userId);
     }
 
@@ -201,7 +205,7 @@ public class JdbcTemplateGroupChatRepository implements GroupChatRepository {
     }
 
     @Override
-    public List<String> makeNewGroup(List<String> memberList) {
+    public MakeNewGroupResponse makeNewGroup(List<String> memberList) {
 
         List<String> resultList = new ArrayList<>();
 
@@ -212,18 +216,24 @@ public class JdbcTemplateGroupChatRepository implements GroupChatRepository {
 
         long roomId = Objects.requireNonNull(keyHolder.getKey()).longValue();
 
-        for (String member : memberList) {
+        for (String memberId : memberList) {
             String sqlInsert = "INSERT INTO group_room_members(room_id, user_id) VALUES (?, ?)";
             int update = 0;
             try {
-                update = jdbcTemplate.update(sqlInsert, roomId, member);
+                update = jdbcTemplate.update(sqlInsert, roomId, memberId);
             } catch (Exception e) {
                 log.error("makeNewGroup add members: exception = {}", e.getMessage());
             }
             if (update > 0) {
-                resultList.add(member);
+                resultList.add(memberId);
             }
         }
-        return resultList;
+        return MakeNewGroupResponse.of(resultList, roomId);
+    }
+
+    @Override
+    public List<String> listMemberIdByGroup(long roomId) {
+        String sql = "SELECT * FROM group_room_members WHERE room_id = ?";
+        return jdbcTemplate.query(sql, groupMemberRowMapper(), roomId);
     }
 }

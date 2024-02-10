@@ -1,6 +1,7 @@
 package com.messenger.repository;
 
 import com.messenger.domain.GroupChat;
+import com.messenger.dto.chat.MakeNewGroupResponse;
 import com.messenger.util.Pair;
 
 import java.sql.Timestamp;
@@ -20,5 +21,6 @@ public interface GroupChatRepository {
      Optional<GroupChat> markReadById(long chatId, String userId);
      List<Pair<Long, Long>> listGroupByUser(String userId);
      boolean belongToRoom(long roomId, String userId);
-     List<String> makeNewGroup(List<String> memberList);
+     MakeNewGroupResponse makeNewGroup(List<String> memberList);
+     List<String> listMemberIdByGroup(long roomId);
 }

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="|채팅방 ＃${param.roomId}|">Hello WebSocket</title>
+    <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/main.css" rel="stylesheet">
+    <script src="/webjars/jquery/jquery.min.js"></script>
+    <script src="/webjars/sockjs-client/sockjs.min.js"></script>
+    <script src="/webjars/stomp-websocket/stomp.min.js"></script>
+    <script src="/js/chat-room.js"></script>
+</head>
+<body>
+<noscript>
+    <h2 style="color: #ff0000">Seems your browser doesn't support Javascript! Websocket relies on Javascript being enabled.
+        Please enable Javascript and reload this page!</h2>
+</noscript>
+<span id="roomNumber" th:text="${param.roomId}" style="display: none;"></span>
+<div id="main-content" class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <form class="form-inline">
+                <div class="form-group">
+                    <label for="connect">WebSocket connection:</label>
+                    <button id="connect" class="btn btn-default" type="submit">Connect</button>
+                    <button id="disconnect" class="btn btn-default" type="submit" disabled="disabled">Disconnect
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-6">
+            <form class="form-inline">
+                <div class="form-group">
+                    <label for="name">보낼 메시지를 입력하세요</label>
+                    <input type="text" id="name" class="form-control" placeholder="채팅창">
+                </div>
+                <button id="send" class="btn btn-default" type="submit">보내기(Enter)</button>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <table id="conversation" class="table table-striped">
+                <thead>
+                <tr>
+                    <th>채팅 목록</th>
+                </tr>
+                <button id="load_more_chat" class="btn btn-default" type="button" onclick="loadMorePastChat();">메시지 더 불러오기</button>
+                </thead>
+                <tbody id="greetings">
+                <tr th:each="chat : ${chatList}">
+                    <td th:chat-id="${chat.getId()}" th:text="|${chat.getSenderUserId()} : ${chat.getContent()} (${chat.getCreatedAt()})|">
+                        null
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

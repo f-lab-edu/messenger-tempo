@@ -26,7 +26,7 @@ public class PersonalChatService {
         this.personalChatRepository = personalChatRepository;
     }
 
-    public Optional<Chat> getPersonalChat(@NonNull long chatId) {
+    public Optional<Chat> getPersonalChat(long chatId) {
         return personalChatRepository.findById(chatId);
     }
 
@@ -51,7 +51,7 @@ public class PersonalChatService {
         return result;
     }
 
-    public void deletePersonalChat(@NonNull long chatId) {
+    public void deletePersonalChat(long chatId) {
 
         String userId = SpringSecurityUtil.getAuthenticationName();
 
@@ -104,7 +104,7 @@ public class PersonalChatService {
         }
 
         // 마지막 메시지가 이미 읽음 표시가 된 경우
-        if (foundChat.get().getRead_at() != null) {
+        if (foundChat.get().getReadAt() != null) {
             return foundChat;
         }
 

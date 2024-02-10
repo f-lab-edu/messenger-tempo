@@ -54,15 +54,15 @@ public class MemberValidator implements Validator {
     }
 
     public static boolean validateId(String id) {
-        return !Pattern.matches(ID_PATTERN, id);
+        return Pattern.matches(ID_PATTERN, id);
     }
 
     public static boolean validateName(String name) {
-        return !Pattern.matches(NAME_PATTERN, name);
+        return Pattern.matches(NAME_PATTERN, name);
     }
 
     private void validateId(String id, Errors errors) {
-        if (validateId(id)) {
+        if (!validateId(id)) {
             errors.rejectValue("id", "id pattern not match");
         }
     }
@@ -74,7 +74,7 @@ public class MemberValidator implements Validator {
     }
 
     private void validateName(String name, Errors errors) {
-        if (validateName(name)) {
+        if (!validateName(name)) {
             errors.rejectValue("name", "name pattern not match");
         }
     }

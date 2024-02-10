@@ -35,8 +35,8 @@ public class JdbcTemplatePersonalChatRepository implements PersonalChatRepositor
                 .receiverUserId(rs.getString("receiver_user_id"))
                 .groupId(rs.getString("group_id"))
                 .content(rs.getString("content"))
-                .read_at(rs.getTimestamp("read_at"))
-                .created_at(rs.getTimestamp("created_at"))
+                .readAt(rs.getTimestamp("read_at"))
+                .createdAt(rs.getTimestamp("created_at"))
                 .build();
     }
 
